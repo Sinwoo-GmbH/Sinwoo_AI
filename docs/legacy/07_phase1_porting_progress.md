@@ -8,6 +8,8 @@ Phase 1 is no longer analysis only. The next-gen bootstrap now contains an execu
 
 - tenant
 - company
+- department
+- employee
 - role
 - user
 - menu authorization
@@ -88,7 +90,23 @@ Seeded billing plans:
 - `PLAN_B2B_BASIC`
 - `PLAN_B2B_PRO`
 
-### 2.3 Master APIs
+### 2.3 Company Department Employee Hierarchy Extension
+
+Applied through:
+
+- [`V5__add_department_and_employee_hierarchy.sql`](C:\Users\JuyongLee\Sinwoo_AI\src\main\resources\db\migration\V5__add_department_and_employee_hierarchy.sql)
+
+Key additions:
+
+- `TB_DEPT`
+- `TB_EMP`
+- `TB_DEPT_HIST`
+- `TB_EMP_HIST`
+- department tree structure by `UP_DEPT_ID`
+- employee reporting structure by `MGR_EMP_ID`
+- user to employee link by `USR_ID`
+
+### 2.4 Master APIs
 
 Implemented core APIs:
 
@@ -96,6 +114,11 @@ Implemented core APIs:
 - `GET /api/v1/tenants`
 - `POST /api/v1/companies`
 - `GET /api/v1/companies`
+- `POST /api/v1/departments`
+- `GET /api/v1/departments`
+- `GET /api/v1/departments/tree`
+- `POST /api/v1/employees`
+- `GET /api/v1/employees`
 - `POST /api/v1/roles`
 - `GET /api/v1/roles`
 - `POST /api/v1/users`
@@ -106,6 +129,7 @@ New authorization and billing APIs:
 - `POST /api/v1/menus`
 - `GET /api/v1/menus`
 - `GET /api/v1/menus/visible`
+- `GET /api/v1/menus/visible-by-user`
 - `POST /api/v1/role-menu-auths`
 - `GET /api/v1/role-menu-auths`
 - `POST /api/v1/subscription-plans`
@@ -115,16 +139,18 @@ New authorization and billing APIs:
 - `POST /api/v1/payment-transactions`
 - `GET /api/v1/payment-transactions`
 
-### 2.4 Security Bridge
+### 2.5 Security Bridge
 
 For the current dev phase, the master APIs are temporarily exposed through the security configuration so the migration can proceed without waiting for the final JWT and tenant auth redesign.
 
-### 2.5 History and Audit Continuity
+### 2.6 History and Audit Continuity
 
 Per-table history remains database-driven:
 
 - `TB_TENANT_HIST`
 - `TB_CO_HIST`
+- `TB_DEPT_HIST`
+- `TB_EMP_HIST`
 - `TB_USR_HIST`
 - `TB_ROLE_HIST`
 - `TB_USR_ROLE_HIST`
@@ -134,7 +160,7 @@ Per-table history remains database-driven:
 - `TB_SUBS_HIST`
 - `TB_PAY_TXN_HIST`
 
-The V3 and V4 migrations recreate the affected triggers so the expanded fields are captured in history rows.
+The V3, V4, and V5 migrations recreate the affected triggers so the expanded fields are captured in history rows.
 
 ## 3. Verification Results
 
@@ -142,14 +168,17 @@ Verified on April 4, 2026:
 
 - Gradle test suite passed
 - Flyway V3 and V4 applied successfully on MariaDB
-- `tenant -> company -> user` creation flow executed successfully
+- Flyway V5 applied successfully in test and runtime validation
+- `tenant -> company -> department -> employee -> user` hierarchy is now modeled in schema and APIs
 - role hierarchy seed data was available
 - internal tenant automatically forced to billing free
 - paid payment request was blocked for internal tenant
-- visible menus were returned differently by role scope and role depth
+- visible menus were returned differently by role scope, role depth, and assigned user
 - history rows were created in:
   - `TB_TENANT_HIST`
   - `TB_CO_HIST`
+  - `TB_DEPT_HIST`
+  - `TB_EMP_HIST`
   - `TB_USR_HIST`
   - `TB_ROLE_HIST`
   - `TB_USR_ROLE_HIST`
@@ -177,6 +206,6 @@ This is the point where the legacy upgrade stopped being only a strategy track a
 The next execution block should continue from the common axis and move into one of these areas:
 
 1. authentication redesign bridge
-2. company-department-employee hierarchy
-3. attendance domain port
-4. finance and request bridge APIs from legacy SQL assets
+2. attendance domain port
+3. finance and request bridge APIs from legacy SQL assets
+4. payroll and HR bridge around employee master

@@ -24,6 +24,8 @@ Examples:
 
 - `TB_TENANT`
 - `TB_CO`
+- `TB_DEPT`
+- `TB_EMP`
 - `TB_USR`
 - `TB_ROLE`
 - `TB_MNU`
@@ -136,6 +138,8 @@ Examples:
 
 - `TB_TENANT` -> `TB_TENANT_HIST`
 - `TB_CO` -> `TB_CO_HIST`
+- `TB_DEPT` -> `TB_DEPT_HIST`
+- `TB_EMP` -> `TB_EMP_HIST`
 - `TB_USR` -> `TB_USR_HIST`
 - `TB_ROLE` -> `TB_ROLE_HIST`
 - `TB_USR_ROLE` -> `TB_USR_ROLE_HIST`
@@ -151,6 +155,8 @@ Examples:
 | --- | --- |
 | TENANT | TENANT |
 | COMPANY | CO |
+| DEPARTMENT | DEPT |
+| EMPLOYEE | EMP |
 | USER | USR |
 | ROLE | ROLE |
 | MENU | MNU |
@@ -210,6 +216,13 @@ Examples:
 - `tenantNm`
 - `coCd`
 - `coNm`
+- `deptCd`
+- `deptNm`
+- `deptLvlNo`
+- `empNo`
+- `empNm`
+- `teamRoleCd`
+- `mgrEmpId`
 - `lgnId`
 - `authGrpCd`
 - `authLvlCd`

@@ -2,6 +2,7 @@ package com.sinwoo.menu.service;
 
 import com.sinwoo.auth.domain.Role;
 import com.sinwoo.auth.repository.RoleRepository;
+import com.sinwoo.auth.repository.UserRoleRepository;
 import com.sinwoo.menu.domain.Menu;
 import com.sinwoo.menu.domain.RoleMenuAuth;
 import com.sinwoo.menu.dto.CreateMenuRequest;
@@ -31,6 +32,7 @@ public class MenuServiceImpl implements MenuService {
     private final MenuRepository menuRepository;
     private final RoleRepository roleRepository;
     private final RoleMenuAuthRepository roleMenuAuthRepository;
+    private final UserRoleRepository userRoleRepository;
 
     @Override
     @Transactional
@@ -84,6 +86,29 @@ public class MenuServiceImpl implements MenuService {
                 .toList();
 
         List<Role> roles = roleRepository.findByRoleCdIn(normalizedRoleCds);
+        return buildVisibleMenus(roles, mnuScopeCd);
+    }
+
+    @Override
+    public MenuTreeResponse getVisibleMenusByUsr(Long usrId, String mnuScopeCd) {
+        if (usrId == null) {
+            return new MenuTreeResponse(0, List.of());
+        }
+
+        List<Long> roleIds = userRoleRepository.findAllByUsrId(usrId).stream()
+                .map(userRole -> userRole.getRoleId())
+                .distinct()
+                .toList();
+
+        if (roleIds.isEmpty()) {
+            return new MenuTreeResponse(0, List.of());
+        }
+
+        List<Role> roles = roleRepository.findAllById(roleIds);
+        return buildVisibleMenus(roles, mnuScopeCd);
+    }
+
+    private MenuTreeResponse buildVisibleMenus(List<Role> roles, String mnuScopeCd) {
         if (roles.isEmpty()) {
             return new MenuTreeResponse(0, List.of());
         }

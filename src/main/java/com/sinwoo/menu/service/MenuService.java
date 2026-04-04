@@ -13,4 +13,6 @@ public interface MenuService {
     MenuListResponse getMenus(String mnuScopeCd);
 
     MenuTreeResponse getVisibleMenus(List<String> roleCds, String mnuScopeCd);
+
+    MenuTreeResponse getVisibleMenusByUsr(Long usrId, String mnuScopeCd);
 }

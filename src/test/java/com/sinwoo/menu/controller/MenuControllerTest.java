@@ -79,6 +79,23 @@ class MenuControllerTest {
     }
 
     @Test
+    void getVisibleMenusByUserReturnsMenuTree() throws Exception {
+        MenuTreeResponse response = new MenuTreeResponse(
+                1,
+                List.of(new MenuNodeResponse(5L, "MNU_CUSTOMER_FIN", "Finance Management", "CUSTOMER", null, "/customer/finance", "wallet", 40, List.of()))
+        );
+
+        given(menuService.getVisibleMenusByUsr(100L, "CUSTOMER")).willReturn(response);
+
+        mockMvc.perform(get("/api/v1/menus/visible-by-user")
+                        .param("usrId", "100")
+                        .param("mnuScopeCd", "CUSTOMER"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totCnt").value(1))
+                .andExpect(jsonPath("$.itemList[0].mnuCd").value("MNU_CUSTOMER_FIN"));
+    }
+
+    @Test
     void getMenusReturnsFlatList() throws Exception {
         OffsetDateTime now = OffsetDateTime.parse("2026-04-04T00:00:00Z");
         MenuListResponse response = new MenuListResponse(

@@ -10,6 +10,7 @@ This document describes the current next-generation standard schema for SINWOO.
 - [`V2__add_access_log.sql`](C:\Users\JuyongLee\Sinwoo_AI\src\main\resources\db\migration\V2__add_access_log.sql)
 - [`V3__extend_core_domain_for_nextgen.sql`](C:\Users\JuyongLee\Sinwoo_AI\src\main\resources\db\migration\V3__extend_core_domain_for_nextgen.sql)
 - [`V4__add_b2b_authorization_menu_and_billing.sql`](C:\Users\JuyongLee\Sinwoo_AI\src\main\resources\db\migration\V4__add_b2b_authorization_menu_and_billing.sql)
+- [`V5__add_department_and_employee_hierarchy.sql`](C:\Users\JuyongLee\Sinwoo_AI\src\main\resources\db\migration\V5__add_department_and_employee_hierarchy.sql)
 
 ## 3. Tables
 
@@ -18,6 +19,8 @@ This document describes the current next-generation standard schema for SINWOO.
 - `TB_USR`
 - `TB_ROLE`
 - `TB_USR_ROLE`
+- `TB_DEPT`
+- `TB_EMP`
 - `TB_MNU`
 - `TB_ROLE_MNU_AUTH`
 - `TB_SUBS_PLAN`
@@ -28,6 +31,8 @@ This document describes the current next-generation standard schema for SINWOO.
 - `TB_USR_HIST`
 - `TB_ROLE_HIST`
 - `TB_USR_ROLE_HIST`
+- `TB_DEPT_HIST`
+- `TB_EMP_HIST`
 - `TB_MNU_HIST`
 - `TB_ROLE_MNU_AUTH_HIST`
 - `TB_SUBS_PLAN_HIST`
@@ -133,7 +138,73 @@ Constraints / Indexes:
 - `PK_TB_ROLE`
 - `UK_TB_ROLE_ROLE_CD`
 
-### 4.5 TB_MNU
+### 4.5 TB_DEPT
+
+| Column | Type | Null | Description |
+| --- | --- | --- | --- |
+| ID | BIGINT | N | Department primary key |
+| TENANT_ID | BIGINT | N | Tenant primary key reference |
+| CO_ID | BIGINT | N | Company primary key reference |
+| DEPT_CD | VARCHAR(100) | N | Department code |
+| DEPT_NM | VARCHAR(255) | N | Department name |
+| UP_DEPT_ID | BIGINT | Y | Parent department primary key |
+| DEPT_LVL_NO | INT | N | Department level number |
+| STS_CD | VARCHAR(20) | N | Status code |
+| CRT_BY | VARCHAR(100) | N | Created by |
+| CRT_DTM | TIMESTAMP | N | Created datetime |
+| UPD_BY | VARCHAR(100) | N | Updated by |
+| UPD_DTM | TIMESTAMP | N | Updated datetime |
+
+Constraints / Indexes:
+
+- `PK_TB_DEPT`
+- `UK_TB_DEPT_TENANT_ID_CO_ID_DEPT_CD`
+- `FK_TB_DEPT_01`
+- `FK_TB_DEPT_02`
+- `FK_TB_DEPT_03`
+- `IX_TB_DEPT_TENANT_ID`
+- `IX_TB_DEPT_CO_ID`
+- `IX_TB_DEPT_UP_DEPT_ID`
+
+### 4.6 TB_EMP
+
+| Column | Type | Null | Description |
+| --- | --- | --- | --- |
+| ID | BIGINT | N | Employee primary key |
+| TENANT_ID | BIGINT | N | Tenant primary key reference |
+| CO_ID | BIGINT | N | Company primary key reference |
+| USR_ID | BIGINT | Y | User primary key reference |
+| DEPT_ID | BIGINT | Y | Department primary key reference |
+| MGR_EMP_ID | BIGINT | Y | Manager employee primary key reference |
+| EMP_NO | VARCHAR(100) | N | Employee number |
+| EMP_NM | VARCHAR(255) | N | Employee name |
+| TEAM_ROLE_CD | VARCHAR(20) | N | Team role code |
+| JOB_TTL_NM | VARCHAR(255) | Y | Job title name |
+| HIRE_DT | DATE | Y | Hire date |
+| RETR_DT | DATE | Y | Retire date |
+| STS_CD | VARCHAR(20) | N | Status code |
+| CRT_BY | VARCHAR(100) | N | Created by |
+| CRT_DTM | TIMESTAMP | N | Created datetime |
+| UPD_BY | VARCHAR(100) | N | Updated by |
+| UPD_DTM | TIMESTAMP | N | Updated datetime |
+
+Constraints / Indexes:
+
+- `PK_TB_EMP`
+- `UK_TB_EMP_TENANT_ID_CO_ID_EMP_NO`
+- `UK_TB_EMP_USR_ID`
+- `FK_TB_EMP_01`
+- `FK_TB_EMP_02`
+- `FK_TB_EMP_03`
+- `FK_TB_EMP_04`
+- `FK_TB_EMP_05`
+- `IX_TB_EMP_TENANT_ID`
+- `IX_TB_EMP_CO_ID`
+- `IX_TB_EMP_USR_ID`
+- `IX_TB_EMP_DEPT_ID`
+- `IX_TB_EMP_MGR_EMP_ID`
+
+### 4.7 TB_MNU
 
 | Column | Type | Null | Description |
 | --- | --- | --- | --- |
@@ -159,7 +230,7 @@ Constraints / Indexes:
 - `IX_TB_MNU_UP_MNU_ID`
 - `IX_TB_MNU_SCOPE_CD`
 
-### 4.6 TB_ROLE_MNU_AUTH
+### 4.8 TB_ROLE_MNU_AUTH
 
 | Column | Type | Null | Description |
 | --- | --- | --- | --- |
@@ -186,7 +257,7 @@ Constraints / Indexes:
 - `IX_TB_ROLE_MNU_AUTH_ROLE_ID`
 - `IX_TB_ROLE_MNU_AUTH_MNU_ID`
 
-### 4.7 TB_SUBS_PLAN
+### 4.9 TB_SUBS_PLAN
 
 | Column | Type | Null | Description |
 | --- | --- | --- | --- |
@@ -209,7 +280,7 @@ Constraints / Indexes:
 - `PK_TB_SUBS_PLAN`
 - `UK_TB_SUBS_PLAN_PLAN_CD`
 
-### 4.8 TB_SUBS
+### 4.10 TB_SUBS
 
 | Column | Type | Null | Description |
 | --- | --- | --- | --- |
@@ -235,7 +306,7 @@ Constraints / Indexes:
 - `IX_TB_SUBS_TENANT_ID`
 - `IX_TB_SUBS_PLAN_ID`
 
-### 4.9 TB_PAY_TXN
+### 4.11 TB_PAY_TXN
 
 | Column | Type | Null | Description |
 | --- | --- | --- | --- |
@@ -263,7 +334,7 @@ Constraints / Indexes:
 - `IX_TB_PAY_TXN_TENANT_ID`
 - `IX_TB_PAY_TXN_SUBS_ID`
 
-### 4.10 TB_USR_ROLE
+### 4.12 TB_USR_ROLE
 
 | Column | Type | Null | Description |
 | --- | --- | --- | --- |
@@ -284,7 +355,7 @@ Constraints / Indexes:
 - `IX_TB_USR_ROLE_USR_ID`
 - `IX_TB_USR_ROLE_ROLE_ID`
 
-### 4.11 History Table Pattern
+### 4.13 History Table Pattern
 
 Every business table has its own history table, created and maintained by MariaDB triggers.
 
@@ -304,6 +375,8 @@ History tables currently in scope:
 - `TB_USR_HIST`
 - `TB_ROLE_HIST`
 - `TB_USR_ROLE_HIST`
+- `TB_DEPT_HIST`
+- `TB_EMP_HIST`
 - `TB_MNU_HIST`
 - `TB_ROLE_MNU_AUTH_HIST`
 - `TB_SUBS_PLAN_HIST`
@@ -320,6 +393,8 @@ Related trigger examples:
 - `TR_TB_CO_AI`
 - `TR_TB_CO_AU`
 - `TR_TB_CO_BD`
+- `TR_TB_DEPT_AI`
+- `TR_TB_EMP_AI`
 - `TR_TB_MNU_AI`
 - `TR_TB_ROLE_MNU_AUTH_AI`
 - `TR_TB_SUBS_AI`
@@ -337,8 +412,14 @@ The current next-gen port exposes the following master APIs:
 - `POST /api/v1/roles`
 - `GET /api/v1/users?tenantId=<id>&coId=<id>`
 - `POST /api/v1/users`
+- `GET /api/v1/departments?tenantId=<id>&coId=<id>`
+- `GET /api/v1/departments/tree?tenantId=<id>&coId=<id>`
+- `POST /api/v1/departments`
+- `GET /api/v1/employees?tenantId=<id>&coId=<id>&deptId=<id>`
+- `POST /api/v1/employees`
 - `GET /api/v1/menus?mnuScopeCd=<scope>`
 - `GET /api/v1/menus/visible?roleCd=<roleCd>&mnuScopeCd=<scope>`
+- `GET /api/v1/menus/visible-by-user?usrId=<id>&mnuScopeCd=<scope>`
 - `POST /api/v1/menus`
 - `GET /api/v1/role-menu-auths?roleCd=<roleCd>`
 - `POST /api/v1/role-menu-auths`
@@ -362,6 +443,10 @@ The current next-gen port exposes the following master APIs:
   - depth 2 admin: `SUPER_ADMIN`, `NORMAL_ADMIN`
   - depth 2 customer: `USER`, `FINANCE_ADMIN`, `HR_ADMIN`, `ADMIN`
   - depth 3 customer: `TEAM_MEMBER`, `TEAM_LEADER`
+- Company hierarchy model:
+  - `TB_CO`
+  - `TB_DEPT`
+  - `TB_EMP`
 - Menu visibility is controlled by `TB_ROLE_MNU_AUTH`
 - Menu scope is split by `ADMIN` and `CUSTOMER`
 

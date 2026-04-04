@@ -42,4 +42,12 @@ public class MenuController {
     ) {
         return menuService.getVisibleMenus(roleCd, mnuScopeCd);
     }
+
+    @GetMapping("/visible-by-user")
+    public MenuTreeResponse getVisibleMenusByUsr(
+            @RequestParam Long usrId,
+            @RequestParam(required = false) String mnuScopeCd
+    ) {
+        return menuService.getVisibleMenusByUsr(usrId, mnuScopeCd);
+    }
 }

@@ -8,6 +8,7 @@ Next-generation modular monolith B2B SaaS platform built with Java 21, Spring Bo
 - Module-oriented packages under `com.sinwoo`
 - Multi-tenant ready foundation
 - Planned domains: auth, tenant, user, company, menu authorization, subscription billing, document, bookkeeping OCR, attendance, HR, payroll, asset management
+- Current execution domains: tenant, company, department, employee, user, role, menu authorization, subscription billing
 - Multilingual support planned for Korean, English, and German
 - Abbreviation-based database naming standard applied
 - Both internal use and external B2B customer use are supported
@@ -37,6 +38,8 @@ src/main/java/com/sinwoo
 |- tenant
 |- user
 |- company
+|- department
+|- employee
 |- document
 |- menu
 `- billing
@@ -125,6 +128,8 @@ Main base tables:
 - `TB_USR`
 - `TB_ROLE`
 - `TB_USR_ROLE`
+- `TB_DEPT`
+- `TB_EMP`
 - `TB_MNU`
 - `TB_ROLE_MNU_AUTH`
 - `TB_SUBS_PLAN`
@@ -138,6 +143,8 @@ History tables:
 - `TB_USR_HIST`
 - `TB_ROLE_HIST`
 - `TB_USR_ROLE_HIST`
+- `TB_DEPT_HIST`
+- `TB_EMP_HIST`
 - `TB_MNU_HIST`
 - `TB_ROLE_MNU_AUTH_HIST`
 - `TB_SUBS_PLAN_HIST`
@@ -156,6 +163,8 @@ The current next-gen foundation includes:
 - company master API
 - role master API
 - user master API
+- department master API
+- employee master API
 - role depth hierarchy for admin/customer authorization
 - menu master API
 - role-menu authorization API
@@ -194,8 +203,14 @@ Current APIs:
 - `POST /api/v1/roles`
 - `GET /api/v1/users?tenantId=<id>&coId=<id>`
 - `POST /api/v1/users`
+- `GET /api/v1/departments?tenantId=<id>&coId=<id>`
+- `GET /api/v1/departments/tree?tenantId=<id>&coId=<id>`
+- `POST /api/v1/departments`
+- `GET /api/v1/employees?tenantId=<id>&coId=<id>&deptId=<id>`
+- `POST /api/v1/employees`
 - `GET /api/v1/menus?mnuScopeCd=<scope>`
 - `GET /api/v1/menus/visible?roleCd=<roleCd>&mnuScopeCd=<scope>`
+- `GET /api/v1/menus/visible-by-user?usrId=<id>&mnuScopeCd=<scope>`
 - `POST /api/v1/menus`
 - `GET /api/v1/role-menu-auths?roleCd=<roleCd>`
 - `POST /api/v1/role-menu-auths`
@@ -224,6 +239,7 @@ Current APIs:
 - Flyway runs automatically on startup.
 - Security is intentionally minimal and placeholder-oriented at this stage.
 - The current schema includes tenant, company, user, role, user-role mapping, menu authorization, subscription billing, and per-table history tables.
+- Company to department to employee hierarchy is now part of the running next-gen base.
 - Change history is recorded automatically by MariaDB triggers, not by application service logic.
 - Request/access logs are stored separately in `TB_ACCESS_LOG` by a common web filter.
 - Menu visibility is controlled by `TB_ROLE_MNU_AUTH`, not by hard-coded frontend assumptions.
