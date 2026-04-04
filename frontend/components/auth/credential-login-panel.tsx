@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { LoaderCircle } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AuthProviderItem, AuthTokenResponse, CredentialLoginRequest } from "@/lib/api/auth-contract";
 import { cn } from "@/lib/utils";
 
@@ -101,23 +101,15 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
 
   return (
     <Card className="border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
-      <CardHeader className="space-y-3 pb-6">
-        <div className="inline-flex w-fit items-center rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-500">
-          SINWOO Workspace
-        </div>
-        <div className="space-y-2">
-          <CardTitle className="text-3xl font-semibold tracking-tight text-slate-950">로그인</CardTitle>
-          <CardDescription className="text-sm leading-6 text-slate-500">
-            이메일 주소로 회사 영역을 자동 인식합니다. 레거시처럼 단순하게 시작하고, 필요한 경우 SSO로 이어집니다.
-          </CardDescription>
-        </div>
+      <CardHeader className="pb-5">
+        <CardTitle className="text-2xl font-semibold tracking-tight text-slate-950">Sign in</CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-5">
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label htmlFor="credential-email" className="text-sm font-medium text-slate-700">
-              이메일 주소
+              Email
             </label>
             <input
               id="credential-email"
@@ -132,14 +124,14 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
 
           <div className="space-y-2">
             <label htmlFor="credential-pwd" className="text-sm font-medium text-slate-700">
-              비밀번호
+              Password
             </label>
             <input
               id="credential-pwd"
               type="password"
               value={pwd}
               onChange={(event) => setPwd(event.target.value)}
-              placeholder="비밀번호 입력"
+              placeholder="Enter your password"
               autoComplete="current-password"
               className="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-500"
             />
@@ -152,7 +144,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
               onChange={(event) => setSaveLoginId(event.target.checked)}
               className="h-4 w-4 rounded border-slate-300 text-slate-900"
             />
-            로그인 이메일 저장
+            Remember email
           </label>
 
           {errorMessage ? (
@@ -163,39 +155,37 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
 
           <Button type="submit" disabled={!canSubmit || isSubmitting} className="h-12 w-full rounded-xl text-sm font-semibold">
             {isSubmitting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
-            로그인
+            Sign in
           </Button>
         </form>
 
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-200" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="bg-white px-3 text-xs font-medium tracking-[0.2em] text-slate-400">OR</span>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {providers.length === 0 ? (
-            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
-              SSO는 아직 설정되지 않았습니다. 현재는 이메일 로그인만 사용할 수 있습니다.
+        {providers.length > 0 ? (
+          <div className="space-y-3">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-200" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-white px-3 text-xs font-medium tracking-[0.2em] text-slate-400">SSO</span>
+              </div>
             </div>
-          ) : (
-            providers.map((provider) => (
-              <Link
-                key={provider.registrationId}
-                href={`${backendBaseUrl}${provider.authorizeUri}`}
-                className={cn(
-                  buttonVariants({ variant: "outline" }),
-                  "flex h-12 w-full justify-center rounded-xl border-slate-300 text-sm font-medium text-slate-700"
-                )}
-              >
-                {provider.providerNm}로 계속하기
-              </Link>
-            ))
-          )}
-        </div>
+
+            <div className="space-y-3">
+              {providers.map((provider) => (
+                <Link
+                  key={provider.registrationId}
+                  href={`${backendBaseUrl}${provider.authorizeUri}`}
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "flex h-12 w-full justify-center rounded-xl border-slate-300 text-sm font-medium text-slate-700"
+                  )}
+                >
+                  Continue with {provider.providerNm}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

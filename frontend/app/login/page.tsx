@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { CredentialLoginPanel } from "@/components/auth/credential-login-panel";
 import type { AuthProviderListResponse } from "@/lib/api/auth-contract";
 
@@ -17,15 +19,25 @@ export default async function LoginPage() {
   const providers = await getProviders();
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,_#f8fafc_0%,_#eef2f7_100%)]">
+    <main className="min-h-screen bg-[linear-gradient(180deg,_#f3f6fa_0%,_#e7edf4_100%)]">
       <div className="mx-auto flex min-h-screen max-w-md items-center px-5 py-10">
-        <div className="w-full space-y-6">
-          <div className="space-y-3 text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Sinwoo AI Platform</p>
-            <h1 className="text-4xl font-semibold tracking-tight text-slate-950">SINWOO</h1>
-            <p className="text-sm leading-6 text-slate-500">
-              독일 법인 운영과 내부 관리가 함께 돌아가는 B2B 워크스페이스 로그인입니다.
-            </p>
+        <div className="w-full space-y-8">
+          <div className="space-y-5 text-center">
+            <div className="rounded-[28px] border border-slate-200 bg-white px-6 py-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
+              <Image
+                src="/brand/sinwoo-logo.png"
+                alt="Sinwoo International"
+                width={800}
+                height={389}
+                className="h-auto w-full"
+                priority
+              />
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-slate-400">Enterprise Access Portal</p>
+              <h1 className="text-4xl font-semibold tracking-tight text-slate-950">OneGate</h1>
+            </div>
           </div>
 
           <CredentialLoginPanel backendBaseUrl={API_BASE_URL} providers={providers.itemList} />
