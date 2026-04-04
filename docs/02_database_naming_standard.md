@@ -144,6 +144,8 @@ Examples:
 | USER | USR |
 | ROLE | ROLE |
 | HISTORY | HIST |
+| ACCESS | ACCESS |
+| LOG | LOG |
 | CODE | CD |
 | NAME | NM |
 | STATUS | STS |
@@ -163,6 +165,16 @@ Examples:
 | ROW | ROW |
 | TYPE | TP |
 | JSON | JSON |
+| REQUEST | REQ |
+| RESPONSE | RESP |
+| HEADER | HDR |
+| BODY | BODY |
+| CONTENTS | CNTS |
+| METHOD | MTHD |
+| CLIENT | CLNT |
+| ERROR | ERR |
+| SUCCESS | SUCC |
+| URI | URI |
 
 ## 8. API Contract Naming
 

@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sinwoo.common.accesslog.AccessLogService;
 import com.sinwoo.common.security.SecurityConfig;
 import com.sinwoo.common.web.SystemController;
 import com.sinwoo.tenant.dto.CreateTenantRequest;
@@ -36,6 +37,9 @@ class TenantControllerTest {
 
     @MockBean
     private TenantService tenantService;
+
+    @MockBean
+    private AccessLogService accessLogService;
 
     @Test
     void createTenantReturnsCreatedTenant() throws Exception {

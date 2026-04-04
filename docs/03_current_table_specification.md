@@ -20,6 +20,7 @@ This document describes the current standard bootstrap schema for SINWOO.
 - `TB_USR_HIST`
 - `TB_ROLE_HIST`
 - `TB_USR_ROLE_HIST`
+- `TB_ACCESS_LOG`
 
 ## 4. Table Details
 
@@ -156,6 +157,36 @@ Related trigger examples:
 - `TR_TB_CO_AI`
 - `TR_TB_CO_AU`
 - `TR_TB_CO_BD`
+
+### 4.7 TB_ACCESS_LOG
+
+| Column | Type | Null | Description |
+| --- | --- | --- | --- |
+| ID | BIGINT | N | Access log primary key |
+| REQ_ID | VARCHAR(36) | N | Request correlation id |
+| TENANT_KEY | VARCHAR(100) | Y | Tenant request key |
+| USR_KEY | VARCHAR(255) | Y | User principal key |
+| HTTP_MTHD_CD | VARCHAR(10) | N | HTTP method code |
+| REQ_URI | VARCHAR(500) | N | Request URI |
+| REQ_QS_CNTS | LONGTEXT | Y | Request query string contents |
+| REQ_BODY_CNTS | LONGTEXT | Y | Request body contents |
+| REQ_HDR_CNTS | LONGTEXT | Y | Request header contents |
+| CLNT_IP | VARCHAR(100) | Y | Client IP address |
+| RESP_STS_CD | VARCHAR(3) | N | Response status code |
+| SUCC_YN | CHAR(1) | N | Success yes or no |
+| ERR_MSG | VARCHAR(2000) | Y | Error message |
+| CRT_BY | VARCHAR(100) | N | Created by |
+| CRT_DTM | TIMESTAMP | N | Created datetime |
+| UPD_BY | VARCHAR(100) | N | Updated by |
+| UPD_DTM | TIMESTAMP | N | Updated datetime |
+
+Indexes:
+
+- `PK_TB_ACCESS_LOG`
+- `IX_TB_ACCESS_LOG_REQ_ID`
+- `IX_TB_ACCESS_LOG_TENANT_KEY`
+- `IX_TB_ACCESS_LOG_USR_KEY`
+- `IX_TB_ACCESS_LOG_CRT_DTM`
 
 ## 5. Engineering Rule
 

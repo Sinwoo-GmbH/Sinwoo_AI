@@ -135,6 +135,10 @@ History tables:
 - `TB_ROLE_HIST`
 - `TB_USR_ROLE_HIST`
 
+Operational log table:
+
+- `TB_ACCESS_LOG`
+
 ## Default Local Credentials
 
 ### MariaDB
@@ -154,5 +158,6 @@ History tables:
 - Security is intentionally minimal and placeholder-oriented at this stage.
 - The current schema includes tenant, company, user, role, user-role mapping, and per-table history tables.
 - Change history is recorded automatically by MariaDB triggers, not by application service logic.
+- Request/access logs are stored separately in `TB_ACCESS_LOG` by a common web filter.
 - The app is structured for future tenant-aware security, auditing, localization, and module boundaries.
 - Frontend API contract types can be shared from `frontend/lib/api`.
