@@ -1,146 +1,185 @@
-# SINWOO 차세대 업그레이드 Phase 1 백로그
+# SINWOO Next-Gen Upgrade Phase 1 Backlog
 
-## 1. 목표
+## 1. Goal
 
-Phase 1의 목적은 레거시 기능을 깨지 않으면서,
-차세대 플랫폼의 공통축을 먼저 세우는 것이다.
+The goal of Phase 1 is to establish the next-generation common axis without breaking valuable legacy business assets.
 
-이번 단계의 산출물은 “신규 기능”보다 다음에 가깝다.
+This phase is primarily about:
 
-- 표준
-- 브리지
-- 공통 마스터
-- 회귀 가능한 이행 기반
+- standards
+- bridge architecture
+- common masters
+- compliance-safe migration groundwork
 
-## 2. 최우선 작업
+It is not primarily about feature quantity.
 
-### P0-1. 사용자/회사/권한 공통 모델 확정
+## 2. Top Priority Work
 
-목표:
+### P0-0. Fix the German Compliance Baseline
 
-- `TB_TENANT`
-- `TB_CO`
-- `TB_USR`
-- `TB_ROLE`
-- `TB_USR_ROLE`
+Goal:
 
-차세대 기준으로 공통축 확정
+- lock the platform baseline to German legal requirements for German entities
+- connect GDPR/BDSG, GoBD, AO/HGB retention, e-invoicing, working-time law, and HR/AI controls into engineering work
 
-완료 기준:
+Done means:
 
-- 레거시 `tb_user`와 차세대 `TB_USR` 간 매핑 초안 승인
-- 회사/부서/권한 참조 구조 결정
+- an official compliance baseline document exists
+- backlog priorities explicitly depend on that baseline
+- finance, HR, payroll, attendance, OCR, and document modules inherit legal control requirements
 
-### P0-2. 접근 로그와 변경이력 분리 설계
+### P0-1. Finalize the User, Company, and Role Common Axis
 
-목표:
+Goal:
 
-- 레거시 `tb_log_history`는 운영 로그로 분리
-- 데이터 변경이력은 `_HIST + Trigger`로 유지
+- stabilize `TB_TENANT`
+- stabilize `TB_CO`
+- stabilize `TB_USR`
+- stabilize `TB_ROLE`
+- stabilize `TB_USR_ROLE`
 
-완료 기준:
+Done means:
 
-- `TB_ACCESS_LOG` 표준 초안
-- 운영 로그 저장 컬럼 정의
+- legacy `tb_user` and next-gen `TB_USR` mapping is accepted
+- company, department, employee, and role references are stable
 
-### P0-3. 환경설정 표준화
+### P0-2. Separate Access Log and Data History Correctly
 
-목표:
+Goal:
 
-- local/dev/prod 설정 분리
-- 비밀정보 분리
-- 실행 기준 문서화
+- keep operational request logging separate from business-row history
+- preserve `_HIST + Trigger` as the row-history model
 
-완료 기준:
+Done means:
 
-- 레거시 프로젝트 설정 분리안 정리
-- 현행/차세대 실행 경로 명세
+- `TB_ACCESS_LOG` stays the operational log
+- business-row history remains table-specific and database-driven
 
-## 3. 1차 포팅 대상
+### P0-3. Standardize Runtime Environments
 
-### P1-1. 로그인/권한
+Goal:
 
-이유:
+- keep local, dev, and prod configuration separable
+- keep secrets out of code
+- keep run instructions and verification repeatable
 
-- 모든 화면과 도메인의 시작점
-- 공통축이므로 재사용 범위가 가장 넓음
+Done means:
 
-대상:
+- runtime paths are documented
+- migration and verification steps are executable
 
-- `WebSecurityConfig`
-- `LoginMapper`
-- 로그인 관련 Controller/VO
-- 세션/권한 처리
+## 3. First Porting Targets
 
-### P1-2. 사용자/회사/부서
+### P1-1. Authentication and Authorization Bridge
 
-이유:
+Reason:
 
-- 근태, 급여, 요청, 재무 모두의 공통 마스터
+- it is the entry point for all screens and modules
+- it controls both B2B tenant isolation and internal administration
 
-대상:
+Target:
 
-- 사용자
-- 회사
-- 부서
-- 직원
-- 프로필
+- final auth bridge for next-gen login
+- role depth interpretation
+- user-to-menu visibility
+- tenant-aware auth foundation
 
-### P1-3. 공통코드/로케일
+### P1-2. User, Company, Department, and Employee
 
-이유:
+Reason:
 
-- 다국어, 상태코드, 유형코드의 기준 축
+- attendance, payroll, HR, finance, approval, and requests all depend on the same master axis
 
-## 4. 2차 포팅 대상
+Target:
 
-### P2-1. 근태/휴가
+- user
+- company
+- department
+- employee
+- profile
 
-이유:
+### P1-3. Common Code, Locale, and Compliance Metadata
 
-- 비교적 독립성이 높고 차세대 UX 전환 효과가 큼
+Reason:
 
-### P2-2. 경비/출장/개인청구
+- multilingual behavior, status codes, legal statuses, and compliance flags need one standard source
 
-이유:
+Target:
 
-- 화면 흐름이 명확하고 사용자 체감 가치가 높음
+- code master
+- locale master
+- legal and retention policy support fields
 
-## 5. 3차 포팅 대상
+## 4. Second Porting Targets
 
-### P3-1. 급여
+### P2-1. Attendance and Leave
 
-이유:
+Reason:
 
-- 중요도가 높지만 SQL/비즈니스 규칙이 복잡함
+- high business value
+- clear domain boundary
+- strong fit for German-law validation around traceability and approval
 
-### P3-2. 자산/마감/재무리포트
+### P2-2. Expense, Travel, and Personal Requests
 
-이유:
+Reason:
 
-- 회귀 리스크가 가장 높음
-- 늦게 옮기는 것이 안전
+- visible workflow value
+- can reuse employee, role, and approval models
 
-## 6. 착수 순서
+### P2-3. Finance and Bookkeeping Bridge
 
-1. 공통축 스키마/필드 정리
-2. 로그인/권한 차세대 모델 정리
-3. 사용자/회사/부서 포팅
-4. 접근로그 표준화
-5. 근태 도메인 포팅 착수
+Reason:
 
-## 7. 바로 다음 턴에서 할 일
+- must be upgraded under GoBD and e-invoicing assumptions, not as a generic CRUD port
 
-다음 실제 개발 턴에서는 아래 둘 중 하나부터 바로 시작하면 된다.
+## 5. Third Porting Targets
 
-### 선택지 A. 사용자/권한 공통축 포팅
+### P3-1. Payroll
 
-- 공통 엔티티/테이블/DTO 기준 정리
-- 레거시 로그인 흐름과 매핑
+Reason:
 
-### 선택지 B. 레거시 운영 로그 표준 테이블 설계
+- high value but high rule complexity
+- must align with German payroll and HR compliance boundaries
 
-- `tb_log_history`를 차세대 `TB_ACCESS_LOG`로 승격
-- 요청/사용자/엔드포인트 추적 표준 확정
+### P3-2. Asset and Financial Closing
 
-현재 추천은 **선택지 A**다.
+Reason:
+
+- high regression risk
+- should be moved after master data and finance controls stabilize
+
+## 6. Execution Order
+
+1. fix the German compliance baseline
+2. stabilize common-axis schema and fields
+3. complete the authentication and authorization bridge
+4. complete user, company, department, and employee migration
+5. strengthen access logging and table history
+6. start attendance domain migration
+7. move into finance and document controls
+
+## 7. Immediate Next Work
+
+### Track A. Authentication Bridge
+
+- finalize tenant-aware auth model
+- add login bridge and role-context handling
+- connect role depth and menu visibility to runtime authentication
+
+### Track B. Attendance Domain
+
+- design attendance records under German-law assumptions
+- make correction, approval, and history traceable
+- prepare leave and holiday structures
+
+### Track C. Finance and Document Compliance
+
+- define document retention and legal hold structure
+- define e-invoice domain objects and document linking
+- define GoBD-safe posting mutation rules
+
+The current recommendation is:
+
+- start with Track A and Track B in parallel architecture terms
+- keep Track C immediately behind them because it is legally critical

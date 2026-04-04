@@ -11,6 +11,7 @@ Next-generation modular monolith B2B SaaS platform built with Java 21, Spring Bo
 - Current execution domains: tenant, company, department, employee, user, role, menu authorization, subscription billing
 - Multilingual support planned for Korean, English, and German
 - Abbreviation-based database naming standard applied
+- German-law-first compliance baseline for German entities
 - Both internal use and external B2B customer use are supported
 
 ## Tech Stack

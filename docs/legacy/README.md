@@ -1,29 +1,48 @@
 # SINWOO Legacy Upgrade Docs
 
-## 목적
+## Purpose
 
-이 디렉터리는 `Sinwoo-New.zip` 기반 레거시 프로젝트를
-현재 Sinwoo 차세대 표준으로 업그레이드하기 위한 공식 분석/전략 문서를 관리한다.
+This directory contains the official analysis and upgrade documents for migrating the legacy `Sinwoo-New.zip` project into the next-generation SINWOO platform.
 
-## 문서 목록
+The goal is not a blind rewrite.
+
+The goal is:
+
+- preserve usable business assets
+- move into the next-generation standard architecture
+- add stronger compliance, audit, and UI foundations
+- keep the migration executable and reviewable
+
+## Document Index
 
 - `01_sinwoo_new_upgrade_assessment.md`
-  - 레거시 기술 스택, 자산 규모, 구조 오염 지점, 유지/개선/위험 구간 분석
+  - legacy stack, asset scale, structural problems, and keep-improve-risk analysis
 
 - `02_nextgen_upgrade_strategy.md`
-  - 차세대 업그레이드 전략, 목표 아키텍처, 단계별 이행 원칙
+  - next-generation upgrade strategy, target architecture, and migration principles
 
 - `03_legacy_asset_inventory.md`
-  - 현재 레거시 프로젝트의 컨트롤러/화면/매퍼/SQL 자산 인벤토리
+  - controller, screen, mapper, SQL, and static-asset inventory
 
 - `04_domain_porting_matrix.md`
-  - 도메인별 유지/포팅/표준화 우선순위 매트릭스
+  - domain-by-domain keep, bridge, port, and standardize matrix
 
 - `05_core_domain_field_mapping.md`
-  - 핵심 공통축(사용자/회사/권한/로그)의 레거시-차세대 매핑 초안
+  - first mapping draft for user, company, role, and logging models
 
-## 운영 원칙
+- `06_phase1_execution_backlog.md`
+  - Phase 1 execution backlog and ordered delivery targets
 
-- 레거시 원본은 분석용 기준 자산으로만 사용한다.
-- 업그레이드는 “재개발”이 아니라 “차세대 이행”으로 본다.
-- 기존 기능을 깨지 않는 점진 이행이 원칙이다.
+- `07_phase1_porting_progress.md`
+  - actual implementation progress for the next-generation common axis
+
+- `08_german_compliance_baseline.md`
+  - Germany-first legal compliance baseline for the product
+
+## Operating Rules
+
+- The legacy project remains a reference asset, not the new source of truth.
+- The upgrade is treated as a next-generation migration, not a direct clone.
+- Running business behavior should be preserved where possible.
+- New engineering work must align with the next-generation naming, history, menu authorization, and compliance standards.
+- German-law compliance is now a first-class engineering baseline for Germany-facing domains.

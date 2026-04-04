@@ -201,11 +201,17 @@ to:
 
 This is the point where the legacy upgrade stopped being only a strategy track and became an actual running next-generation delivery.
 
+German-law compliance is now a mandatory baseline for future delivery, not a later documentation task.
+
+Reference:
+
+- [`08_german_compliance_baseline.md`](C:\Users\JuyongLee\Sinwoo_AI\docs\legacy\08_german_compliance_baseline.md)
+
 ## 5. Next Recommended Porting Target
 
 The next execution block should continue from the common axis and move into one of these areas:
 
 1. authentication redesign bridge
-2. attendance domain port
-3. finance and request bridge APIs from legacy SQL assets
-4. payroll and HR bridge around employee master
+2. attendance domain port under German-law assumptions
+3. finance and request bridge APIs from legacy SQL assets with GoBD and e-invoice constraints
+4. payroll and HR bridge around employee master with privacy and AI controls
