@@ -188,6 +188,9 @@ Verified on April 4, 2026:
   - `TB_SUBS_HIST`
   - `TB_PAY_TXN_HIST`
 - request log rows accumulated in `TB_ACCESS_LOG`
+- OAuth bridge schema migrated with `TB_USR_OAUTH` and `TB_USR_OAUTH_HIST`
+- OAuth provider listing endpoint available
+- OAuth callback can link or provision a tenant user and issue SINWOO JWT tokens
 
 ## 4. Current Assessment
 
@@ -215,3 +218,5 @@ The next execution block should continue from the common axis and move into one 
 2. attendance domain port under German-law assumptions
 3. finance and request bridge APIs from legacy SQL assets with GoBD and e-invoice constraints
 4. payroll and HR bridge around employee master with privacy and AI controls
+
+The authentication redesign bridge is no longer only a planning item. The first executable OAuth bridge now exists and should be hardened next.

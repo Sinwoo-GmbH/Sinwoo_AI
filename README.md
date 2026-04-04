@@ -136,6 +136,7 @@ Main base tables:
 - `TB_SUBS_PLAN`
 - `TB_SUBS`
 - `TB_PAY_TXN`
+- `TB_USR_OAUTH`
 
 History tables:
 
@@ -151,6 +152,7 @@ History tables:
 - `TB_SUBS_PLAN_HIST`
 - `TB_SUBS_HIST`
 - `TB_PAY_TXN_HIST`
+- `TB_USR_OAUTH_HIST`
 
 Operational log table:
 
@@ -172,6 +174,7 @@ The current next-gen foundation includes:
 - subscription plan API
 - subscription API
 - payment transaction API
+- OAuth2 login bridge and SINWOO JWT issue
 - per-table history logging by MariaDB triggers
 - request/access logging through `TB_ACCESS_LOG`
 
@@ -219,6 +222,37 @@ Current APIs:
 - `POST /api/v1/subscription-plans`
 - `GET /api/v1/subscriptions?tenantId=<id>`
 - `POST /api/v1/subscriptions`
+- `GET /api/v1/auth/oauth/providers`
+- `GET /api/v1/auth/oauth/authorize/{registrationId}?tenantCd=<tenantCd>`
+- `GET /api/v1/auth/me`
+
+## OAuth Login Bridge
+
+The next-generation platform now supports an OAuth login bridge:
+
+- provider login through Spring Security OAuth2 client
+- tenant-aware user linking by `tenantCd`
+- automatic user provisioning when the tenant user does not exist yet
+- SINWOO access token and refresh token issue after provider callback
+- frontend login page at `http://localhost:3000/login`
+- frontend callback page at `http://localhost:3000/auth/callback`
+
+Provider registration is intentionally configuration-driven.
+
+Recommended environment variables:
+
+```text
+FRONTEND_BASE_URL=http://localhost:3000
+
+OAUTH_GOOGLE_CLIENT_ID=...
+OAUTH_GOOGLE_CLIENT_SECRET=...
+
+OAUTH_MICROSOFT_CLIENT_ID=...
+OAUTH_MICROSOFT_CLIENT_SECRET=...
+OAUTH_MICROSOFT_TENANT_ID=common
+```
+
+Without provider credentials, the backend still starts normally and the frontend login page remains available, but the provider list is empty until a provider is configured.
 - `GET /api/v1/payment-transactions?tenantId=<id>`
 - `POST /api/v1/payment-transactions`
 

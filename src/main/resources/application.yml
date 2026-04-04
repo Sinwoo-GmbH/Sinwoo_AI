@@ -57,6 +57,12 @@ app:
     jwt-secret: change-me-in-real-environments
     access-token-ttl-seconds: 3600
     refresh-token-ttl-seconds: 1209600
+  auth:
+    frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:3000}
+    oauth-callback-path: /auth/callback
+    customer-default-role-cd: ROLE_CUSTOMER_USER_MEMBER
+    internal-default-role-cd: ROLE_PLATFORM_ADMIN
+    default-locl-cd: en
   tenancy:
     mode: header
     header-name: X-Tenant-Id

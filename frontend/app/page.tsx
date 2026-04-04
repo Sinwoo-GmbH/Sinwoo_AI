@@ -1,8 +1,11 @@
 import { Activity, BadgeCheck, Building2, CreditCard, ShieldCheck, Users2, Workflow } from "lucide-react";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCheckpointData } from "@/lib/checkpoint-data";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +75,9 @@ export default async function HomePage() {
                     {data.connected ? `Backend ${data.health?.status ?? "UP"}` : "Backend Disconnected"}
                   </Badge>
                   <Badge variant="secondary">{data.apiBaseUrl}</Badge>
+                  <Link href="/login" className={cn(buttonVariants({ variant: "outline" }))}>
+                    OAuth Login
+                  </Link>
                 </div>
               </div>
             </header>
