@@ -1,171 +1,170 @@
-import {
-  Bell,
-  Building2,
-  FileText,
-  Globe2,
-  LayoutDashboard,
-  ReceiptText,
-  TimerReset,
-  Users,
-} from "lucide-react";
+import { Activity, BadgeCheck, Building2, CreditCard, ShieldCheck, Users2, Workflow } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TENANT_API_PATH } from "@/lib/api/tenant-contract";
+import { getCheckpointData } from "@/lib/checkpoint-data";
 
-const metricCards = [
-  { label: "승인 대기 문서", value: "128", delta: "+14 today" },
-  { label: "활성 직원", value: "486", delta: "3 offices" },
-  { label: "이번 달 정산", value: "EUR 184K", delta: "+8.2%" },
-  { label: "처리 성공률", value: "98.4%", delta: "OCR stable" },
-];
+export const dynamic = "force-dynamic";
 
-const documents = [
-  { name: "March VAT Invoice Batch", status: "Pending", company: "SINWOO GmbH", amount: "EUR 12,480" },
-  { name: "Payroll Supplement Review", status: "Review", company: "SINWOO Europe", amount: "EUR 8,240" },
-  { name: "Attendance Correction", status: "Approved", company: "SINWOO Berlin", amount: "-" },
-];
+function StatCard({
+  title,
+  value,
+  description,
+  icon: Icon,
+}: {
+  title: string;
+  value: string | number;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+}) {
+  return (
+    <Card className="border-white bg-white/90">
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
+        <div>
+          <CardDescription>{title}</CardDescription>
+          <CardTitle className="mt-2 text-3xl">{value}</CardTitle>
+        </div>
+        <div className="rounded-2xl bg-slate-950 p-3 text-white">
+          <Icon className="h-5 w-5" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-slate-500">{description}</p>
+      </CardContent>
+    </Card>
+  );
+}
 
-const menuItems = [
-  { label: "Dashboard", icon: LayoutDashboard },
-  { label: "Documents", icon: FileText },
-  { label: "Bookkeeping", icon: ReceiptText },
-  { label: "Attendance", icon: TimerReset },
-  { label: "Employees", icon: Users },
-  { label: "Companies", icon: Building2 },
-];
+export default async function HomePage() {
+  const data = await getCheckpointData();
 
-export default function HomePage() {
+  const tenantCount = data.tenants?.totCnt ?? 0;
+  const internalCount = data.tenants?.itemList.filter((tenant) => tenant.tenantTpCd === "INTERNAL").length ?? 0;
+  const customerCount = data.tenants?.itemList.filter((tenant) => tenant.tenantTpCd === "CUSTOMER").length ?? 0;
+  const billFreeCount = data.tenants?.itemList.filter((tenant) => tenant.billFreeYn === "Y").length ?? 0;
+
+  const companyCount = data.companies?.totCnt ?? 0;
+  const departmentCount = data.departments?.totCnt ?? 0;
+  const employeeCount = data.employees?.totCnt ?? 0;
+  const userCount = data.users?.totCnt ?? 0;
+  const roleCount = data.roles?.totCnt ?? 0;
+  const planCount = data.plans?.totCnt ?? 0;
+
   return (
     <main className="min-h-screen">
-      <div className="mx-auto flex min-h-screen max-w-[1600px] gap-6 px-4 py-4 lg:px-6">
-        <aside className="hidden w-[280px] shrink-0 rounded-[28px] bg-slate-950 p-6 text-slate-100 shadow-panel lg:flex lg:flex-col">
-          <div className="mb-10 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-lg font-semibold">
-              S
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.32em] text-slate-400">Sinwoo</p>
-              <h1 className="text-xl font-semibold">Operations Cloud</h1>
-            </div>
-          </div>
-
-          <nav className="space-y-2">
-            {menuItems.map(({ label, icon: Icon }, index) => (
-              <button
-                key={label}
-                className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm transition ${
-                  index === 0
-                    ? "bg-white text-slate-950"
-                    : "text-slate-300 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{label}</span>
-              </button>
-            ))}
-          </nav>
-
-          <Card className="mt-auto border-white/10 bg-white/5 text-slate-100">
-            <CardHeader>
-              <CardTitle className="text-base">3-Language Ready</CardTitle>
-              <CardDescription className="text-slate-300">
-                Korean, English, German onboarding prepared from day one.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </aside>
-
+      <div className="mx-auto flex min-h-screen max-w-[1600px] px-4 py-6 lg:px-6">
         <section className="flex-1">
           <div className="overflow-hidden rounded-[32px] border border-white/70 bg-white/80 shadow-panel backdrop-blur">
-            <header className="flex flex-col gap-4 border-b border-slate-200/70 px-6 py-5 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <p className="text-sm text-slate-500">Global B2B Operations Platform</p>
-                <h2 className="text-2xl font-semibold tracking-tight text-slate-950">Executive Dashboard</h2>
-              </div>
-              <div className="flex items-center gap-3">
-                <Button variant="outline" className="gap-2">
-                  <Globe2 className="h-4 w-4" />
-                  KO / EN / DE
-                </Button>
-                <Button variant="outline" size="icon">
-                  <Bell className="h-4 w-4" />
-                </Button>
-                <Button>New Document</Button>
+            <header className="border-b border-slate-200/70 px-6 py-6">
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                <div>
+                  <p className="text-sm uppercase tracking-[0.28em] text-slate-500">Sinwoo Next-Gen Checkpoint</p>
+                  <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
+                    B2B Platform Mid-Review Dashboard
+                  </h1>
+                  <p className="mt-3 max-w-3xl text-sm text-slate-600">
+                    This screen reads the running backend and shows whether the current next-generation foundation
+                    is really connected at the web layer.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Badge className={data.connected ? "bg-success text-success-foreground" : "bg-destructive text-white"}>
+                    {data.connected ? `Backend ${data.health?.status ?? "UP"}` : "Backend Disconnected"}
+                  </Badge>
+                  <Badge variant="secondary">{data.apiBaseUrl}</Badge>
+                </div>
               </div>
             </header>
 
             <div className="space-y-6 p-6">
+              {!data.connected ? (
+                <Card className="border-destructive/20 bg-red-50">
+                  <CardHeader>
+                    <CardTitle>Backend connection is not available</CardTitle>
+                    <CardDescription>
+                      Start the backend on port 8080, then refresh the frontend page on port 3000.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="text-sm text-slate-700">{data.error}</CardContent>
+                </Card>
+              ) : null}
+
               <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {metricCards.map((item) => (
-                  <Card key={item.label} className="border-white bg-gradient-to-br from-white to-slate-50">
-                    <CardHeader className="pb-3">
-                      <CardDescription>{item.label}</CardDescription>
-                      <CardTitle className="text-3xl">{item.value}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Badge variant="secondary">{item.delta}</Badge>
-                    </CardContent>
-                  </Card>
-                ))}
+                <StatCard
+                  title="Tenants"
+                  value={tenantCount}
+                  description={`Internal ${internalCount} / Customer ${customerCount}`}
+                  icon={Building2}
+                />
+                <StatCard
+                  title="Organizations"
+                  value={`${companyCount} / ${departmentCount} / ${employeeCount}`}
+                  description="Company / Department / Employee"
+                  icon={Workflow}
+                />
+                <StatCard
+                  title="Authorization"
+                  value={`${roleCount} / ${userCount}`}
+                  description="Role count / User count"
+                  icon={ShieldCheck}
+                />
+                <StatCard
+                  title="Billing"
+                  value={`${planCount} / ${billFreeCount}`}
+                  description="Plan count / Billing-free tenants"
+                  icon={CreditCard}
+                />
               </section>
 
-              <section className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-                <Card className="overflow-hidden">
-                  <CardHeader className="flex flex-row items-start justify-between space-y-0">
-                    <div>
-                      <CardTitle>OCR Processing Overview</CardTitle>
-                      <CardDescription>문서 수집부터 검수까지 한 화면에서 확인합니다.</CardDescription>
-                    </div>
-                    <Badge className="bg-success text-success-foreground hover:bg-success">Stable</Badge>
+              <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Tenant and Billing Policy</CardTitle>
+                    <CardDescription>
+                      Internal tenants are forced to billing-free mode. Customer tenants can use the paid plan flow.
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="grid gap-4 md:grid-cols-3">
-                      {[
-                        { label: "Uploaded", value: 214, tone: "bg-slate-950" },
-                        { label: "In Review", value: 43, tone: "bg-amber-400" },
-                        { label: "Posted", value: 171, tone: "bg-emerald-500" },
-                      ].map((bar) => (
-                        <div key={bar.label} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                          <div className="mb-6 flex items-end justify-between">
-                            <span className="text-sm text-slate-500">{bar.label}</span>
-                            <span className="text-2xl font-semibold">{bar.value}</span>
+                  <CardContent className="space-y-3">
+                    {data.tenants?.itemList.map((tenant) => (
+                      <div key={tenant.tenantId} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <p className="font-medium text-slate-950">{tenant.tenantNm}</p>
+                            <p className="text-sm text-slate-500">{tenant.tenantCd}</p>
                           </div>
-                          <div className="h-32 rounded-2xl bg-white p-3">
-                            <div className={`h-full rounded-xl ${bar.tone}`} />
+                          <div className="flex flex-wrap gap-2">
+                            <Badge variant="secondary">{tenant.tenantTpCd}</Badge>
+                            <Badge className={tenant.billFreeYn === "Y" ? "bg-success text-success-foreground" : ""}>
+                              {tenant.billFreeYn === "Y" ? "Billing Free" : "Paid Tenant"}
+                            </Badge>
+                            <Badge variant="outline">{tenant.stsCd}</Badge>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                    <div className="rounded-2xl bg-slate-950 p-4 text-slate-100">
-                      <div className="mb-2 text-xs uppercase tracking-[0.24em] text-slate-400">API Standard</div>
-                      <div>{TENANT_API_PATH}</div>
-                      <div className="mt-2 text-slate-300">tenantCd / tenantNm / stsCd / crtDtm / updDtm</div>
-                    </div>
+                      </div>
+                    )) ?? <p className="text-sm text-slate-500">No tenant data</p>}
                   </CardContent>
                 </Card>
 
-                <Card className="bg-slate-950 text-slate-100">
+                <Card>
                   <CardHeader>
-                    <CardTitle>Today&apos;s Queue</CardTitle>
-                    <CardDescription className="text-slate-300">
-                      운영팀이 바로 처리할 우선순위 작업입니다.
-                    </CardDescription>
+                    <CardTitle>Role Depth Model</CardTitle>
+                    <CardDescription>Depth 1 to depth 3 structure is already reflected in the backend role model.</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {[
-                      "독일 법인 신규 테넌트 검토",
-                      "Payroll attachment OCR 재분류",
-                      "Attendance exception 승인 대기",
-                    ].map((task, index) => (
-                      <div key={task} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                        <div className="mb-2 text-xs uppercase tracking-[0.24em] text-slate-400">
-                          Task {index + 1}
+                  <CardContent className="space-y-3">
+                    {data.roles?.itemList.map((role) => (
+                      <div key={role.roleId} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <div className="mb-2 flex items-center justify-between gap-3">
+                          <p className="font-medium text-slate-950">{role.roleNm}</p>
+                          <Badge variant="outline">{role.roleCd}</Badge>
                         </div>
-                        <p className="text-sm text-slate-100">{task}</p>
+                        <div className="flex flex-wrap gap-2 text-xs">
+                          {role.roleScopeCd ? <Badge variant="secondary">{role.roleScopeCd}</Badge> : null}
+                          {role.roleD1Cd ? <Badge variant="secondary">{role.roleD1Cd}</Badge> : null}
+                          {role.roleD2Cd ? <Badge variant="secondary">{role.roleD2Cd}</Badge> : null}
+                          {role.roleD3Cd ? <Badge variant="secondary">{role.roleD3Cd}</Badge> : null}
+                        </div>
                       </div>
-                    ))}
+                    )) ?? <p className="text-sm text-slate-500">No role data</p>}
                   </CardContent>
                 </Card>
               </section>
@@ -173,34 +172,111 @@ export default function HomePage() {
               <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Recent Documents</CardTitle>
-                    <CardDescription>관리자 페이지에서 이어질 문서 워크플로우 미리보기입니다.</CardDescription>
+                    <CardTitle>Company Hierarchy Check</CardTitle>
+                    <CardDescription>
+                      This section verifies the company, department, employee, and user hierarchy for the first available company.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <div className="mb-2 text-xs uppercase tracking-[0.24em] text-slate-500">Companies</div>
+                        {(data.companies?.itemList ?? []).map((company) => (
+                          <div key={company.coId} className="mb-3 last:mb-0">
+                            <p className="font-medium text-slate-950">{company.coNm}</p>
+                            <p className="text-sm text-slate-500">{company.coCd}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <div className="mb-2 text-xs uppercase tracking-[0.24em] text-slate-500">Departments</div>
+                        {(data.departments?.itemList ?? []).map((department) => (
+                          <div key={department.deptId} className="mb-3 last:mb-0">
+                            <p className="font-medium text-slate-950">{department.deptNm}</p>
+                            <p className="text-sm text-slate-500">
+                              {department.deptCd} / Level {department.deptLvlNo}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="mb-3 flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-slate-500">
+                        <Users2 className="h-4 w-4" />
+                        Employees and Linked Users
+                      </div>
+                      <div className="space-y-3">
+                        {(data.employees?.itemList ?? []).map((employee) => (
+                          <div key={employee.empId} className="rounded-2xl bg-white p-4">
+                            <div className="flex flex-wrap items-center justify-between gap-3">
+                              <div>
+                                <p className="font-medium text-slate-950">{employee.empNm}</p>
+                                <p className="text-sm text-slate-500">
+                                  {employee.empNo} / {employee.teamRoleCd}
+                                </p>
+                              </div>
+                              <Badge variant="outline">{employee.jobTtlNm ?? "No Job Title"}</Badge>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Customer Menu Visibility</CardTitle>
+                    <CardDescription>
+                      The system now controls customer menus by assigned roles and by actual user mapping.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="mb-2 text-xs uppercase tracking-[0.24em] text-slate-500">Menu Master</div>
+                      <div className="flex flex-wrap gap-2">
+                        {(data.customerMenus?.itemList ?? []).map((menu) => (
+                          <Badge key={menu.mnuId} variant="secondary">
+                            {menu.mnuCd}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="mb-2 text-xs uppercase tracking-[0.24em] text-slate-500">Visible By First User</div>
+                      <div className="flex flex-wrap gap-2">
+                        {(data.userVisibleMenus?.itemList ?? []).map((menu) => (
+                          <Badge key={menu.mnuId} className="bg-slate-950 text-white">
+                            {menu.mnuCd}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
+
+              <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Plan Catalog</CardTitle>
+                    <CardDescription>The billing model is already split between internal and customer tenants.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {documents.map((document) => (
-                      <div
-                        key={document.name}
-                        className="grid gap-3 rounded-2xl border border-slate-200 p-4 md:grid-cols-[1.8fr_0.8fr_0.8fr_0.6fr]"
-                      >
-                        <div>
-                          <p className="font-medium text-slate-950">{document.name}</p>
-                          <p className="text-sm text-slate-500">{document.company}</p>
-                        </div>
-                        <div className="text-sm text-slate-600">{document.amount}</div>
-                        <div className="text-sm text-slate-600">Assigned to Finance</div>
-                        <div>
-                          <Badge
-                            variant={document.status === "Approved" ? "default" : "secondary"}
-                            className={
-                              document.status === "Approved"
-                                ? "bg-success text-success-foreground"
-                                : document.status === "Review"
-                                  ? "bg-warning text-warning-foreground"
-                                  : ""
-                            }
-                          >
-                            {document.status}
-                          </Badge>
+                    {(data.plans?.itemList ?? []).map((plan) => (
+                      <div key={plan.planId} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <p className="font-medium text-slate-950">{plan.planNm}</p>
+                            <p className="text-sm text-slate-500">{plan.planCd}</p>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <Badge variant="secondary">{plan.tenantTpCd}</Badge>
+                            <Badge variant="outline">{plan.currCd}</Badge>
+                            <Badge className="bg-success text-success-foreground">{plan.baseAmt}</Badge>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -209,18 +285,29 @@ export default function HomePage() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Platform Direction</CardTitle>
-                    <CardDescription>첫 프론트 부트스트랩에 반영된 설계 원칙입니다.</CardDescription>
+                    <CardTitle>Checkpoint Summary</CardTitle>
+                    <CardDescription>This is the current point where the web screen can already verify real backend progress.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm text-slate-600">
                     <div className="rounded-2xl bg-slate-50 p-4">
-                      고객 포털과 관리자 콘솔을 하나의 디자인 시스템으로 분리 운영합니다.
+                      <div className="mb-2 flex items-center gap-2 text-slate-950">
+                        <Activity className="h-4 w-4" />
+                        Runtime
+                      </div>
+                      Backend health, tenant data, roles, plans, companies, departments, employees, and user-based menu visibility
+                      are all readable from the web layer.
                     </div>
                     <div className="rounded-2xl bg-slate-50 p-4">
-                      다국어, 테넌트 컨텍스트, 권한 기반 내비게이션을 초기에 고려합니다.
+                      <div className="mb-2 flex items-center gap-2 text-slate-950">
+                        <BadgeCheck className="h-4 w-4" />
+                        Verified Structure
+                      </div>
+                      Tenant policy, role depth, menu authorization, department tree, employee hierarchy, and billing plan split are
+                      all represented in the running platform.
                     </div>
                     <div className="rounded-2xl bg-slate-50 p-4">
-                      shadcn/ui 스타일 컴포넌트로 커스터마이징 여지를 크게 남깁니다.
+                      The next logical screen after this checkpoint is a real admin console page and a customer portal page that render
+                      different menus from the same authorization tables.
                     </div>
                   </CardContent>
                 </Card>
