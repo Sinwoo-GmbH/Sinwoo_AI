@@ -101,12 +101,12 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
 
   return (
     <Card className="border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
-      <CardHeader className="pb-5">
-        <CardTitle className="text-2xl font-semibold tracking-tight text-slate-950">Sign in</CardTitle>
+      <CardHeader className="pb-4">
+        <CardTitle className="text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">Sign in</CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-5">
-        <form className="space-y-4" onSubmit={handleSubmit}>
+      <CardContent className="space-y-4">
+        <form className="space-y-3.5" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label htmlFor="credential-email" className="text-sm font-medium text-slate-700">
               Email
@@ -118,7 +118,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
               onChange={(event) => setEml(event.target.value)}
               placeholder="name@company.com"
               autoComplete="username"
-              className="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-500"
+              className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-500"
             />
           </div>
 
@@ -133,7 +133,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
               onChange={(event) => setPwd(event.target.value)}
               placeholder="Enter your password"
               autoComplete="current-password"
-              className="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-500"
+              className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-500"
             />
           </div>
 
@@ -153,14 +153,14 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
             </div>
           ) : null}
 
-          <Button type="submit" disabled={!canSubmit || isSubmitting} className="h-12 w-full rounded-xl text-sm font-semibold">
+          <Button type="submit" disabled={!canSubmit || isSubmitting} className="h-11 w-full rounded-xl text-sm font-semibold">
             {isSubmitting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Sign in
           </Button>
         </form>
 
         {providers.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-200" />
@@ -170,14 +170,14 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {providers.map((provider) => (
                 <Link
                   key={provider.registrationId}
                   href={`${backendBaseUrl}${provider.authorizeUri}`}
                   className={cn(
                     buttonVariants({ variant: "outline" }),
-                    "flex h-12 w-full justify-center rounded-xl border-slate-300 text-sm font-medium text-slate-700"
+                    "flex h-11 w-full justify-center rounded-xl border-slate-300 text-sm font-medium text-slate-700"
                   )}
                 >
                   Continue with {provider.providerNm}

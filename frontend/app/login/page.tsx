@@ -19,37 +19,41 @@ export default async function LoginPage() {
   const providers = await getProviders();
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,_#f3f6fa_0%,_#e7edf4_100%)]">
-      <div className="mx-auto flex min-h-screen max-w-md flex-col justify-between px-5 py-10">
-        <div className="flex-1" />
-
-        <div className="w-full space-y-8">
-          <div className="space-y-4 text-center">
-            <div className="mx-auto w-full max-w-[280px]">
-              <Image
-                src="/brand/sinwoo-logo.png"
-                alt="Sinwoo International"
-                width={800}
-                height={389}
-                className="h-auto w-full"
-                priority
-              />
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-slate-400">SINWOO International</p>
-              <h1 className="text-4xl font-semibold tracking-tight text-slate-950">OneGate Enterprise</h1>
-              <p className="text-sm font-medium text-slate-500">Identity and Workspace Access</p>
-            </div>
+    <main className="h-[100dvh] overflow-hidden bg-[linear-gradient(180deg,_#f3f6fa_0%,_#e7edf4_100%)]">
+      <div className="mx-auto grid h-full max-w-md grid-rows-[auto_1fr_auto] px-5 py-4 sm:px-6 sm:py-5">
+        <div className="pt-2 text-center">
+          <div className="mx-auto w-full max-w-[190px] sm:max-w-[220px]">
+            <Image
+              src="/brand/sinwoo-logo.png"
+              alt="Sinwoo International"
+              width={800}
+              height={389}
+              className="h-auto w-full"
+              priority
+            />
           </div>
 
-          <CredentialLoginPanel backendBaseUrl={API_BASE_URL} providers={providers.itemList} />
+          <div className="mt-3 space-y-1">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-slate-400 sm:text-[11px]">
+              Powered by SINWOO International
+            </p>
+            <h1 className="text-[clamp(1.9rem,3vw,2.7rem)] font-semibold tracking-tight text-slate-950">
+              OneGate Enterprise Suite
+            </h1>
+            <p className="text-xs font-medium text-slate-500 sm:text-sm">Secure Identity and Workspace Access</p>
+          </div>
         </div>
 
-        <footer className="mt-10 border-t border-slate-200 pt-5 text-center text-[11px] leading-6 text-slate-500">
+        <div className="flex min-h-0 items-center py-3">
+          <div className="w-full">
+            <CredentialLoginPanel backendBaseUrl={API_BASE_URL} providers={providers.itemList} />
+          </div>
+        </div>
+
+        <footer className="border-t border-slate-200 pt-3 text-center text-[10px] leading-5 text-slate-500 sm:text-[11px]">
           <p className="font-semibold tracking-[0.18em] text-slate-600">SINWOO INTERNATIONAL</p>
-          <p>Enterprise B2B Operations Platform</p>
-          <p>Copyright © 2026 SINWOO International. All rights reserved.</p>
+          <p>Enterprise B2B Operations Platform for Germany and Global Teams</p>
+          <p>ggamgang@sinwoo-itc.com | Copyright © 2026 SINWOO International</p>
         </footer>
       </div>
     </main>
