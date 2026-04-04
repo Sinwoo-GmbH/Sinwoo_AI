@@ -19,49 +19,49 @@ export default async function LoginPage() {
   const providers = await getProviders();
 
   return (
-    <main className="relative h-[100dvh] overflow-hidden bg-[linear-gradient(180deg,_#f7f9fc_0%,_#edf2f8_100%)]">
+    <main className="relative min-h-[100dvh] overflow-y-auto bg-[linear-gradient(180deg,_#f7f9fc_0%,_#edf2f8_100%)]">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-[-6rem] top-[-5rem] h-52 w-52 rounded-full bg-[rgba(34,58,122,0.08)] blur-3xl" />
         <div className="absolute right-[-4rem] top-[-5rem] h-72 w-72 rounded-full bg-[rgba(72,104,181,0.10)] blur-3xl" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.52)_100%)]" />
       </div>
 
-      <div className="relative mx-auto flex h-full max-w-5xl flex-col px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
-        <header className="flex flex-col items-center gap-4 pt-2 text-center lg:pt-4">
-          <div className="w-full max-w-[150px] sm:max-w-[168px]">
-            <Image
-              src="/brand/sinwoo-logo.png"
-              alt="Sinwoo International"
-              width={800}
-              height={389}
-              className="h-auto w-full"
-              priority
-            />
-          </div>
+      <div className="relative mx-auto flex min-h-[100dvh] max-w-5xl flex-col px-5 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <section className="flex flex-1 items-center justify-center py-4 sm:py-6 lg:py-8">
+          <div className="w-full max-w-[460px] space-y-5 text-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-full max-w-[144px] sm:max-w-[156px]">
+                <Image
+                  src="/brand/sinwoo-logo.png"
+                  alt="Sinwoo International"
+                  width={800}
+                  height={389}
+                  className="h-auto w-full"
+                  priority
+                />
+              </div>
 
-          <div className="space-y-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-slate-500 sm:text-[11px]">
-              OneGate Enterprise Console
-            </p>
-            <h1 className="text-[clamp(2rem,3.2vw,2.7rem)] font-semibold tracking-[-0.035em] text-slate-950">
-              Secure Workspace Sign In
-            </h1>
-            <p className="mx-auto max-w-2xl text-sm leading-6 text-slate-600 sm:text-[15px]">
-              Unified access for SINWOO internal administration and customer workspace operations.
-            </p>
-          </div>
-        </header>
+              <div className="space-y-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-slate-500 sm:text-[11px]">
+                  OneGate Enterprise Console
+                </p>
+                <h1 className="text-[clamp(1.85rem,2.8vw,2.45rem)] font-semibold tracking-[-0.035em] text-slate-950">
+                  Sign in to your workspace
+                </h1>
+                <p className="mx-auto max-w-xl text-sm leading-6 text-slate-600 sm:text-[15px]">
+                  Access SINWOO internal administration and customer workspace operations with your company account.
+                </p>
+              </div>
+            </div>
 
-        <section className="flex min-h-0 flex-1 items-center justify-center py-6 lg:py-8">
-          <div className="w-full max-w-[460px]">
             <CredentialLoginPanel backendBaseUrl={API_BASE_URL} providers={providers.itemList} />
           </div>
         </section>
 
-        <footer className="grid gap-1.5 border-t border-slate-200/90 pt-3 text-center text-[10px] leading-5 text-slate-500 sm:text-[11px] lg:grid-cols-3 lg:items-center lg:text-left">
+        <footer className="mt-auto flex flex-col gap-1.5 border-t border-slate-200/90 pt-3 text-center text-[10px] leading-5 text-slate-500 sm:text-[11px] lg:flex-row lg:items-center lg:justify-between">
           <p className="font-semibold tracking-[0.16em] text-slate-700">SINWOO INTERNATIONAL</p>
-          <p className="lg:text-center">Enterprise B2B Operations Platform for Germany and Global Teams</p>
-          <p className="lg:text-right">Copyright 2026 SINWOO International. All rights reserved.</p>
+          <p>Enterprise B2B Operations Platform for Germany and Global Teams</p>
+          <p>Copyright 2026 SINWOO International. All rights reserved.</p>
         </footer>
       </div>
     </main>

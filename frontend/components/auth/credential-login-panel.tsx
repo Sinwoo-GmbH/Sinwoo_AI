@@ -100,10 +100,10 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
   }
 
   return (
-    <Card className="w-full border border-slate-200 bg-white/94 shadow-[0_20px_44px_rgba(15,23,42,0.08)] backdrop-blur">
+    <Card className="w-full border border-slate-200 bg-white/96 shadow-[0_18px_38px_rgba(15,23,42,0.08)] backdrop-blur">
       <CardHeader className="space-y-2 pb-4">
         <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">Workspace Access</div>
-        <CardTitle className="text-[28px] font-semibold tracking-tight text-slate-950">Sign in</CardTitle>
+        <CardTitle className="text-[26px] font-semibold tracking-tight text-slate-950">Sign in</CardTitle>
         <p className="text-sm leading-6 text-slate-500">
           Sign in with your company email and password.
         </p>
@@ -157,11 +157,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
             </div>
           ) : null}
 
-          <Button
-            type="submit"
-            disabled={!canSubmit || isSubmitting}
-            className="h-11 w-full rounded-lg bg-[#233a7a] text-sm font-semibold text-white hover:bg-[#1c2f64]"
-          >
+          <Button type="submit" disabled={!canSubmit || isSubmitting} className="h-11 w-full rounded-lg bg-[#233a7a] text-sm font-semibold text-white hover:bg-[#1c2f64]">
             {isSubmitting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Sign in
           </Button>
