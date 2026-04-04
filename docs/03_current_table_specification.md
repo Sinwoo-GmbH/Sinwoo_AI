@@ -15,7 +15,11 @@ This document describes the current standard bootstrap schema for SINWOO.
 - `TB_USR`
 - `TB_ROLE`
 - `TB_USR_ROLE`
-- `TB_CHG_HIST`
+- `TB_TENANT_HIST`
+- `TB_CO_HIST`
+- `TB_USR_HIST`
+- `TB_ROLE_HIST`
+- `TB_USR_ROLE_HIST`
 
 ## 4. Table Details
 
@@ -121,30 +125,37 @@ Constraints / Indexes:
 - `IX_TB_USR_ROLE_USR_ID`
 - `IX_TB_USR_ROLE_ROLE_ID`
 
-### 4.6 TB_CHG_HIST
+### 4.6 History Table Pattern
+
+Every business table has its own history table, created and maintained by MariaDB triggers.
+
+Common history metadata columns:
 
 | Column | Type | Null | Description |
 | --- | --- | --- | --- |
-| ID | BIGINT | N | Change history primary key |
-| TBL_NM | VARCHAR(100) | N | Changed table name |
-| ENT_NM | VARCHAR(100) | N | Changed entity name |
-| ROW_ID | BIGINT | N | Changed row primary key |
-| CHG_TP | VARCHAR(20) | N | Change type |
-| TENANT_ID | BIGINT | Y | Tenant primary key reference |
-| SNAP_JSON | LONGTEXT | N | Serialized entity snapshot |
-| CHG_BY | VARCHAR(100) | N | Change actor |
-| CHG_DTM | TIMESTAMP | N | Change datetime |
-| CRT_BY | VARCHAR(100) | N | Created by |
-| CRT_DTM | TIMESTAMP | N | Created datetime |
-| UPD_BY | VARCHAR(100) | N | Updated by |
-| UPD_DTM | TIMESTAMP | N | Updated datetime |
+| HIST_ID | BIGINT | N | History primary key |
+| HIST_TP | CHAR(1) | N | History type (`I`, `U`, `D`) |
+| HIST_DTM | TIMESTAMP | N | History datetime |
+| HIST_BY | VARCHAR(100) | N | History actor |
 
-Indexes:
+History tables currently in scope:
 
-- `PK_TB_CHG_HIST`
-- `IX_TB_CHG_HIST_ENT_NM_ROW_ID`
-- `IX_TB_CHG_HIST_TENANT_ID`
-- `IX_TB_CHG_HIST_CHG_DTM`
+- `TB_TENANT_HIST`
+- `TB_CO_HIST`
+- `TB_USR_HIST`
+- `TB_ROLE_HIST`
+- `TB_USR_ROLE_HIST`
+
+Each history table also stores a full snapshot of the source row at the time of change.
+
+Related trigger examples:
+
+- `TR_TB_TENANT_AI`
+- `TR_TB_TENANT_AU`
+- `TR_TB_TENANT_BD`
+- `TR_TB_CO_AI`
+- `TR_TB_CO_AU`
+- `TR_TB_CO_BD`
 
 ## 5. Engineering Rule
 

@@ -27,7 +27,9 @@ Examples:
 - `TB_USR`
 - `TB_ROLE`
 - `TB_USR_ROLE`
-- `TB_CHG_HIST`
+- `TB_TENANT_HIST`
+- `TB_CO_HIST`
+- `TB_USR_HIST`
 
 ## 4. Column Naming
 
@@ -96,7 +98,44 @@ Examples:
 - `UK_TB_TENANT_TENANT_CD`
 - `UK_TB_USR_EML`
 
-## 6. Approved Abbreviation Dictionary
+### Trigger
+
+```text
+TR_<TABLE>_<EVENT>
+```
+
+Examples:
+
+- `TR_TB_TENANT_AI`
+- `TR_TB_TENANT_AU`
+- `TR_TB_TENANT_BD`
+
+Event codes:
+
+- `AI`: after insert
+- `AU`: after update
+- `BD`: before delete
+
+## 6. History Table Standard
+
+- Every business table must have its own history table.
+- History table format: `TB_<ENTITY>_HIST`
+- History is recorded by database triggers, not by application service code.
+- Base row snapshot columns should be copied into the history table together with the following metadata:
+  - `HIST_ID`
+  - `HIST_TP`
+  - `HIST_DTM`
+  - `HIST_BY`
+
+Examples:
+
+- `TB_TENANT` -> `TB_TENANT_HIST`
+- `TB_CO` -> `TB_CO_HIST`
+- `TB_USR` -> `TB_USR_HIST`
+- `TB_ROLE` -> `TB_ROLE_HIST`
+- `TB_USR_ROLE` -> `TB_USR_ROLE_HIST`
+
+## 7. Approved Abbreviation Dictionary
 
 | Full Term | Standard |
 | --- | --- |
@@ -105,7 +144,6 @@ Examples:
 | USER | USR |
 | ROLE | ROLE |
 | HISTORY | HIST |
-| CHANGE | CHG |
 | CODE | CD |
 | NAME | NM |
 | STATUS | STS |
@@ -126,7 +164,7 @@ Examples:
 | TYPE | TP |
 | JSON | JSON |
 
-## 7. API Contract Naming
+## 8. API Contract Naming
 
 Backend response/request fields exposed for frontend integration should align with the same standard where it improves consistency.
 
@@ -140,6 +178,6 @@ Examples:
 - `totCnt`
 - `itemList`
 
-## 8. Standard Application
+## 9. Standard Application
 
 All new migration scripts, entity mappings, request/response DTOs, and frontend API types must follow this document.

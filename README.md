@@ -126,7 +126,14 @@ Main base tables:
 - `TB_USR`
 - `TB_ROLE`
 - `TB_USR_ROLE`
-- `TB_CHG_HIST`
+
+History tables:
+
+- `TB_TENANT_HIST`
+- `TB_CO_HIST`
+- `TB_USR_HIST`
+- `TB_ROLE_HIST`
+- `TB_USR_ROLE_HIST`
 
 ## Default Local Credentials
 
@@ -145,6 +152,7 @@ Main base tables:
 
 - Flyway runs automatically on startup.
 - Security is intentionally minimal and placeholder-oriented at this stage.
-- The current schema includes tenant, company, user, role, user-role mapping, and change history.
+- The current schema includes tenant, company, user, role, user-role mapping, and per-table history tables.
+- Change history is recorded automatically by MariaDB triggers, not by application service logic.
 - The app is structured for future tenant-aware security, auditing, localization, and module boundaries.
 - Frontend API contract types can be shared from `frontend/lib/api`.
