@@ -100,12 +100,12 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
   }
 
   return (
-    <Card className="w-full max-w-[420px] border border-slate-200/90 bg-white/92 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur">
+    <Card className="w-full border border-slate-200 bg-white/94 shadow-[0_20px_44px_rgba(15,23,42,0.08)] backdrop-blur">
       <CardHeader className="space-y-2 pb-4">
         <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">Workspace Access</div>
-        <CardTitle className="text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">Sign in</CardTitle>
+        <CardTitle className="text-[28px] font-semibold tracking-tight text-slate-950">Sign in</CardTitle>
         <p className="text-sm leading-6 text-slate-500">
-          Use your company email to continue to the SINWOO enterprise workspace.
+          Sign in with your company email and password.
         </p>
       </CardHeader>
 
@@ -122,7 +122,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
               onChange={(event) => setEml(event.target.value)}
               placeholder="name@company.com"
               autoComplete="username"
-              className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-500"
+              className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[#233a7a]"
             />
           </div>
 
@@ -137,7 +137,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
               onChange={(event) => setPwd(event.target.value)}
               placeholder="Enter your password"
               autoComplete="current-password"
-              className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-500"
+              className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[#233a7a]"
             />
           </div>
 
@@ -152,12 +152,16 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
           </label>
 
           {errorMessage ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {errorMessage}
             </div>
           ) : null}
 
-          <Button type="submit" disabled={!canSubmit || isSubmitting} className="h-11 w-full rounded-xl text-sm font-semibold">
+          <Button
+            type="submit"
+            disabled={!canSubmit || isSubmitting}
+            className="h-11 w-full rounded-lg bg-[#233a7a] text-sm font-semibold text-white hover:bg-[#1c2f64]"
+          >
             {isSubmitting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Sign in
           </Button>
@@ -181,7 +185,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
                   href={`${backendBaseUrl}${provider.authorizeUri}`}
                   className={cn(
                     buttonVariants({ variant: "outline" }),
-                    "flex h-11 w-full justify-center rounded-xl border-slate-300 text-sm font-medium text-slate-700"
+                    "flex h-11 w-full justify-center rounded-lg border-slate-300 text-sm font-medium text-slate-700"
                   )}
                 >
                   Continue with {provider.providerNm}
