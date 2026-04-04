@@ -14,6 +14,9 @@ public record CreateTenantRequest(
         @Size(max = 255)
         String tenantNm,
 
+        @Size(max = 255)
+        String emlDomn,
+
         @Size(max = 20)
         String tenantTpCd,
 

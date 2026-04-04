@@ -62,7 +62,7 @@ class AuthControllerTest {
 
     @Test
     void loginReturnsJwtPayload() throws Exception {
-        CredentialLoginRequest request = new CredentialLoginRequest("SINWOO", "SINWOO.ADMIN", "password123");
+        CredentialLoginRequest request = new CredentialLoginRequest("admin@sinwoo.com", "password123");
         AuthTokenResponse response = new AuthTokenResponse(
                 "access-token",
                 3600,

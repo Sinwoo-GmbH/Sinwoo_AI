@@ -226,16 +226,17 @@ Current APIs:
 - `POST /api/v1/payment-transactions`
 - `POST /api/v1/auth/login`
 - `GET /api/v1/auth/oauth/providers`
-- `GET /api/v1/auth/oauth/authorize/{registrationId}?tenantCd=<tenantCd>`
+- `GET /api/v1/auth/oauth/authorize/{registrationId}`
 - `GET /api/v1/auth/me`
 
 ## Integrated Login Bridge
 
 The next-generation platform now supports both direct credential login and OAuth login:
 
-- direct login with `tenantCd + lgnId + pwd`
+- direct login with `eml + pwd`
+- tenant is resolved automatically from the login email domain
 - provider login through Spring Security OAuth2 client
-- tenant-aware user linking by `tenantCd`
+- tenant-aware user linking by tenant email domain mapping
 - automatic user provisioning when the tenant user does not exist yet
 - SINWOO access token and refresh token issue after provider callback
 - frontend login page at `http://localhost:3000/login`
@@ -258,7 +259,7 @@ OAUTH_MICROSOFT_CLIENT_SECRET=...
 OAUTH_MICROSOFT_TENANT_ID=common
 ```
 
-Without provider credentials, the backend still starts normally and the frontend login page remains available. In that case, direct ID and password login still works, while the provider list remains empty until an OAuth provider is configured.
+Without provider credentials, the backend still starts normally and the frontend login page remains available. In that case, direct email login still works, while the provider list remains empty until an OAuth provider is configured.
 
 ## Default Local Credentials
 
@@ -278,6 +279,7 @@ Without provider credentials, the backend still starts normally and the frontend
 - Flyway runs automatically on startup.
 - Security is intentionally minimal and placeholder-oriented at this stage.
 - The current schema includes tenant, company, user, role, user-role mapping, menu authorization, subscription billing, and per-table history tables.
+- `TB_TENANT.EML_DOMN` is used to resolve the tenant automatically during integrated login.
 - Company to department to employee hierarchy is now part of the running next-gen base.
 - Change history is recorded automatically by MariaDB triggers, not by application service logic.
 - Request/access logs are stored separately in `TB_ACCESS_LOG` by a common web filter.

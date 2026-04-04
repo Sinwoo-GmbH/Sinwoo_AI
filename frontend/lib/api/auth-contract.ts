@@ -32,7 +32,6 @@ export type AuthTokenResponse = {
 };
 
 export type CredentialLoginRequest = {
-  tenantCd: string;
-  lgnId: string;
+  eml: string;
   pwd: string;
 };

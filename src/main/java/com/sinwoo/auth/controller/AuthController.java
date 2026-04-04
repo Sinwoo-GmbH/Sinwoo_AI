@@ -43,11 +43,13 @@ public class AuthController {
     @GetMapping("/oauth/authorize/{registrationId}")
     public ResponseEntity<Void> authorize(
             @PathVariable String registrationId,
-            @RequestParam String tenantCd,
+            @RequestParam(required = false) String tenantCd,
             HttpServletRequest request
     ) {
-        HttpSession session = request.getSession(true);
-        session.setAttribute(OAUTH_TENANT_SESSION_KEY, tenantCd.trim().toUpperCase());
+        if (tenantCd != null && !tenantCd.isBlank()) {
+            HttpSession session = request.getSession(true);
+            session.setAttribute(OAUTH_TENANT_SESSION_KEY, tenantCd.trim().toUpperCase());
+        }
 
         return ResponseEntity.status(302)
                 .header(HttpHeaders.LOCATION, "/oauth2/authorization/" + registrationId)

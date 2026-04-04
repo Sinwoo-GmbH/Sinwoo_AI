@@ -20,6 +20,9 @@ public class Tenant extends BaseEntity {
     @Column(name = "TENANT_NM", nullable = false, length = 255)
     private String tenantNm;
 
+    @Column(name = "EML_DOMN", length = 255)
+    private String emlDomn;
+
     @Column(name = "TENANT_TP_CD", nullable = false, length = 20)
     private String tenantTpCd;
 
@@ -29,20 +32,35 @@ public class Tenant extends BaseEntity {
     @Column(name = "STS_CD", nullable = false, length = 20)
     private String stsCd;
 
-    private Tenant(String tenantCd, String tenantNm, String tenantTpCd, String billFreeYn, TenantStatus tenantStatus) {
+    private Tenant(
+            String tenantCd,
+            String tenantNm,
+            String emlDomn,
+            String tenantTpCd,
+            String billFreeYn,
+            TenantStatus tenantStatus
+    ) {
         this.tenantCd = tenantCd;
         this.tenantNm = tenantNm;
+        this.emlDomn = emlDomn;
         this.tenantTpCd = tenantTpCd;
         this.billFreeYn = billFreeYn;
         this.stsCd = tenantStatus.name();
     }
 
     public static Tenant create(String tenantCd, String tenantNm, TenantStatus tenantStatus) {
-        return new Tenant(tenantCd, tenantNm, "CUSTOMER", "N", tenantStatus);
+        return new Tenant(tenantCd, tenantNm, null, "CUSTOMER", "N", tenantStatus);
     }
 
-    public static Tenant create(String tenantCd, String tenantNm, String tenantTpCd, String billFreeYn, TenantStatus tenantStatus) {
-        return new Tenant(tenantCd, tenantNm, tenantTpCd, billFreeYn, tenantStatus);
+    public static Tenant create(
+            String tenantCd,
+            String tenantNm,
+            String emlDomn,
+            String tenantTpCd,
+            String billFreeYn,
+            TenantStatus tenantStatus
+    ) {
+        return new Tenant(tenantCd, tenantNm, emlDomn, tenantTpCd, billFreeYn, tenantStatus);
     }
 
     public TenantStatus getTenantStatus() {

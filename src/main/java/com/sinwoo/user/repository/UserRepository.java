@@ -15,6 +15,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByTenantIdAndEmlIgnoreCase(Long tenantId, String eml);
 
+    List<User> findAllByEmlIgnoreCase(String eml);
+
     List<User> findAllByTenantIdOrderByCreatedAtDescIdDesc(Long tenantId);
 
     List<User> findAllByTenantIdAndCoIdOrderByCreatedAtDescIdDesc(Long tenantId, Long coId);

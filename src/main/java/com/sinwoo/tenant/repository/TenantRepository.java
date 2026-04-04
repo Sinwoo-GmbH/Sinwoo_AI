@@ -9,7 +9,11 @@ public interface TenantRepository extends JpaRepository<Tenant, Long> {
 
     boolean existsByTenantCdIgnoreCase(String tenantCd);
 
+    boolean existsByEmlDomnIgnoreCase(String emlDomn);
+
     Optional<Tenant> findByTenantCdIgnoreCase(String tenantCd);
+
+    Optional<Tenant> findByEmlDomnIgnoreCase(String emlDomn);
 
     List<Tenant> findAllByOrderByCreatedAtDescIdDesc();
 }

@@ -72,10 +72,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthTokenResponse loginWithCredentials(CredentialLoginRequest request) {
-        Tenant tenant = tenantRepository.findByTenantCdIgnoreCase(request.tenantCd().trim())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tenant not found"));
+        String normalizedEmail = normalizeEmail(request.eml());
+        Tenant tenant = resolveTenantByLoginEmail(normalizedEmail);
 
-        User user = userRepository.findByTenantIdAndLgnIdIgnoreCase(tenant.getId(), request.lgnId().trim().toUpperCase(Locale.ROOT))
+        User user = userRepository.findByTenantIdAndEmlIgnoreCase(tenant.getId(), normalizedEmail)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid login credentials"));
 
         if (!"ACTIVE".equalsIgnoreCase(user.getStsCd())) {
@@ -92,13 +92,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthTokenResponse completeOauthLogin(String registrationId, String tenantCd, Map<String, Object> attributes) {
-        if (tenantCd == null || tenantCd.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tenant code is required for OAuth login");
-        }
-
-        Tenant tenant = tenantRepository.findByTenantCdIgnoreCase(tenantCd.trim())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tenant not found"));
-
         String providerCd = registrationId.trim().toUpperCase(Locale.ROOT);
         String oauthSub = firstNonBlank(
                 stringValue(attributes.get("sub")),
@@ -114,6 +107,7 @@ public class AuthServiceImpl implements AuthService {
                 deriveDisplayName(eml)
         );
         String emlVrfyYn = resolveEmailVerified(attributes);
+        Tenant tenant = resolveTenantForOauthLogin(tenantCd, eml);
 
         if (oauthSub == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OAuth subject was not provided by provider");
@@ -235,6 +229,14 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Default role not found"));
     }
 
+    private Tenant resolveTenantForOauthLogin(String tenantCd, String eml) {
+        if (tenantCd != null && !tenantCd.isBlank()) {
+            return tenantRepository.findByTenantCdIgnoreCase(tenantCd.trim())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tenant not found"));
+        }
+        return resolveTenantByLoginEmail(eml);
+    }
+
     private List<String> resolveRoleCodes(Long usrId) {
         return userRoleRepository.findAllByUsrId(usrId).stream()
                 .map(UserRole::getRoleId)
@@ -243,6 +245,28 @@ public class AuthServiceImpl implements AuthService {
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role not found")))
                 .map(Role::getRoleCd)
                 .toList();
+    }
+
+    private Tenant resolveTenantByLoginEmail(String eml) {
+        String normalizedEmail = normalizeEmail(eml);
+        String emailDomain = extractEmailDomain(normalizedEmail);
+
+        if (emailDomain != null) {
+            Optional<Tenant> tenantByDomain = tenantRepository.findByEmlDomnIgnoreCase(emailDomain);
+            if (tenantByDomain.isPresent()) {
+                return tenantByDomain.get();
+            }
+        }
+
+        List<User> matchedUsers = userRepository.findAllByEmlIgnoreCase(normalizedEmail);
+        if (matchedUsers.size() == 1) {
+            return tenantRepository.findById(matchedUsers.get(0).getTenantId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tenant not found"));
+        }
+        if (matchedUsers.size() > 1) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Multiple tenants matched this email");
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tenant could not be resolved from email");
     }
 
     private String createUniqueLoginId(Long tenantId, String eml) {
@@ -261,11 +285,26 @@ public class AuthServiceImpl implements AuthService {
         return candidate;
     }
 
+    private String normalizeEmail(String eml) {
+        if (eml == null || eml.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
+        }
+        return eml.trim().toLowerCase(Locale.ROOT);
+    }
+
     private String normalizeLocale(String locale) {
         if (locale == null || locale.isBlank()) {
             return "en";
         }
         return locale.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String extractEmailDomain(String eml) {
+        int atIndex = eml.indexOf('@');
+        if (atIndex < 0 || atIndex == eml.length() - 1) {
+            return null;
+        }
+        return eml.substring(atIndex + 1);
     }
 
     private String normalizeAuthGroup(String tenantTpCd) {

@@ -190,7 +190,9 @@ Verified on April 4, 2026:
 - request log rows accumulated in `TB_ACCESS_LOG`
 - OAuth bridge schema migrated with `TB_USR_OAUTH` and `TB_USR_OAUTH_HIST`
 - OAuth provider listing endpoint available
-- direct credential login endpoint available through `tenantCd + lgnId + pwd`
+- tenant email domain mapping added through `TB_TENANT.EML_DOMN`
+- direct credential login endpoint available through `eml + pwd`
+- login tenant is resolved automatically from the email domain
 - OAuth callback can link or provision a tenant user and issue SINWOO JWT tokens
 - integrated login page now supports both credential login and OAuth login
 

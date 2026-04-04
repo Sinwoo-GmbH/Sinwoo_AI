@@ -24,16 +24,21 @@ public class TenantServiceImpl implements TenantService {
     @Transactional
     public TenantResponse createTenant(CreateTenantRequest request) {
         String normalizedTenantCd = normalizeTenantCd(request.tenantCd());
+        String normalizedEmailDomain = normalizeEmailDomain(request.emlDomn());
         String normalizedTenantTpCd = normalizeTenantType(request.tenantTpCd());
         String normalizedBillFreeYn = normalizeBillFreeYn(normalizedTenantTpCd, request.billFreeYn());
 
         if (tenantRepository.existsByTenantCdIgnoreCase(normalizedTenantCd)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Tenant code already exists");
         }
+        if (normalizedEmailDomain != null && tenantRepository.existsByEmlDomnIgnoreCase(normalizedEmailDomain)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Tenant email domain already exists");
+        }
 
         Tenant tenant = Tenant.create(
                 normalizedTenantCd,
                 request.tenantNm().trim(),
+                normalizedEmailDomain,
                 normalizedTenantTpCd,
                 normalizedBillFreeYn,
                 TenantStatus.ACTIVE
@@ -60,6 +65,17 @@ public class TenantServiceImpl implements TenantService {
             return "CUSTOMER";
         }
         return tenantTpCd.trim().toUpperCase();
+    }
+
+    private String normalizeEmailDomain(String emlDomn) {
+        if (emlDomn == null || emlDomn.isBlank()) {
+            return null;
+        }
+        String normalized = emlDomn.trim().toLowerCase();
+        if (normalized.startsWith("@")) {
+            normalized = normalized.substring(1);
+        }
+        return normalized;
     }
 
     private String normalizeBillFreeYn(String tenantTpCd, String billFreeYn) {
