@@ -22,4 +22,18 @@ public class Tenant extends BaseEntity {
 
     @Column(nullable = false, length = 20)
     private String status;
+
+    private Tenant(String code, String name, TenantStatus status) {
+        this.code = code;
+        this.name = name;
+        this.status = status.name();
+    }
+
+    public static Tenant create(String code, String name, TenantStatus status) {
+        return new Tenant(code, name, status);
+    }
+
+    public TenantStatus getTenantStatus() {
+        return TenantStatus.valueOf(status);
+    }
 }

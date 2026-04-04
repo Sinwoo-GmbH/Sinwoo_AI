@@ -1,17 +1,18 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: sinwoo-postgres
+  mariadb:
+    image: mariadb:11
+    container_name: sinwoo-mariadb
     environment:
-      POSTGRES_DB: sinwoo
-      POSTGRES_USER: sinwoo
-      POSTGRES_PASSWORD: sinwoo
+      MARIADB_DATABASE: sinwoo
+      MARIADB_USER: sinwoo
+      MARIADB_PASSWORD: sinwoo
+      MARIADB_ROOT_PASSWORD: sinwoo
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mariadb_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sinwoo -d sinwoo"]
+      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-u", "sinwoo", "-psinwoo"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -47,6 +48,6 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  mariadb_data:
   redis_data:
   minio_data:

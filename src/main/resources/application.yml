@@ -6,7 +6,7 @@ spring:
   jackson:
     time-zone: UTC
   datasource:
-    driver-class-name: org.postgresql.Driver
+    driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     open-in-view: false
     hibernate:

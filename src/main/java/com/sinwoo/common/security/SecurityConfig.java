@@ -26,6 +26,8 @@ public class SecurityConfig {
                                 "/actuator/info",
                                 "/api/v1/system/ping"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/tenants").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/tenants").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )

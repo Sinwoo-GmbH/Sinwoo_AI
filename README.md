@@ -1,6 +1,6 @@
 # Sinwoo AI Backend
 
-Initial backend bootstrap for a modular monolith B2B SaaS platform built with Java 21, Spring Boot 3, Gradle, PostgreSQL, Redis, MinIO, Flyway, Spring Security, and Actuator.
+Initial backend bootstrap for a modular monolith B2B SaaS platform built with Java 21, Spring Boot 3, Gradle, MariaDB, Redis, MinIO, Flyway, Spring Security, and Actuator.
 
 ## Architecture Direction
 
@@ -15,7 +15,7 @@ Initial backend bootstrap for a modular monolith B2B SaaS platform built with Ja
 - Java 21
 - Spring Boot 3.3.x
 - Gradle
-- PostgreSQL
+- MariaDB
 - Redis
 - MinIO
 - Flyway
@@ -36,6 +36,12 @@ src/main/java/com/sinwoo
 |- user
 |- company
 `- document
+
+frontend
+|- app
+|- components
+|- lib
+`- package.json
 ```
 
 Each module currently contains a package marker and can grow independently with its own:
@@ -55,7 +61,7 @@ docker compose up -d
 
 Services:
 
-- PostgreSQL: `localhost:5432`
+- MariaDB: `localhost:3306`
 - Redis: `localhost:6379`
 - MinIO API: `localhost:9000`
 - MinIO Console: `localhost:9001`
@@ -89,9 +95,32 @@ gradle bootRun --args="--spring.profiles.active=local"
 - Health: `http://localhost:8080/actuator/health`
 - API info: `http://localhost:8080/api/v1/system/ping`
 
+## Frontend Bootstrap
+
+The repository now includes a separate `frontend` app prepared for:
+
+- Next.js App Router
+- Tailwind CSS
+- shadcn/ui-style component structure
+- B2B dashboard-first layout
+
+### Frontend run
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Then open:
+
+- Frontend: `http://localhost:3000`
+
+The first screen is a branded dashboard scaffold intended for the Sinwoo customer portal and admin console direction.
+
 ## Default Local Credentials
 
-### PostgreSQL
+### MariaDB
 
 - Database: `sinwoo`
 - Username: `sinwoo`
