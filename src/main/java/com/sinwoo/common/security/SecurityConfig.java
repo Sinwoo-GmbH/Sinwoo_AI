@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/actuator/health",
                                 "/actuator/info",
+                                "/error",
                                 "/api/v1/system/ping",
                                 "/api/v1/auth/oauth/providers",
                                 "/api/v1/auth/oauth/authorize/**",
