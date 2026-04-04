@@ -1,15 +1,20 @@
 package com.sinwoo.auth.controller;
 
 import com.sinwoo.auth.dto.AuthProviderListResponse;
+import com.sinwoo.auth.dto.AuthTokenResponse;
+import com.sinwoo.auth.dto.CredentialLoginRequest;
 import com.sinwoo.auth.dto.CurrentUserResponse;
 import com.sinwoo.auth.service.AuthService;
 import com.sinwoo.common.security.AuthenticatedUser;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +33,11 @@ public class AuthController {
     @GetMapping("/oauth/providers")
     public AuthProviderListResponse getOauthProviders() {
         return authService.getOauthProviders();
+    }
+
+    @PostMapping("/login")
+    public AuthTokenResponse login(@Valid @RequestBody CredentialLoginRequest request) {
+        return authService.loginWithCredentials(request);
     }
 
     @GetMapping("/oauth/authorize/{registrationId}")

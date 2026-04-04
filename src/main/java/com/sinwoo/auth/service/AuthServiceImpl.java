@@ -6,6 +6,7 @@ import com.sinwoo.auth.domain.UserRole;
 import com.sinwoo.auth.dto.AuthProviderListResponse;
 import com.sinwoo.auth.dto.AuthProviderResponse;
 import com.sinwoo.auth.dto.AuthTokenResponse;
+import com.sinwoo.auth.dto.CredentialLoginRequest;
 import com.sinwoo.auth.dto.CurrentUserResponse;
 import com.sinwoo.auth.repository.RoleRepository;
 import com.sinwoo.auth.repository.UserOauthIdentityRepository;
@@ -70,6 +71,25 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public AuthTokenResponse loginWithCredentials(CredentialLoginRequest request) {
+        Tenant tenant = tenantRepository.findByTenantCdIgnoreCase(request.tenantCd().trim())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tenant not found"));
+
+        User user = userRepository.findByTenantIdAndLgnIdIgnoreCase(tenant.getId(), request.lgnId().trim().toUpperCase(Locale.ROOT))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid login credentials"));
+
+        if (!"ACTIVE".equalsIgnoreCase(user.getStsCd())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not active");
+        }
+
+        if (!passwordEncoder.matches(request.pwd(), user.getPwdHash())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid login credentials");
+        }
+
+        return issueTokens(buildAuthenticatedUser(user));
+    }
+
+    @Override
     @Transactional
     public AuthTokenResponse completeOauthLogin(String registrationId, String tenantCd, Map<String, Object> attributes) {
         if (tenantCd == null || tenantCd.isBlank()) {
@@ -103,28 +123,7 @@ public class AuthServiceImpl implements AuthService {
                 .map(identity -> syncExistingIdentity(identity, eml, emlVrfyYn))
                 .orElseGet(() -> linkOrProvisionUser(tenant, providerCd, oauthSub, eml, emlVrfyYn, dspNm));
 
-        List<String> roleCds = resolveRoleCodes(user.getId());
-        AuthenticatedUser authenticatedUser = new AuthenticatedUser(
-                user.getId(),
-                user.getTenantId(),
-                user.getCoId(),
-                user.getLgnId(),
-                user.getEml(),
-                user.getDspNm(),
-                user.getAuthGrpCd(),
-                user.getAuthLvlCd(),
-                roleCds
-        );
-
-        return new AuthTokenResponse(
-                jwtTokenService.issueAccessToken(authenticatedUser),
-                jwtTokenService.getAccessTokenTtlSeconds(),
-                jwtTokenService.issueRefreshToken(authenticatedUser),
-                jwtTokenService.getRefreshTokenTtlSeconds(),
-                "Bearer",
-                providerCd,
-                getCurrentUser(authenticatedUser)
-        );
+        return issueTokens(buildAuthenticatedUser(user), providerCd);
     }
 
     @Override
@@ -139,6 +138,37 @@ public class AuthServiceImpl implements AuthService {
                 authenticatedUser.authGrpCd(),
                 authenticatedUser.authLvlCd(),
                 authenticatedUser.roleCds()
+        );
+    }
+
+    private AuthenticatedUser buildAuthenticatedUser(User user) {
+        List<String> roleCds = resolveRoleCodes(user.getId());
+        return new AuthenticatedUser(
+                user.getId(),
+                user.getTenantId(),
+                user.getCoId(),
+                user.getLgnId(),
+                user.getEml(),
+                user.getDspNm(),
+                user.getAuthGrpCd(),
+                user.getAuthLvlCd(),
+                roleCds
+        );
+    }
+
+    private AuthTokenResponse issueTokens(AuthenticatedUser authenticatedUser) {
+        return issueTokens(authenticatedUser, "SINWOO");
+    }
+
+    private AuthTokenResponse issueTokens(AuthenticatedUser authenticatedUser, String providerCd) {
+        return new AuthTokenResponse(
+                jwtTokenService.issueAccessToken(authenticatedUser),
+                jwtTokenService.getAccessTokenTtlSeconds(),
+                jwtTokenService.issueRefreshToken(authenticatedUser),
+                jwtTokenService.getRefreshTokenTtlSeconds(),
+                "Bearer",
+                providerCd,
+                getCurrentUser(authenticatedUser)
         );
     }
 

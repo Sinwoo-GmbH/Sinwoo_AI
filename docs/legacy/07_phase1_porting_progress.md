@@ -190,7 +190,9 @@ Verified on April 4, 2026:
 - request log rows accumulated in `TB_ACCESS_LOG`
 - OAuth bridge schema migrated with `TB_USR_OAUTH` and `TB_USR_OAUTH_HIST`
 - OAuth provider listing endpoint available
+- direct credential login endpoint available through `tenantCd + lgnId + pwd`
 - OAuth callback can link or provision a tenant user and issue SINWOO JWT tokens
+- integrated login page now supports both credential login and OAuth login
 
 ## 4. Current Assessment
 
@@ -219,4 +221,4 @@ The next execution block should continue from the common axis and move into one 
 3. finance and request bridge APIs from legacy SQL assets with GoBD and e-invoice constraints
 4. payroll and HR bridge around employee master with privacy and AI controls
 
-The authentication redesign bridge is no longer only a planning item. The first executable OAuth bridge now exists and should be hardened next.
+The authentication redesign bridge is no longer only a planning item. The first executable integrated login bridge now exists and should be hardened next.

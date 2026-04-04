@@ -2,12 +2,17 @@ package com.sinwoo.auth.controller;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sinwoo.auth.dto.AuthProviderListResponse;
 import com.sinwoo.auth.dto.AuthProviderResponse;
+import com.sinwoo.auth.dto.AuthTokenResponse;
+import com.sinwoo.auth.dto.CredentialLoginRequest;
 import com.sinwoo.auth.dto.CurrentUserResponse;
 import com.sinwoo.auth.service.AuthService;
 import com.sinwoo.common.accesslog.AccessLogService;
@@ -28,6 +33,9 @@ class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private AuthService authService;
@@ -50,6 +58,42 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.totCnt").value(2))
                 .andExpect(jsonPath("$.itemList[0].registrationId").value("google"))
                 .andExpect(jsonPath("$.itemList[1].registrationId").value("microsoft"));
+    }
+
+    @Test
+    void loginReturnsJwtPayload() throws Exception {
+        CredentialLoginRequest request = new CredentialLoginRequest("SINWOO", "SINWOO.ADMIN", "password123");
+        AuthTokenResponse response = new AuthTokenResponse(
+                "access-token",
+                3600,
+                "refresh-token",
+                1209600,
+                "Bearer",
+                "SINWOO",
+                new CurrentUserResponse(
+                        1L,
+                        100L,
+                        200L,
+                        "SINWOO.ADMIN",
+                        "admin@sinwoo.com",
+                        "Sinwoo Admin",
+                        "ADMIN",
+                        "PASSWORD",
+                        List.of("ROLE_PLATFORM_ADMIN")
+                )
+        );
+
+        given(authService.loginWithCredentials(request)).willReturn(response);
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .with(csrf())
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("access-token"))
+                .andExpect(jsonPath("$.refreshToken").value("refresh-token"))
+                .andExpect(jsonPath("$.providerCd").value("SINWOO"))
+                .andExpect(jsonPath("$.user.lgnId").value("SINWOO.ADMIN"));
     }
 
     @Test

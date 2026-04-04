@@ -222,14 +222,18 @@ Current APIs:
 - `POST /api/v1/subscription-plans`
 - `GET /api/v1/subscriptions?tenantId=<id>`
 - `POST /api/v1/subscriptions`
+- `GET /api/v1/payment-transactions?tenantId=<id>`
+- `POST /api/v1/payment-transactions`
+- `POST /api/v1/auth/login`
 - `GET /api/v1/auth/oauth/providers`
 - `GET /api/v1/auth/oauth/authorize/{registrationId}?tenantCd=<tenantCd>`
 - `GET /api/v1/auth/me`
 
-## OAuth Login Bridge
+## Integrated Login Bridge
 
-The next-generation platform now supports an OAuth login bridge:
+The next-generation platform now supports both direct credential login and OAuth login:
 
+- direct login with `tenantCd + lgnId + pwd`
 - provider login through Spring Security OAuth2 client
 - tenant-aware user linking by `tenantCd`
 - automatic user provisioning when the tenant user does not exist yet
@@ -237,7 +241,9 @@ The next-generation platform now supports an OAuth login bridge:
 - frontend login page at `http://localhost:3000/login`
 - frontend callback page at `http://localhost:3000/auth/callback`
 
-Provider registration is intentionally configuration-driven.
+Credential login is available without external provider setup.
+
+OAuth provider registration is intentionally configuration-driven.
 
 Recommended environment variables:
 
@@ -252,9 +258,7 @@ OAUTH_MICROSOFT_CLIENT_SECRET=...
 OAUTH_MICROSOFT_TENANT_ID=common
 ```
 
-Without provider credentials, the backend still starts normally and the frontend login page remains available, but the provider list is empty until a provider is configured.
-- `GET /api/v1/payment-transactions?tenantId=<id>`
-- `POST /api/v1/payment-transactions`
+Without provider credentials, the backend still starts normally and the frontend login page remains available. In that case, direct ID and password login still works, while the provider list remains empty until an OAuth provider is configured.
 
 ## Default Local Credentials
 

@@ -66,6 +66,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/subscriptions/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/payment-transactions/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/payment-transactions/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/auth/oauth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/oauth/**").permitAll()
                         .anyRequest().authenticated()
