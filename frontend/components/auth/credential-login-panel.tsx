@@ -100,16 +100,20 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
   }
 
   return (
-    <Card className="border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
-      <CardHeader className="pb-4">
+    <Card className="w-full max-w-[420px] border border-slate-200/90 bg-white/92 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur">
+      <CardHeader className="space-y-2 pb-4">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">Workspace Access</div>
         <CardTitle className="text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">Sign in</CardTitle>
+        <p className="text-sm leading-6 text-slate-500">
+          Use your company email to continue to the SINWOO enterprise workspace.
+        </p>
       </CardHeader>
 
       <CardContent className="space-y-4">
         <form className="space-y-3.5" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label htmlFor="credential-email" className="text-sm font-medium text-slate-700">
-              Email
+              Email address
             </label>
             <input
               id="credential-email"
