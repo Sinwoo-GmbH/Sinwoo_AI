@@ -44,4 +44,26 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  .login-shell {
+    min-height: 100dvh;
+    overflow-y: auto;
+  }
+
+  .login-shell-inner {
+    min-height: 100dvh;
+  }
+
+  @media (min-width: 1024px) and (min-height: 900px) {
+    .login-shell {
+      height: 100dvh;
+      min-height: 100dvh;
+      overflow: hidden;
+    }
+
+    .login-shell-inner {
+      height: 100%;
+      min-height: 0;
+    }
+  }
 }

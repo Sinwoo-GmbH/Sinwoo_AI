@@ -19,14 +19,14 @@ export default async function LoginPage() {
   const providers = await getProviders();
 
   return (
-    <main className="relative min-h-[100dvh] overflow-y-auto bg-[linear-gradient(180deg,_#f7f9fc_0%,_#edf2f8_100%)] lg:h-[100dvh] lg:overflow-hidden">
+    <main className="login-shell relative bg-[linear-gradient(180deg,_#f7f9fc_0%,_#edf2f8_100%)]">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-[-6rem] top-[-5rem] h-52 w-52 rounded-full bg-[rgba(34,58,122,0.08)] blur-3xl" />
         <div className="absolute right-[-4rem] top-[-5rem] h-72 w-72 rounded-full bg-[rgba(72,104,181,0.10)] blur-3xl" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.52)_100%)]" />
       </div>
 
-      <div className="relative mx-auto flex min-h-[100dvh] max-w-5xl flex-col px-5 py-4 sm:px-6 lg:h-full lg:min-h-0 lg:px-8 lg:py-5">
+      <div className="login-shell-inner relative mx-auto flex max-w-5xl flex-col px-5 py-4 sm:px-6 lg:px-8 lg:py-5">
         <section className="flex flex-1 items-center justify-center py-3 sm:py-5 lg:min-h-0 lg:py-4">
           <div className="w-full max-w-[438px] space-y-4 text-center lg:space-y-3.5">
             <div className="flex flex-col items-center gap-4">
