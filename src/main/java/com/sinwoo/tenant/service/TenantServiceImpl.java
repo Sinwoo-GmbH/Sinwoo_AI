@@ -24,12 +24,20 @@ public class TenantServiceImpl implements TenantService {
     @Transactional
     public TenantResponse createTenant(CreateTenantRequest request) {
         String normalizedTenantCd = normalizeTenantCd(request.tenantCd());
+        String normalizedTenantTpCd = normalizeTenantType(request.tenantTpCd());
+        String normalizedBillFreeYn = normalizeBillFreeYn(normalizedTenantTpCd, request.billFreeYn());
 
         if (tenantRepository.existsByTenantCdIgnoreCase(normalizedTenantCd)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Tenant code already exists");
         }
 
-        Tenant tenant = Tenant.create(normalizedTenantCd, request.tenantNm().trim(), TenantStatus.ACTIVE);
+        Tenant tenant = Tenant.create(
+                normalizedTenantCd,
+                request.tenantNm().trim(),
+                normalizedTenantTpCd,
+                normalizedBillFreeYn,
+                TenantStatus.ACTIVE
+        );
         Tenant savedTenant = tenantRepository.save(tenant);
         return TenantResponse.from(savedTenant);
     }
@@ -45,5 +53,22 @@ public class TenantServiceImpl implements TenantService {
 
     private String normalizeTenantCd(String tenantCd) {
         return tenantCd.trim().toUpperCase();
+    }
+
+    private String normalizeTenantType(String tenantTpCd) {
+        if (tenantTpCd == null || tenantTpCd.isBlank()) {
+            return "CUSTOMER";
+        }
+        return tenantTpCd.trim().toUpperCase();
+    }
+
+    private String normalizeBillFreeYn(String tenantTpCd, String billFreeYn) {
+        if ("INTERNAL".equals(tenantTpCd)) {
+            return "Y";
+        }
+        if (billFreeYn == null || billFreeYn.isBlank()) {
+            return "N";
+        }
+        return "Y".equalsIgnoreCase(billFreeYn.trim()) ? "Y" : "N";
     }
 }

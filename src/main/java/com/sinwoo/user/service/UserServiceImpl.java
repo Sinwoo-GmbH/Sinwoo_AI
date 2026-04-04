@@ -118,7 +118,8 @@ public class UserServiceImpl implements UserService {
 
     private List<Role> resolveRoles(List<String> roleCds) {
         if (roleCds == null || roleCds.isEmpty()) {
-            Role defaultRole = roleRepository.findByRoleCd("ROLE_USER")
+            Role defaultRole = roleRepository.findByRoleCd("ROLE_CUSTOMER_USER_MEMBER")
+                    .or(() -> roleRepository.findByRoleCd("ROLE_USER"))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Default role not found"));
             return List.of(defaultRole);
         }

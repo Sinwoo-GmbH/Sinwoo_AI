@@ -43,8 +43,8 @@ class RoleControllerTest {
     @Test
     void createRoleReturnsCreatedRole() throws Exception {
         OffsetDateTime now = OffsetDateTime.parse("2026-04-04T00:00:00Z");
-        CreateRoleRequest request = new CreateRoleRequest("ROLE_FINANCE_MANAGER", "Finance Manager", "F", "7");
-        RoleResponse response = new RoleResponse(10L, "ROLE_FINANCE_MANAGER", "Finance Manager", "F", "7", now, now);
+        CreateRoleRequest request = new CreateRoleRequest("ROLE_FINANCE_MANAGER", "Finance Manager", "CUSTOMER", "CUSTOMER", "FINANCE_ADMIN", "TEAM_LEADER", "F", "7");
+        RoleResponse response = new RoleResponse(10L, "ROLE_FINANCE_MANAGER", "Finance Manager", "CUSTOMER", "CUSTOMER", "FINANCE_ADMIN", "TEAM_LEADER", "F", "7", now, now);
 
         given(roleService.createRole(request)).willReturn(response);
 
@@ -56,6 +56,8 @@ class RoleControllerTest {
                 .andExpect(jsonPath("$.roleId").value(10))
                 .andExpect(jsonPath("$.roleCd").value("ROLE_FINANCE_MANAGER"))
                 .andExpect(jsonPath("$.roleNm").value("Finance Manager"))
+                .andExpect(jsonPath("$.roleScopeCd").value("CUSTOMER"))
+                .andExpect(jsonPath("$.roleD2Cd").value("FINANCE_ADMIN"))
                 .andExpect(jsonPath("$.roleGrpCd").value("F"))
                 .andExpect(jsonPath("$.roleLvlCd").value("7"));
     }
@@ -66,8 +68,8 @@ class RoleControllerTest {
         RoleListResponse response = new RoleListResponse(
                 2,
                 List.of(
-                        new RoleResponse(1L, "ROLE_ADMIN", "Administrator", "A", "9", now, now),
-                        new RoleResponse(3L, "ROLE_FINANCE", "Finance", "F", "5", now, now)
+                        new RoleResponse(1L, "ROLE_PLATFORM_SUPER_ADMIN", "Platform Super Admin", "ADMIN", "ADMIN", "SUPER_ADMIN", "ROOT", "A", "9", now, now),
+                        new RoleResponse(3L, "ROLE_CUSTOMER_FINANCE_ADMIN_LEADER", "Customer Finance Admin Leader", "CUSTOMER", "CUSTOMER", "FINANCE_ADMIN", "TEAM_LEADER", "F", "5", now, now)
                 )
         );
 
@@ -76,7 +78,7 @@ class RoleControllerTest {
         mockMvc.perform(get("/api/v1/roles"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totCnt").value(2))
-                .andExpect(jsonPath("$.itemList[0].roleCd").value("ROLE_ADMIN"))
-                .andExpect(jsonPath("$.itemList[1].roleCd").value("ROLE_FINANCE"));
+                .andExpect(jsonPath("$.itemList[0].roleCd").value("ROLE_PLATFORM_SUPER_ADMIN"))
+                .andExpect(jsonPath("$.itemList[1].roleCd").value("ROLE_CUSTOMER_FINANCE_ADMIN_LEADER"));
     }
 }

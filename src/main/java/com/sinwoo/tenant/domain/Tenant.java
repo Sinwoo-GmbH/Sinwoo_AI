@@ -20,17 +20,29 @@ public class Tenant extends BaseEntity {
     @Column(name = "TENANT_NM", nullable = false, length = 255)
     private String tenantNm;
 
+    @Column(name = "TENANT_TP_CD", nullable = false, length = 20)
+    private String tenantTpCd;
+
+    @Column(name = "BILL_FREE_YN", nullable = false, length = 1, columnDefinition = "CHAR(1)")
+    private String billFreeYn;
+
     @Column(name = "STS_CD", nullable = false, length = 20)
     private String stsCd;
 
-    private Tenant(String tenantCd, String tenantNm, TenantStatus tenantStatus) {
+    private Tenant(String tenantCd, String tenantNm, String tenantTpCd, String billFreeYn, TenantStatus tenantStatus) {
         this.tenantCd = tenantCd;
         this.tenantNm = tenantNm;
+        this.tenantTpCd = tenantTpCd;
+        this.billFreeYn = billFreeYn;
         this.stsCd = tenantStatus.name();
     }
 
     public static Tenant create(String tenantCd, String tenantNm, TenantStatus tenantStatus) {
-        return new Tenant(tenantCd, tenantNm, tenantStatus);
+        return new Tenant(tenantCd, tenantNm, "CUSTOMER", "N", tenantStatus);
+    }
+
+    public static Tenant create(String tenantCd, String tenantNm, String tenantTpCd, String billFreeYn, TenantStatus tenantStatus) {
+        return new Tenant(tenantCd, tenantNm, tenantTpCd, billFreeYn, tenantStatus);
     }
 
     public TenantStatus getTenantStatus() {

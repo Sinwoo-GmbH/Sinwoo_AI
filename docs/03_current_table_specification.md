@@ -2,13 +2,14 @@
 
 ## 1. Scope
 
-This document describes the current standard bootstrap schema for SINWOO.
+This document describes the current next-generation standard schema for SINWOO.
 
 ## 2. Migration Files
 
 - [`V1__init_schema.sql`](C:\Users\JuyongLee\Sinwoo_AI\src\main\resources\db\migration\V1__init_schema.sql)
 - [`V2__add_access_log.sql`](C:\Users\JuyongLee\Sinwoo_AI\src\main\resources\db\migration\V2__add_access_log.sql)
 - [`V3__extend_core_domain_for_nextgen.sql`](C:\Users\JuyongLee\Sinwoo_AI\src\main\resources\db\migration\V3__extend_core_domain_for_nextgen.sql)
+- [`V4__add_b2b_authorization_menu_and_billing.sql`](C:\Users\JuyongLee\Sinwoo_AI\src\main\resources\db\migration\V4__add_b2b_authorization_menu_and_billing.sql)
 
 ## 3. Tables
 
@@ -17,11 +18,21 @@ This document describes the current standard bootstrap schema for SINWOO.
 - `TB_USR`
 - `TB_ROLE`
 - `TB_USR_ROLE`
+- `TB_MNU`
+- `TB_ROLE_MNU_AUTH`
+- `TB_SUBS_PLAN`
+- `TB_SUBS`
+- `TB_PAY_TXN`
 - `TB_TENANT_HIST`
 - `TB_CO_HIST`
 - `TB_USR_HIST`
 - `TB_ROLE_HIST`
 - `TB_USR_ROLE_HIST`
+- `TB_MNU_HIST`
+- `TB_ROLE_MNU_AUTH_HIST`
+- `TB_SUBS_PLAN_HIST`
+- `TB_SUBS_HIST`
+- `TB_PAY_TXN_HIST`
 - `TB_ACCESS_LOG`
 
 ## 4. Table Details
@@ -33,6 +44,8 @@ This document describes the current standard bootstrap schema for SINWOO.
 | ID | BIGINT | N | Tenant primary key |
 | TENANT_CD | VARCHAR(100) | N | Tenant code |
 | TENANT_NM | VARCHAR(255) | N | Tenant name |
+| TENANT_TP_CD | VARCHAR(20) | N | Tenant type code |
+| BILL_FREE_YN | CHAR(1) | N | Billing free yes or no |
 | STS_CD | VARCHAR(20) | N | Status code |
 | CRT_BY | VARCHAR(100) | N | Created by |
 | CRT_DTM | TIMESTAMP | N | Created datetime |
@@ -104,6 +117,10 @@ Constraints / Indexes:
 | ID | BIGINT | N | Role primary key |
 | ROLE_CD | VARCHAR(100) | N | Role code |
 | ROLE_NM | VARCHAR(255) | N | Role name |
+| ROLE_SCOPE_CD | VARCHAR(20) | Y | Role scope code |
+| ROLE_D1_CD | VARCHAR(30) | Y | Role depth 1 code |
+| ROLE_D2_CD | VARCHAR(30) | Y | Role depth 2 code |
+| ROLE_D3_CD | VARCHAR(30) | Y | Role depth 3 code |
 | ROLE_GRP_CD | VARCHAR(20) | Y | Role group code |
 | ROLE_LVL_CD | VARCHAR(20) | Y | Role level code |
 | CRT_BY | VARCHAR(100) | N | Created by |
@@ -116,7 +133,137 @@ Constraints / Indexes:
 - `PK_TB_ROLE`
 - `UK_TB_ROLE_ROLE_CD`
 
-### 4.5 TB_USR_ROLE
+### 4.5 TB_MNU
+
+| Column | Type | Null | Description |
+| --- | --- | --- | --- |
+| ID | BIGINT | N | Menu primary key |
+| MNU_CD | VARCHAR(100) | N | Menu code |
+| MNU_NM | VARCHAR(255) | N | Menu name |
+| MNU_SCOPE_CD | VARCHAR(20) | N | Menu scope code |
+| UP_MNU_ID | BIGINT | Y | Parent menu primary key |
+| PATH_URI | VARCHAR(500) | Y | Menu path uri |
+| ICON_NM | VARCHAR(100) | Y | Menu icon name |
+| DSP_ORD | INT | N | Display order |
+| USE_YN | CHAR(1) | N | Use yes or no |
+| CRT_BY | VARCHAR(100) | N | Created by |
+| CRT_DTM | TIMESTAMP | N | Created datetime |
+| UPD_BY | VARCHAR(100) | N | Updated by |
+| UPD_DTM | TIMESTAMP | N | Updated datetime |
+
+Constraints / Indexes:
+
+- `PK_TB_MNU`
+- `FK_TB_MNU_01`
+- `UK_TB_MNU_MNU_CD`
+- `IX_TB_MNU_UP_MNU_ID`
+- `IX_TB_MNU_SCOPE_CD`
+
+### 4.6 TB_ROLE_MNU_AUTH
+
+| Column | Type | Null | Description |
+| --- | --- | --- | --- |
+| ID | BIGINT | N | Role-menu auth primary key |
+| ROLE_ID | BIGINT | N | Role primary key reference |
+| MNU_ID | BIGINT | N | Menu primary key reference |
+| VIEW_YN | CHAR(1) | N | View yes or no |
+| CRT_YN | CHAR(1) | N | Create yes or no |
+| UPD_YN | CHAR(1) | N | Update yes or no |
+| DEL_YN | CHAR(1) | N | Delete yes or no |
+| APRV_YN | CHAR(1) | N | Approve yes or no |
+| EXPRT_YN | CHAR(1) | N | Export yes or no |
+| CRT_BY | VARCHAR(100) | N | Created by |
+| CRT_DTM | TIMESTAMP | N | Created datetime |
+| UPD_BY | VARCHAR(100) | N | Updated by |
+| UPD_DTM | TIMESTAMP | N | Updated datetime |
+
+Constraints / Indexes:
+
+- `PK_TB_ROLE_MNU_AUTH`
+- `UK_TB_ROLE_MNU_AUTH_ROLE_ID_MNU_ID`
+- `FK_TB_ROLE_MNU_AUTH_01`
+- `FK_TB_ROLE_MNU_AUTH_02`
+- `IX_TB_ROLE_MNU_AUTH_ROLE_ID`
+- `IX_TB_ROLE_MNU_AUTH_MNU_ID`
+
+### 4.7 TB_SUBS_PLAN
+
+| Column | Type | Null | Description |
+| --- | --- | --- | --- |
+| ID | BIGINT | N | Subscription plan primary key |
+| PLAN_CD | VARCHAR(100) | N | Plan code |
+| PLAN_NM | VARCHAR(255) | N | Plan name |
+| TENANT_TP_CD | VARCHAR(20) | N | Tenant type code |
+| BILL_CYCL_CD | VARCHAR(20) | N | Billing cycle code |
+| CURR_CD | VARCHAR(10) | N | Currency code |
+| BASE_AMT | DECIMAL(15,2) | N | Base amount |
+| USR_LMT_CNT | INT | Y | User limit count |
+| USE_YN | CHAR(1) | N | Use yes or no |
+| CRT_BY | VARCHAR(100) | N | Created by |
+| CRT_DTM | TIMESTAMP | N | Created datetime |
+| UPD_BY | VARCHAR(100) | N | Updated by |
+| UPD_DTM | TIMESTAMP | N | Updated datetime |
+
+Constraints / Indexes:
+
+- `PK_TB_SUBS_PLAN`
+- `UK_TB_SUBS_PLAN_PLAN_CD`
+
+### 4.8 TB_SUBS
+
+| Column | Type | Null | Description |
+| --- | --- | --- | --- |
+| ID | BIGINT | N | Subscription primary key |
+| TENANT_ID | BIGINT | N | Tenant primary key reference |
+| PLAN_ID | BIGINT | N | Subscription plan primary key reference |
+| SUBS_STS_CD | VARCHAR(20) | N | Subscription status code |
+| BILL_FREE_YN | CHAR(1) | N | Billing free yes or no |
+| AUTO_PAY_YN | CHAR(1) | N | Auto pay yes or no |
+| STR_DT | DATE | N | Start date |
+| END_DT | DATE | Y | End date |
+| NEXT_BILL_DT | DATE | Y | Next billing date |
+| CRT_BY | VARCHAR(100) | N | Created by |
+| CRT_DTM | TIMESTAMP | N | Created datetime |
+| UPD_BY | VARCHAR(100) | N | Updated by |
+| UPD_DTM | TIMESTAMP | N | Updated datetime |
+
+Constraints / Indexes:
+
+- `PK_TB_SUBS`
+- `FK_TB_SUBS_01`
+- `FK_TB_SUBS_02`
+- `IX_TB_SUBS_TENANT_ID`
+- `IX_TB_SUBS_PLAN_ID`
+
+### 4.9 TB_PAY_TXN
+
+| Column | Type | Null | Description |
+| --- | --- | --- | --- |
+| ID | BIGINT | N | Payment transaction primary key |
+| TENANT_ID | BIGINT | N | Tenant primary key reference |
+| SUBS_ID | BIGINT | N | Subscription primary key reference |
+| PAY_TP_CD | VARCHAR(20) | N | Payment type code |
+| PAY_STS_CD | VARCHAR(20) | N | Payment status code |
+| PAY_AMT | DECIMAL(15,2) | N | Payment amount |
+| CURR_CD | VARCHAR(10) | N | Currency code |
+| PG_CD | VARCHAR(30) | Y | Payment gateway code |
+| PG_TXN_NO | VARCHAR(100) | Y | Payment gateway transaction number |
+| APRV_DTM | TIMESTAMP | Y | Approved datetime |
+| FAIL_MSG | VARCHAR(1000) | Y | Failure message |
+| CRT_BY | VARCHAR(100) | N | Created by |
+| CRT_DTM | TIMESTAMP | N | Created datetime |
+| UPD_BY | VARCHAR(100) | N | Updated by |
+| UPD_DTM | TIMESTAMP | N | Updated datetime |
+
+Constraints / Indexes:
+
+- `PK_TB_PAY_TXN`
+- `FK_TB_PAY_TXN_01`
+- `FK_TB_PAY_TXN_02`
+- `IX_TB_PAY_TXN_TENANT_ID`
+- `IX_TB_PAY_TXN_SUBS_ID`
+
+### 4.10 TB_USR_ROLE
 
 | Column | Type | Null | Description |
 | --- | --- | --- | --- |
@@ -137,7 +284,7 @@ Constraints / Indexes:
 - `IX_TB_USR_ROLE_USR_ID`
 - `IX_TB_USR_ROLE_ROLE_ID`
 
-### 4.6 History Table Pattern
+### 4.11 History Table Pattern
 
 Every business table has its own history table, created and maintained by MariaDB triggers.
 
@@ -157,6 +304,11 @@ History tables currently in scope:
 - `TB_USR_HIST`
 - `TB_ROLE_HIST`
 - `TB_USR_ROLE_HIST`
+- `TB_MNU_HIST`
+- `TB_ROLE_MNU_AUTH_HIST`
+- `TB_SUBS_PLAN_HIST`
+- `TB_SUBS_HIST`
+- `TB_PAY_TXN_HIST`
 
 Each history table also stores a full snapshot of the source row at the time of change.
 
@@ -168,10 +320,14 @@ Related trigger examples:
 - `TR_TB_CO_AI`
 - `TR_TB_CO_AU`
 - `TR_TB_CO_BD`
+- `TR_TB_MNU_AI`
+- `TR_TB_ROLE_MNU_AUTH_AI`
+- `TR_TB_SUBS_AI`
+- `TR_TB_PAY_TXN_AI`
 
-## 5. Current Common-Axis API Coverage
+## 5. Current API Coverage
 
-The current next-gen port already exposes the following master APIs:
+The current next-gen port exposes the following master APIs:
 
 - `GET /api/v1/tenants`
 - `POST /api/v1/tenants`
@@ -181,8 +337,35 @@ The current next-gen port already exposes the following master APIs:
 - `POST /api/v1/roles`
 - `GET /api/v1/users?tenantId=<id>&coId=<id>`
 - `POST /api/v1/users`
+- `GET /api/v1/menus?mnuScopeCd=<scope>`
+- `GET /api/v1/menus/visible?roleCd=<roleCd>&mnuScopeCd=<scope>`
+- `POST /api/v1/menus`
+- `GET /api/v1/role-menu-auths?roleCd=<roleCd>`
+- `POST /api/v1/role-menu-auths`
+- `GET /api/v1/subscription-plans`
+- `POST /api/v1/subscription-plans`
+- `GET /api/v1/subscriptions?tenantId=<id>`
+- `POST /api/v1/subscriptions`
+- `GET /api/v1/payment-transactions?tenantId=<id>`
+- `POST /api/v1/payment-transactions`
 
-### 4.7 TB_ACCESS_LOG
+## 6. B2B Authorization and Billing Rules
+
+- Tenant type:
+  - `INTERNAL`
+  - `CUSTOMER`
+- Internal tenant policy:
+  - billing free enforced
+  - paid payment transaction blocked
+- Role depth model:
+  - depth 1: `ADMIN`, `CUSTOMER`
+  - depth 2 admin: `SUPER_ADMIN`, `NORMAL_ADMIN`
+  - depth 2 customer: `USER`, `FINANCE_ADMIN`, `HR_ADMIN`, `ADMIN`
+  - depth 3 customer: `TEAM_MEMBER`, `TEAM_LEADER`
+- Menu visibility is controlled by `TB_ROLE_MNU_AUTH`
+- Menu scope is split by `ADMIN` and `CUSTOMER`
+
+### 6.1 TB_ACCESS_LOG
 
 | Column | Type | Null | Description |
 | --- | --- | --- | --- |
@@ -212,7 +395,7 @@ Indexes:
 - `IX_TB_ACCESS_LOG_USR_KEY`
 - `IX_TB_ACCESS_LOG_CRT_DTM`
 
-## 5. Engineering Rule
+## 7. Engineering Rule
 
 Any new table or schema change must be aligned with:
 

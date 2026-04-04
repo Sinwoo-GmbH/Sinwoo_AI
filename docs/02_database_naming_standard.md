@@ -26,6 +26,9 @@ Examples:
 - `TB_CO`
 - `TB_USR`
 - `TB_ROLE`
+- `TB_MNU`
+- `TB_SUBS`
+- `TB_PAY_TXN`
 - `TB_USR_ROLE`
 - `TB_TENANT_HIST`
 - `TB_CO_HIST`
@@ -136,6 +139,11 @@ Examples:
 - `TB_USR` -> `TB_USR_HIST`
 - `TB_ROLE` -> `TB_ROLE_HIST`
 - `TB_USR_ROLE` -> `TB_USR_ROLE_HIST`
+- `TB_MNU` -> `TB_MNU_HIST`
+- `TB_ROLE_MNU_AUTH` -> `TB_ROLE_MNU_AUTH_HIST`
+- `TB_SUBS_PLAN` -> `TB_SUBS_PLAN_HIST`
+- `TB_SUBS` -> `TB_SUBS_HIST`
+- `TB_PAY_TXN` -> `TB_PAY_TXN_HIST`
 
 ## 7. Approved Abbreviation Dictionary
 
@@ -145,15 +153,19 @@ Examples:
 | COMPANY | CO |
 | USER | USR |
 | ROLE | ROLE |
+| MENU | MNU |
 | HISTORY | HIST |
 | ACCESS | ACCESS |
 | LOG | LOG |
+| BILLING | BILL |
+| FINANCE | FIN |
 | CODE | CD |
 | NAME | NM |
 | STATUS | STS |
 | NUMBER | NO |
 | REGISTRATION | REG |
 | AUTHORIZATION | AUTH |
+| APPROVAL | APRV |
 | GROUP | GRP |
 | LEVEL | LVL |
 | DISPLAY | DSP |
@@ -169,6 +181,13 @@ Examples:
 | ENTITY | ENT |
 | ROW | ROW |
 | TYPE | TP |
+| SUBSCRIPTION | SUBS |
+| PLAN | PLAN |
+| PAYMENT | PAY |
+| TRANSACTION | TXN |
+| CYCLE | CYCL |
+| CURRENCY | CURR |
+| EXPORT | EXPRT |
 | JSON | JSON |
 | REQUEST | REQ |
 | RESPONSE | RESP |
@@ -194,6 +213,17 @@ Examples:
 - `lgnId`
 - `authGrpCd`
 - `authLvlCd`
+- `tenantTpCd`
+- `billFreeYn`
+- `roleScopeCd`
+- `roleD1Cd`
+- `roleD2Cd`
+- `roleD3Cd`
+- `mnuCd`
+- `mnuScopeCd`
+- `subsStsCd`
+- `payTpCd`
+- `payStsCd`
 - `stsCd`
 - `crtDtm`
 - `updDtm`

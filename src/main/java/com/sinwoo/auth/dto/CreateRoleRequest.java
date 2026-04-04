@@ -15,6 +15,18 @@ public record CreateRoleRequest(
         String roleNm,
 
         @Size(max = 20)
+        String roleScopeCd,
+
+        @Size(max = 30)
+        String roleD1Cd,
+
+        @Size(max = 30)
+        String roleD2Cd,
+
+        @Size(max = 30)
+        String roleD3Cd,
+
+        @Size(max = 20)
         String roleGrpCd,
 
         @Size(max = 20)

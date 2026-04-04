@@ -7,6 +7,8 @@ public record TenantResponse(
         Long tenantId,
         String tenantCd,
         String tenantNm,
+        String tenantTpCd,
+        String billFreeYn,
         String stsCd,
         OffsetDateTime crtDtm,
         OffsetDateTime updDtm
@@ -16,6 +18,8 @@ public record TenantResponse(
                 tenant.getId(),
                 tenant.getTenantCd(),
                 tenant.getTenantNm(),
+                tenant.getTenantTpCd(),
+                tenant.getBillFreeYn(),
                 tenant.getStsCd(),
                 tenant.getCreatedAt(),
                 tenant.getUpdatedAt()

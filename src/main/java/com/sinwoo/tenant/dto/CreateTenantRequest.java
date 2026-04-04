@@ -12,6 +12,12 @@ public record CreateTenantRequest(
 
         @NotBlank
         @Size(max = 255)
-        String tenantNm
+        String tenantNm,
+
+        @Size(max = 20)
+        String tenantTpCd,
+
+        @Size(max = 1)
+        String billFreeYn
 ) {
 }

@@ -1,12 +1,16 @@
 export interface CreateTenantReq {
   tenantCd: string;
   tenantNm: string;
+  tenantTpCd?: string;
+  billFreeYn?: "Y" | "N";
 }
 
 export interface TenantRes {
   tenantId: number;
   tenantCd: string;
   tenantNm: string;
+  tenantTpCd: string;
+  billFreeYn: "Y" | "N";
   stsCd: string;
   crtDtm: string;
   updDtm: string;

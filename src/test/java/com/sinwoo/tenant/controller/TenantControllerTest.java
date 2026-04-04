@@ -44,18 +44,20 @@ class TenantControllerTest {
     @Test
     void createTenantReturnsCreatedTenant() throws Exception {
         OffsetDateTime now = OffsetDateTime.parse("2026-04-04T00:00:00Z");
-        TenantResponse response = new TenantResponse(1L, "SINWOO", "Sinwoo", "ACTIVE", now, now);
+        TenantResponse response = new TenantResponse(1L, "SINWOO", "Sinwoo", "CUSTOMER", "N", "ACTIVE", now, now);
 
-        given(tenantService.createTenant(new CreateTenantRequest("sinwoo", "Sinwoo"))).willReturn(response);
+        given(tenantService.createTenant(new CreateTenantRequest("sinwoo", "Sinwoo", "CUSTOMER", "N"))).willReturn(response);
 
         mockMvc.perform(post("/api/v1/tenants")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new CreateTenantRequest("sinwoo", "Sinwoo"))))
+                        .content(objectMapper.writeValueAsString(new CreateTenantRequest("sinwoo", "Sinwoo", "CUSTOMER", "N"))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.tenantId").value(1))
                 .andExpect(jsonPath("$.tenantCd").value("SINWOO"))
                 .andExpect(jsonPath("$.tenantNm").value("Sinwoo"))
+                .andExpect(jsonPath("$.tenantTpCd").value("CUSTOMER"))
+                .andExpect(jsonPath("$.billFreeYn").value("N"))
                 .andExpect(jsonPath("$.stsCd").value("ACTIVE"));
     }
 
@@ -64,7 +66,7 @@ class TenantControllerTest {
         OffsetDateTime now = OffsetDateTime.parse("2026-04-04T00:00:00Z");
         TenantListResponse response = new TenantListResponse(
                 1,
-                List.of(new TenantResponse(1L, "SINWOO", "Sinwoo", "ACTIVE", now, now))
+                List.of(new TenantResponse(1L, "SINWOO", "Sinwoo", "CUSTOMER", "N", "ACTIVE", now, now))
         );
 
         given(tenantService.getTenants()).willReturn(response);
@@ -74,6 +76,7 @@ class TenantControllerTest {
                 .andExpect(jsonPath("$.totCnt").value(1))
                 .andExpect(jsonPath("$.itemList[0].tenantCd").value("SINWOO"))
                 .andExpect(jsonPath("$.itemList[0].tenantNm").value("Sinwoo"))
+                .andExpect(jsonPath("$.itemList[0].tenantTpCd").value("CUSTOMER"))
                 .andExpect(jsonPath("$.itemList[0].stsCd").value("ACTIVE"));
     }
 

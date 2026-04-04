@@ -31,6 +31,10 @@ public class RoleServiceImpl implements RoleService {
         Role role = Role.create(
                 normalizedRoleCd,
                 request.roleNm().trim(),
+                blankToNullUpper(request.roleScopeCd()),
+                blankToNullUpper(request.roleD1Cd()),
+                blankToNullUpper(request.roleD2Cd()),
+                blankToNullUpper(request.roleD3Cd()),
                 blankToNullUpper(request.roleGrpCd()),
                 blankToNullUpper(request.roleLvlCd())
         );
