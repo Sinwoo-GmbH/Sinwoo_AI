@@ -1,0 +1,66 @@
+spring:
+  application:
+    name: sinwoo-backend
+  profiles:
+    default: local
+  jackson:
+    time-zone: UTC
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  data:
+    redis:
+      timeout: 3s
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+server:
+  shutdown: graceful
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when_authorized
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: Sinwoo Backend
+    description: Modular monolith backend for Sinwoo B2B SaaS
+
+app:
+  security:
+    jwt-secret: change-me-in-real-environments
+    access-token-ttl-seconds: 3600
+    refresh-token-ttl-seconds: 1209600
+  tenancy:
+    mode: header
+    header-name: X-Tenant-Id
+  minio:
+    endpoint: http://localhost:9000
+    access-key: sinwoo
+    secret-key: sinwoo123
+    bucket: sinwoo-local
+    secure: false
