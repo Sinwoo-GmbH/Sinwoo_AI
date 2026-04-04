@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "user_roles")
+@Table(name = "TB_USR_ROLE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserRole extends BaseEntity {
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "USR_ID", nullable = false)
+    private Long usrId;
 
-    @Column(name = "role_id", nullable = false)
+    @Column(name = "ROLE_ID", nullable = false)
     private Long roleId;
 }

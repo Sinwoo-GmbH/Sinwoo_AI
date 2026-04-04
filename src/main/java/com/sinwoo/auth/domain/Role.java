@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "roles")
+@Table(name = "TB_ROLE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Role extends BaseEntity {
 
-    @Column(nullable = false, unique = true, length = 100)
-    private String code;
+    @Column(name = "ROLE_CD", nullable = false, unique = true, length = 100)
+    private String roleCd;
 
-    @Column(nullable = false, length = 255)
-    private String name;
+    @Column(name = "ROLE_NM", nullable = false, length = 255)
+    private String roleNm;
 }

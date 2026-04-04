@@ -23,13 +23,13 @@ public class TenantServiceImpl implements TenantService {
     @Override
     @Transactional
     public TenantResponse createTenant(CreateTenantRequest request) {
-        String normalizedCode = normalizeCode(request.code());
+        String normalizedTenantCd = normalizeTenantCd(request.tenantCd());
 
-        if (tenantRepository.existsByCodeIgnoreCase(normalizedCode)) {
+        if (tenantRepository.existsByTenantCdIgnoreCase(normalizedTenantCd)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Tenant code already exists");
         }
 
-        Tenant tenant = Tenant.create(normalizedCode, request.name().trim(), TenantStatus.ACTIVE);
+        Tenant tenant = Tenant.create(normalizedTenantCd, request.tenantNm().trim(), TenantStatus.ACTIVE);
         Tenant savedTenant = tenantRepository.save(tenant);
         return TenantResponse.from(savedTenant);
     }
@@ -43,7 +43,7 @@ public class TenantServiceImpl implements TenantService {
         return new TenantListResponse(items.size(), items);
     }
 
-    private String normalizeCode(String code) {
-        return code.trim().toUpperCase();
+    private String normalizeTenantCd(String tenantCd) {
+        return tenantCd.trim().toUpperCase();
     }
 }

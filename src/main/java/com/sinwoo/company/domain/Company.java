@@ -10,19 +10,19 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "companies")
+@Table(name = "TB_CO")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Company extends BaseEntity {
 
-    @Column(name = "tenant_id", nullable = false)
+    @Column(name = "TENANT_ID", nullable = false)
     private Long tenantId;
 
-    @Column(nullable = false, length = 255)
-    private String name;
+    @Column(name = "CO_NM", nullable = false, length = 255)
+    private String coNm;
 
-    @Column(name = "registration_number", length = 100)
-    private String registrationNumber;
+    @Column(name = "REG_NO", length = 100)
+    private String regNo;
 
-    @Column(nullable = false, length = 20)
-    private String status;
+    @Column(name = "STS_CD", nullable = false, length = 20)
+    private String stsCd;
 }

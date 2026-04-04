@@ -10,28 +10,28 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "users")
+@Table(name = "TB_USR")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
 
-    @Column(name = "tenant_id", nullable = false)
+    @Column(name = "TENANT_ID", nullable = false)
     private Long tenantId;
 
-    @Column(name = "company_id")
-    private Long companyId;
+    @Column(name = "CO_ID")
+    private Long coId;
 
-    @Column(nullable = false, unique = true, length = 255)
-    private String email;
+    @Column(name = "EML", nullable = false, unique = true, length = 255)
+    private String eml;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
-    private String passwordHash;
+    @Column(name = "PWD_HASH", nullable = false, length = 255)
+    private String pwdHash;
 
-    @Column(name = "display_name", nullable = false, length = 255)
-    private String displayName;
+    @Column(name = "DSP_NM", nullable = false, length = 255)
+    private String dspNm;
 
-    @Column(name = "locale", nullable = false, length = 10)
-    private String locale;
+    @Column(name = "LOCL_CD", nullable = false, length = 10)
+    private String loclCd;
 
-    @Column(nullable = false, length = 20)
-    private String status;
+    @Column(name = "STS_CD", nullable = false, length = 20)
+    private String stsCd;
 }

@@ -49,10 +49,10 @@ class TenantControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new CreateTenantRequest("sinwoo", "Sinwoo"))))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.code").value("SINWOO"))
-                .andExpect(jsonPath("$.name").value("Sinwoo"))
-                .andExpect(jsonPath("$.status").value("ACTIVE"));
+                .andExpect(jsonPath("$.tenantId").value(1))
+                .andExpect(jsonPath("$.tenantCd").value("SINWOO"))
+                .andExpect(jsonPath("$.tenantNm").value("Sinwoo"))
+                .andExpect(jsonPath("$.stsCd").value("ACTIVE"));
     }
 
     @Test
@@ -67,10 +67,10 @@ class TenantControllerTest {
 
         mockMvc.perform(get("/api/v1/tenants"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.count").value(1))
-                .andExpect(jsonPath("$.items[0].code").value("SINWOO"))
-                .andExpect(jsonPath("$.items[0].name").value("Sinwoo"))
-                .andExpect(jsonPath("$.items[0].status").value("ACTIVE"));
+                .andExpect(jsonPath("$.totCnt").value(1))
+                .andExpect(jsonPath("$.itemList[0].tenantCd").value("SINWOO"))
+                .andExpect(jsonPath("$.itemList[0].tenantNm").value("Sinwoo"))
+                .andExpect(jsonPath("$.itemList[0].stsCd").value("ACTIVE"));
     }
 
     @Test

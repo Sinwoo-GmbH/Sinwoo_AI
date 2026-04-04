@@ -18,6 +18,7 @@ bin/
 
 logs/
 *.log
+bootrun.*
 
 .env
 .env.*

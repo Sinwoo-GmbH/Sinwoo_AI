@@ -10,30 +10,30 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "tenants")
+@Table(name = "TB_TENANT")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Tenant extends BaseEntity {
 
-    @Column(nullable = false, unique = true, length = 100)
-    private String code;
+    @Column(name = "TENANT_CD", nullable = false, unique = true, length = 100)
+    private String tenantCd;
 
-    @Column(nullable = false, length = 255)
-    private String name;
+    @Column(name = "TENANT_NM", nullable = false, length = 255)
+    private String tenantNm;
 
-    @Column(nullable = false, length = 20)
-    private String status;
+    @Column(name = "STS_CD", nullable = false, length = 20)
+    private String stsCd;
 
-    private Tenant(String code, String name, TenantStatus status) {
-        this.code = code;
-        this.name = name;
-        this.status = status.name();
+    private Tenant(String tenantCd, String tenantNm, TenantStatus tenantStatus) {
+        this.tenantCd = tenantCd;
+        this.tenantNm = tenantNm;
+        this.stsCd = tenantStatus.name();
     }
 
-    public static Tenant create(String code, String name, TenantStatus status) {
-        return new Tenant(code, name, status);
+    public static Tenant create(String tenantCd, String tenantNm, TenantStatus tenantStatus) {
+        return new Tenant(tenantCd, tenantNm, tenantStatus);
     }
 
     public TenantStatus getTenantStatus() {
-        return TenantStatus.valueOf(status);
+        return TenantStatus.valueOf(stsCd);
     }
 }

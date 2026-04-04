@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { TENANT_API_PATH } from "@/lib/api/tenant-contract";
 
 const metricCards = [
   { label: "승인 대기 문서", value: "128", delta: "+14 today" },
@@ -136,6 +137,11 @@ export default function HomePage() {
                           </div>
                         </div>
                       ))}
+                    </div>
+                    <div className="rounded-2xl bg-slate-950 p-4 text-slate-100">
+                      <div className="mb-2 text-xs uppercase tracking-[0.24em] text-slate-400">API Standard</div>
+                      <div>{TENANT_API_PATH}</div>
+                      <div className="mt-2 text-slate-300">tenantCd / tenantNm / stsCd / crtDtm / updDtm</div>
                     </div>
                   </CardContent>
                 </Card>

@@ -1,6 +1,6 @@
-# Sinwoo AI Backend
+# Sinwoo AI Platform
 
-Initial backend bootstrap for a modular monolith B2B SaaS platform built with Java 21, Spring Boot 3, Gradle, MariaDB, Redis, MinIO, Flyway, Spring Security, and Actuator.
+Bootstrap project for a modular monolith B2B SaaS platform built with Java 21, Spring Boot 3, Gradle, MariaDB, Redis, MinIO, Flyway, Spring Security, and a separate Next.js frontend.
 
 ## Architecture Direction
 
@@ -9,6 +9,7 @@ Initial backend bootstrap for a modular monolith B2B SaaS platform built with Ja
 - Multi-tenant ready foundation
 - Planned domains: auth, tenant, user, company, document, bookkeeping OCR, attendance, HR, payroll, asset management
 - Multilingual support planned for Korean, English, and German
+- Abbreviation-based database naming standard applied
 
 ## Tech Stack
 
@@ -66,27 +67,12 @@ Services:
 - MinIO API: `localhost:9000`
 - MinIO Console: `localhost:9001`
 
-### 2. Run the application
+### 2. Run the backend
 
-If Gradle is installed locally:
-
-```bash
-gradle bootRun --args='--spring.profiles.active=local'
-```
-
-Or generate a Gradle wrapper and use it:
-
-```bash
-gradle wrapper
-./gradlew bootRun --args='--spring.profiles.active=local'
-```
-
-The wrapper is not committed in this bootstrap because `gradle` is not installed in the current environment.
-
-On Windows PowerShell:
+Use the committed Gradle wrapper:
 
 ```powershell
-gradle bootRun --args="--spring.profiles.active=local"
+.\gradlew.bat bootRun --args="--spring.profiles.active=local"
 ```
 
 ### 3. Verify
@@ -118,6 +104,30 @@ Then open:
 
 The first screen is a branded dashboard scaffold intended for the Sinwoo customer portal and admin console direction.
 
+## Database Standard
+
+The current bootstrap follows these conventions:
+
+- Tables: `TB_<ENTITY>`
+- Primary keys: `PK_<TABLE>`
+- Foreign keys: `FK_<TABLE>_<SEQ>`
+- Indexes: `IX_<TABLE>_<COLUMN>`
+- Unique keys: `UK_<TABLE>_<COLUMN>`
+- Audit columns:
+  - `CRT_BY`
+  - `CRT_DTM`
+  - `UPD_BY`
+  - `UPD_DTM`
+
+Main base tables:
+
+- `TB_TENANT`
+- `TB_CO`
+- `TB_USR`
+- `TB_ROLE`
+- `TB_USR_ROLE`
+- `TB_CHG_HIST`
+
 ## Default Local Credentials
 
 ### MariaDB
@@ -135,5 +145,6 @@ The first screen is a branded dashboard scaffold intended for the Sinwoo custome
 
 - Flyway runs automatically on startup.
 - Security is intentionally minimal and placeholder-oriented at this stage.
-- The current schema includes tenants, companies, users, roles, and user-role mapping.
+- The current schema includes tenant, company, user, role, user-role mapping, and change history.
 - The app is structured for future tenant-aware security, auditing, localization, and module boundaries.
+- Frontend API contract types can be shared from `frontend/lib/api`.
