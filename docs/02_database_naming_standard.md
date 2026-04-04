@@ -96,7 +96,9 @@ UK_<TABLE>_<COLUMN>
 Examples:
 
 - `UK_TB_TENANT_TENANT_CD`
-- `UK_TB_USR_EML`
+- `UK_TB_CO_TENANT_ID_CO_CD`
+- `UK_TB_USR_TENANT_ID_LGN_ID`
+- `UK_TB_USR_TENANT_ID_EML`
 
 ### Trigger
 
@@ -151,6 +153,9 @@ Examples:
 | STATUS | STS |
 | NUMBER | NO |
 | REGISTRATION | REG |
+| AUTHORIZATION | AUTH |
+| GROUP | GRP |
+| LEVEL | LVL |
 | DISPLAY | DSP |
 | PASSWORD | PWD |
 | HASH | HASH |
@@ -184,6 +189,11 @@ Examples:
 
 - `tenantCd`
 - `tenantNm`
+- `coCd`
+- `coNm`
+- `lgnId`
+- `authGrpCd`
+- `authLvlCd`
 - `stsCd`
 - `crtDtm`
 - `updDtm`

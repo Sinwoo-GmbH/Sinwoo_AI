@@ -4,9 +4,11 @@
 
 This document describes the current standard bootstrap schema for SINWOO.
 
-## 2. Migration File
+## 2. Migration Files
 
 - [`V1__init_schema.sql`](C:\Users\JuyongLee\Sinwoo_AI\src\main\resources\db\migration\V1__init_schema.sql)
+- [`V2__add_access_log.sql`](C:\Users\JuyongLee\Sinwoo_AI\src\main\resources\db\migration\V2__add_access_log.sql)
+- [`V3__extend_core_domain_for_nextgen.sql`](C:\Users\JuyongLee\Sinwoo_AI\src\main\resources\db\migration\V3__extend_core_domain_for_nextgen.sql)
 
 ## 3. Tables
 
@@ -48,6 +50,7 @@ Constraints / Indexes:
 | --- | --- | --- | --- |
 | ID | BIGINT | N | Company primary key |
 | TENANT_ID | BIGINT | N | Tenant primary key reference |
+| CO_CD | VARCHAR(100) | N | Company code |
 | CO_NM | VARCHAR(255) | N | Company name |
 | REG_NO | VARCHAR(100) | Y | Registration number |
 | STS_CD | VARCHAR(20) | N | Status code |
@@ -61,6 +64,7 @@ Constraints / Indexes:
 - `PK_TB_CO`
 - `FK_TB_CO_01`
 - `IX_TB_CO_TENANT_ID`
+- `UK_TB_CO_TENANT_ID_CO_CD`
 
 ### 4.3 TB_USR
 
@@ -69,10 +73,14 @@ Constraints / Indexes:
 | ID | BIGINT | N | User primary key |
 | TENANT_ID | BIGINT | N | Tenant primary key reference |
 | CO_ID | BIGINT | Y | Company primary key reference |
+| LGN_ID | VARCHAR(100) | N | Login identifier |
 | EML | VARCHAR(255) | N | User email |
 | PWD_HASH | VARCHAR(255) | N | Password hash |
 | DSP_NM | VARCHAR(255) | N | Display name |
 | LOCL_CD | VARCHAR(10) | N | Locale code |
+| TEL_NO | VARCHAR(30) | Y | Telephone number |
+| AUTH_GRP_CD | VARCHAR(20) | Y | Authorization group code |
+| AUTH_LVL_CD | VARCHAR(20) | Y | Authorization level code |
 | STS_CD | VARCHAR(20) | N | Status code |
 | CRT_BY | VARCHAR(100) | N | Created by |
 | CRT_DTM | TIMESTAMP | N | Created datetime |
@@ -82,11 +90,12 @@ Constraints / Indexes:
 Constraints / Indexes:
 
 - `PK_TB_USR`
-- `UK_TB_USR_EML`
 - `FK_TB_USR_01`
 - `FK_TB_USR_02`
 - `IX_TB_USR_TENANT_ID`
 - `IX_TB_USR_CO_ID`
+- `UK_TB_USR_TENANT_ID_LGN_ID`
+- `UK_TB_USR_TENANT_ID_EML`
 
 ### 4.4 TB_ROLE
 
@@ -95,6 +104,8 @@ Constraints / Indexes:
 | ID | BIGINT | N | Role primary key |
 | ROLE_CD | VARCHAR(100) | N | Role code |
 | ROLE_NM | VARCHAR(255) | N | Role name |
+| ROLE_GRP_CD | VARCHAR(20) | Y | Role group code |
+| ROLE_LVL_CD | VARCHAR(20) | Y | Role level code |
 | CRT_BY | VARCHAR(100) | N | Created by |
 | CRT_DTM | TIMESTAMP | N | Created datetime |
 | UPD_BY | VARCHAR(100) | N | Updated by |
@@ -157,6 +168,19 @@ Related trigger examples:
 - `TR_TB_CO_AI`
 - `TR_TB_CO_AU`
 - `TR_TB_CO_BD`
+
+## 5. Current Common-Axis API Coverage
+
+The current next-gen port already exposes the following master APIs:
+
+- `GET /api/v1/tenants`
+- `POST /api/v1/tenants`
+- `GET /api/v1/companies?tenantId=<id>`
+- `POST /api/v1/companies`
+- `GET /api/v1/roles`
+- `POST /api/v1/roles`
+- `GET /api/v1/users?tenantId=<id>&coId=<id>`
+- `POST /api/v1/users`
 
 ### 4.7 TB_ACCESS_LOG
 

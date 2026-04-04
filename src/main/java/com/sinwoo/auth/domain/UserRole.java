@@ -19,4 +19,13 @@ public class UserRole extends BaseEntity {
 
     @Column(name = "ROLE_ID", nullable = false)
     private Long roleId;
+
+    private UserRole(Long usrId, Long roleId) {
+        this.usrId = usrId;
+        this.roleId = roleId;
+    }
+
+    public static UserRole create(Long usrId, Long roleId) {
+        return new UserRole(usrId, roleId);
+    }
 }

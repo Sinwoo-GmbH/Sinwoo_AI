@@ -139,6 +139,29 @@ Operational log table:
 
 - `TB_ACCESS_LOG`
 
+## Current Next-Gen Porting Status
+
+The first common-axis next-gen port is now in place:
+
+- tenant master API
+- company master API
+- role master API
+- user master API
+- per-table history logging by MariaDB triggers
+- request/access logging through `TB_ACCESS_LOG`
+
+Current admin-style APIs:
+
+- `GET /api/v1/system/ping`
+- `GET /api/v1/tenants`
+- `POST /api/v1/tenants`
+- `GET /api/v1/companies?tenantId=<id>`
+- `POST /api/v1/companies`
+- `GET /api/v1/roles`
+- `POST /api/v1/roles`
+- `GET /api/v1/users?tenantId=<id>&coId=<id>`
+- `POST /api/v1/users`
+
 ## Default Local Credentials
 
 ### MariaDB
