@@ -101,16 +101,13 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
 
   return (
     <Card className="w-full border border-slate-200 bg-white/96 shadow-[0_18px_38px_rgba(15,23,42,0.08)] backdrop-blur">
-      <CardHeader className="space-y-2 pb-4">
+      <CardHeader className="space-y-1.5 pb-3">
         <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">Workspace Access</div>
-        <CardTitle className="text-[26px] font-semibold tracking-tight text-slate-950">Sign in</CardTitle>
-        <p className="text-sm leading-6 text-slate-500">
-          Sign in with your company email and password.
-        </p>
+        <CardTitle className="text-[24px] font-semibold tracking-tight text-slate-950">Sign in</CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        <form className="space-y-3.5" onSubmit={handleSubmit}>
+      <CardContent className="space-y-3">
+        <form className="space-y-3" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label htmlFor="credential-email" className="text-sm font-medium text-slate-700">
               Email address

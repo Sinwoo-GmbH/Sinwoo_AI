@@ -19,18 +19,18 @@ export default async function LoginPage() {
   const providers = await getProviders();
 
   return (
-    <main className="relative min-h-[100dvh] overflow-y-auto bg-[linear-gradient(180deg,_#f7f9fc_0%,_#edf2f8_100%)]">
+    <main className="relative min-h-[100dvh] overflow-y-auto bg-[linear-gradient(180deg,_#f7f9fc_0%,_#edf2f8_100%)] lg:h-[100dvh] lg:overflow-hidden">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-[-6rem] top-[-5rem] h-52 w-52 rounded-full bg-[rgba(34,58,122,0.08)] blur-3xl" />
         <div className="absolute right-[-4rem] top-[-5rem] h-72 w-72 rounded-full bg-[rgba(72,104,181,0.10)] blur-3xl" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.52)_100%)]" />
       </div>
 
-      <div className="relative mx-auto flex min-h-[100dvh] max-w-5xl flex-col px-5 py-6 sm:px-6 lg:px-8 lg:py-8">
-        <section className="flex flex-1 items-center justify-center py-4 sm:py-6 lg:py-8">
-          <div className="w-full max-w-[460px] space-y-5 text-center">
+      <div className="relative mx-auto flex min-h-[100dvh] max-w-5xl flex-col px-5 py-4 sm:px-6 lg:h-full lg:min-h-0 lg:px-8 lg:py-5">
+        <section className="flex flex-1 items-center justify-center py-3 sm:py-5 lg:min-h-0 lg:py-4">
+          <div className="w-full max-w-[438px] space-y-4 text-center lg:space-y-3.5">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-full max-w-[144px] sm:max-w-[156px]">
+              <div className="w-full max-w-[136px] sm:max-w-[148px]">
                 <Image
                   src="/brand/sinwoo-logo.png"
                   alt="Sinwoo International"
@@ -45,11 +45,11 @@ export default async function LoginPage() {
                 <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-slate-500 sm:text-[11px]">
                   OneGate Enterprise Console
                 </p>
-                <h1 className="text-[clamp(1.85rem,2.8vw,2.45rem)] font-semibold tracking-[-0.035em] text-slate-950">
+                <h1 className="text-[clamp(1.65rem,2.35vw,2.15rem)] font-semibold tracking-[-0.035em] text-slate-950">
                   Sign in to your workspace
                 </h1>
-                <p className="mx-auto max-w-xl text-sm leading-6 text-slate-600 sm:text-[15px]">
-                  Access SINWOO internal administration and customer workspace operations with your company account.
+                <p className="mx-auto max-w-xl text-[13px] leading-6 text-slate-600 sm:text-sm">
+                  Access SINWOO internal administration and customer workspace operations.
                 </p>
               </div>
             </div>
@@ -58,7 +58,7 @@ export default async function LoginPage() {
           </div>
         </section>
 
-        <footer className="mt-auto flex flex-col gap-1.5 border-t border-slate-200/90 pt-3 text-center text-[10px] leading-5 text-slate-500 sm:text-[11px] lg:flex-row lg:items-center lg:justify-between">
+        <footer className="mt-auto flex shrink-0 flex-col gap-1 border-t border-slate-200/90 pt-2.5 text-center text-[10px] leading-5 text-slate-500 sm:text-[11px] lg:flex-row lg:items-center lg:justify-between">
           <p className="font-semibold tracking-[0.16em] text-slate-700">SINWOO INTERNATIONAL</p>
           <p>Enterprise B2B Operations Platform for Germany and Global Teams</p>
           <p>Copyright 2026 SINWOO International. All rights reserved.</p>
