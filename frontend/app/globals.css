@@ -54,7 +54,7 @@
     min-height: 100dvh;
   }
 
-  @media (min-width: 1024px) and (min-height: 900px) {
+  @media (min-width: 1024px) and (min-height: 820px) {
     .login-shell {
       height: 100dvh;
       min-height: 100dvh;
