@@ -7,6 +7,8 @@ export type LoginMessages = {
   localeNames: Record<LoginLocale, string>;
   productName: string;
   tagline: string;
+  desktopLabel: string;
+  desktopHighlights: string[];
   cardEyebrow: string;
   signInTitle: string;
   emailLabel: string;
@@ -33,6 +35,12 @@ const loginMessages: Record<LoginLocale, LoginMessages> = {
     },
     productName: "OneGate Enterprise Console",
     tagline: "Access Sinwoo internal administration and customer workspace operations.",
+    desktopLabel: "Enterprise access",
+    desktopHighlights: [
+      "내부 운영과 고객사 계정을 하나의 진입점에서 관리",
+      "권한별 메뉴와 감사 추적을 동일한 기준으로 통제",
+      "독일 법인 운영 기준에 맞춘 보안형 워크스페이스 로그인",
+    ],
     cardEyebrow: "Workspace Access",
     signInTitle: "로그인",
     emailLabel: "이메일 주소",
@@ -73,6 +81,12 @@ const loginMessages: Record<LoginLocale, LoginMessages> = {
     },
     productName: "OneGate Enterprise Console",
     tagline: "Access Sinwoo internal administration and customer workspace operations.",
+    desktopLabel: "Enterprise access",
+    desktopHighlights: [
+      "Manage internal operations and customer accounts from a single entry point.",
+      "Control role-based menus and audit visibility with one shared policy.",
+      "Use a secure workspace sign-in aligned to Germany-facing operations.",
+    ],
     cardEyebrow: "Workspace Access",
     signInTitle: "Sign in",
     emailLabel: "Email address",
@@ -113,6 +127,12 @@ const loginMessages: Record<LoginLocale, LoginMessages> = {
     },
     productName: "OneGate Enterprise Console",
     tagline: "Access Sinwoo internal administration and customer workspace operations.",
+    desktopLabel: "Enterprise access",
+    desktopHighlights: [
+      "Interne Abläufe und Kundenkonten über einen einzigen Zugang verwalten.",
+      "Rollenbasierte Menüs und Audit-Sichtbarkeit mit einer Richtlinie steuern.",
+      "Sicherer Workspace-Login für Deutschland-orientierte Betriebsprozesse.",
+    ],
     cardEyebrow: "Workspace Access",
     signInTitle: "Anmelden",
     emailLabel: "E-Mail-Adresse",

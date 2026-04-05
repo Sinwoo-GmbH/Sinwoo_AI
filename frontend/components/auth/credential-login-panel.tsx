@@ -15,6 +15,7 @@ type Props = {
   backendBaseUrl: string;
   providers: AuthProviderItem[];
   locale: LoginLocale;
+  mode?: "desktop" | "mobile";
 };
 
 const SAVED_EMAIL_KEY = "sinwoo.savedLoginEmail";
@@ -61,7 +62,7 @@ async function resolveLoginErrorMessage(response: Response, locale: LoginLocale)
   return messages.DEFAULT_FALLBACK;
 }
 
-export function CredentialLoginPanel({ backendBaseUrl, providers, locale }: Props) {
+export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode = "mobile" }: Props) {
   const router = useRouter();
   const [eml, setEml] = useState("");
   const [pwd, setPwd] = useState("");
@@ -69,6 +70,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale }: Prop
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const messages = useMemo(() => getLoginMessages(locale), [locale]);
+  const isDesktop = mode === "desktop";
 
   useEffect(() => {
     const saveYn = window.localStorage.getItem(SAVE_EMAIL_YN_KEY);
@@ -143,13 +145,22 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale }: Prop
   }
 
   return (
-    <Card className="w-full border border-slate-200 bg-white/96 shadow-[0_18px_38px_rgba(15,23,42,0.08)] backdrop-blur">
-      <CardHeader className="space-y-1.5 pb-3">
+    <Card
+      className={cn(
+        "w-full",
+        isDesktop
+          ? "border-0 bg-transparent shadow-none"
+          : "border border-slate-200 bg-white/96 shadow-[0_18px_38px_rgba(15,23,42,0.08)] backdrop-blur"
+      )}
+    >
+      <CardHeader className={cn("space-y-1.5", isDesktop ? "px-0 pb-4 pt-0" : "pb-3")}>
         <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">{messages.cardEyebrow}</div>
-        <CardTitle className="text-[24px] font-semibold tracking-tight text-slate-950">{messages.signInTitle}</CardTitle>
+        <CardTitle className={cn("font-semibold tracking-tight text-slate-950", isDesktop ? "text-[28px]" : "text-[24px]")}>
+          {messages.signInTitle}
+        </CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-3">
+      <CardContent className={cn("space-y-3", isDesktop ? "px-0 pb-0" : "")}>
         <form className="space-y-3" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label htmlFor="credential-email" className="text-sm font-medium text-slate-700">
@@ -162,7 +173,10 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale }: Prop
               onChange={(event) => setEml(event.target.value)}
               placeholder={messages.emailPlaceholder}
               autoComplete="username"
-              className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[#233a7a]"
+              className={cn(
+                "w-full border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[#233a7a]",
+                isDesktop ? "h-12 rounded-2xl" : "h-11 rounded-lg"
+              )}
             />
           </div>
 
@@ -177,7 +191,10 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale }: Prop
               onChange={(event) => setPwd(event.target.value)}
               placeholder={messages.passwordPlaceholder}
               autoComplete="current-password"
-              className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[#233a7a]"
+              className={cn(
+                "w-full border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[#233a7a]",
+                isDesktop ? "h-12 rounded-2xl" : "h-11 rounded-lg"
+              )}
             />
           </div>
 
@@ -197,7 +214,14 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale }: Prop
             </div>
           ) : null}
 
-          <Button type="submit" disabled={!canSubmit || isSubmitting} className="h-11 w-full rounded-lg bg-[#233a7a] text-sm font-semibold text-white hover:bg-[#1c2f64]">
+          <Button
+            type="submit"
+            disabled={!canSubmit || isSubmitting}
+            className={cn(
+              "w-full bg-[#233a7a] text-sm font-semibold text-white hover:bg-[#1c2f64]",
+              isDesktop ? "h-12 rounded-2xl" : "h-11 rounded-lg"
+            )}
+          >
             {isSubmitting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             {messages.signInButton}
           </Button>
@@ -221,7 +245,8 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale }: Prop
                   href={`${backendBaseUrl}${provider.authorizeUri}`}
                   className={cn(
                     buttonVariants({ variant: "outline" }),
-                    "flex h-11 w-full justify-center rounded-lg border-slate-300 text-sm font-medium text-slate-700"
+                    "flex w-full justify-center border-slate-300 text-sm font-medium text-slate-700",
+                    isDesktop ? "h-12 rounded-2xl" : "h-11 rounded-lg"
                   )}
                 >
                   {messages.continueWith} {provider.providerNm}
