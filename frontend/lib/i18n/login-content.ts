@@ -7,7 +7,6 @@ export type LoginMessages = {
   localeNames: Record<LoginLocale, string>;
   productName: string;
   tagline: string;
-  accessSubtitle: string;
   cardEyebrow: string;
   signInTitle: string;
   emailLabel: string;
@@ -34,7 +33,6 @@ const loginMessages: Record<LoginLocale, LoginMessages> = {
     },
     productName: "OneGate Enterprise Console",
     tagline: "Access Sinwoo internal administration and customer workspace operations.",
-    accessSubtitle: "회사 이메일 계정으로 내부 운영과 고객사 업무 영역에 접속합니다.",
     cardEyebrow: "Workspace Access",
     signInTitle: "로그인",
     emailLabel: "이메일 주소",
@@ -75,7 +73,6 @@ const loginMessages: Record<LoginLocale, LoginMessages> = {
     },
     productName: "OneGate Enterprise Console",
     tagline: "Access Sinwoo internal administration and customer workspace operations.",
-    accessSubtitle: "Use your company email account to access internal operations and customer workspaces.",
     cardEyebrow: "Workspace Access",
     signInTitle: "Sign in",
     emailLabel: "Email address",
@@ -116,7 +113,6 @@ const loginMessages: Record<LoginLocale, LoginMessages> = {
     },
     productName: "OneGate Enterprise Console",
     tagline: "Access Sinwoo internal administration and customer workspace operations.",
-    accessSubtitle: "Melden Sie sich mit Ihrer Firmen-E-Mail für interne Abläufe und Kunden-Workspaces an.",
     cardEyebrow: "Workspace Access",
     signInTitle: "Anmelden",
     emailLabel: "E-Mail-Adresse",
