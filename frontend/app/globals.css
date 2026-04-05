@@ -61,6 +61,15 @@
     box-sizing: border-box;
   }
 
+  .login-desktop-frame {
+    height: auto;
+    min-height: 0;
+  }
+
+  .login-desktop-panel {
+    overflow: visible;
+  }
+
   @media (min-width: 1024px) and (min-height: 820px) {
     .login-shell {
       height: 100dvh;
@@ -71,6 +80,14 @@
     .login-shell-inner {
       height: 100%;
       min-height: 0;
+    }
+
+    .login-desktop-frame {
+      height: min(620px, calc(100dvh - 168px));
+    }
+
+    .login-desktop-panel {
+      overflow: hidden;
     }
   }
 }

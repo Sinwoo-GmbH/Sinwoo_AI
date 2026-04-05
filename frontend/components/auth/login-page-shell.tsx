@@ -99,11 +99,11 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
           </div>
 
           <div className="hidden w-full lg:flex lg:flex-1 lg:items-center">
-            <div className="grid h-[min(620px,calc(100dvh-168px))] w-full grid-cols-[minmax(0,1.18fr)_minmax(360px,420px)] overflow-hidden rounded-[34px] border border-slate-200/80 bg-white/75 shadow-[0_30px_80px_rgba(15,23,42,0.12)] backdrop-blur">
+            <div className="login-desktop-frame grid w-full grid-cols-[minmax(0,1.18fr)_minmax(360px,420px)] overflow-hidden rounded-[34px] border border-slate-200/80 bg-white/75 shadow-[0_30px_80px_rgba(15,23,42,0.12)] backdrop-blur">
               <div className="relative flex h-full flex-col justify-center overflow-hidden bg-[linear-gradient(145deg,_rgba(35,58,122,0.98)_0%,_rgba(17,34,78,0.92)_100%)] px-10 py-10 text-white">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(125,154,230,0.22),transparent_28%)]" />
 
-                <div className="relative mx-auto flex w-full max-w-[500px] flex-col gap-7">
+                <div className="relative mx-auto flex w-full flex-col gap-7">
                   <div className="w-full max-w-[196px]">
                     <Image
                       src="/brand/sinwoo-logo.png"
@@ -131,11 +131,11 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
 
                   <div className="h-px w-full bg-white/14" />
 
-                  <div className="grid max-w-[500px] gap-3">
+                  <div className="grid max-w-[600px] gap-3">
                     {messages.desktopHighlights.map((item) => (
                       <div
                         key={item}
-                        className="flex min-h-[72px] items-start border-l-2 border-white/28 pl-4 pr-4 text-[14px] leading-6 text-white/86"
+                        className="flex min-h-[auto] items-start border-l-2 border-white/28 pl-4 pr-4 text-[14px] leading-6 text-white/86"
                       >
                         {item}
                       </div>
@@ -144,7 +144,7 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
                 </div>
               </div>
 
-              <div className="flex h-full items-center overflow-y-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.94)_0%,rgba(247,249,252,0.98)_100%)] px-9 py-8">
+              <div className="login-desktop-panel flex h-full items-center bg-[linear-gradient(180deg,rgba(255,255,255,0.94)_0%,rgba(247,249,252,0.98)_100%)] px-9 py-8">
                 <div className="w-full">
                   <CredentialLoginPanel
                     backendBaseUrl={backendBaseUrl}
@@ -158,15 +158,9 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
           </div>
         </section>
 
-        <footer className="mt-auto flex shrink-0 flex-col gap-1 border-t border-slate-200/90 pt-2.5 text-center text-[10px] leading-5 text-slate-500 sm:text-[11px] lg:hidden">
+        <footer className="mt-auto flex shrink-0 flex-col gap-1 border-t border-slate-200/90 pt-2.5 text-center text-[10px] leading-5 text-slate-500 sm:text-[11px] lg:mt-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6 lg:text-left">
           <p className="font-brand font-semibold tracking-[0.16em] text-slate-700">{messages.footerCompany}</p>
-          <p>{messages.footerDescription}</p>
-          <p>{messages.footerCopyright}</p>
-        </footer>
-
-        <footer className="hidden lg:absolute lg:bottom-5 lg:left-8 lg:right-8 lg:flex lg:items-center lg:justify-between lg:border-t lg:border-slate-200/90 lg:pt-2 lg:text-[11px] lg:text-slate-500">
-          <p className="font-brand font-semibold tracking-[0.16em] text-slate-700">{messages.footerCompany}</p>
-          <p>{messages.footerDescription}</p>
+          <p className="lg:flex-1 lg:text-center">{messages.footerDescription}</p>
           <p>{messages.footerCopyright}</p>
         </footer>
       </div>
