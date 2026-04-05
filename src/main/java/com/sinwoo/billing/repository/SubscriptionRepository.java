@@ -9,5 +9,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 
     List<Subscription> findAllByTenantIdOrderByCreatedAtDescIdDesc(Long tenantId);
 
+    Optional<Subscription> findFirstByTenantIdOrderByCreatedAtDescIdDesc(Long tenantId);
+
     Optional<Subscription> findByIdAndTenantId(Long id, Long tenantId);
 }

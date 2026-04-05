@@ -3,6 +3,9 @@ package com.sinwoo.menu.service;
 import com.sinwoo.auth.domain.Role;
 import com.sinwoo.auth.repository.RoleRepository;
 import com.sinwoo.auth.repository.UserRoleRepository;
+import com.sinwoo.billing.support.BillingAccessPolicyService;
+import com.sinwoo.common.security.AuthenticatedUser;
+import com.sinwoo.code.service.CommonCodeService;
 import com.sinwoo.menu.domain.Menu;
 import com.sinwoo.menu.domain.RoleMenuAuth;
 import com.sinwoo.menu.dto.CreateMenuRequest;
@@ -12,6 +15,8 @@ import com.sinwoo.menu.dto.MenuResponse;
 import com.sinwoo.menu.dto.MenuTreeResponse;
 import com.sinwoo.menu.repository.MenuRepository;
 import com.sinwoo.menu.repository.RoleMenuAuthRepository;
+import com.sinwoo.user.domain.User;
+import com.sinwoo.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -33,6 +38,9 @@ public class MenuServiceImpl implements MenuService {
     private final RoleRepository roleRepository;
     private final RoleMenuAuthRepository roleMenuAuthRepository;
     private final UserRoleRepository userRoleRepository;
+    private final UserRepository userRepository;
+    private final BillingAccessPolicyService billingAccessPolicyService;
+    private final CommonCodeService commonCodeService;
 
     @Override
     @Transactional
@@ -49,16 +57,20 @@ public class MenuServiceImpl implements MenuService {
 
         Menu menu = Menu.create(
                 normalizedMnuCd,
+                normalizeCodeOrDefault(request.mnuNmCd(), normalizedMnuCd),
                 request.mnuNm().trim(),
                 normalizeScope(request.mnuScopeCd()),
                 request.upMnuId(),
                 blankToNull(request.pathUri()),
                 blankToNull(request.iconNm()),
                 request.dspOrd() == null ? 0 : request.dspOrd(),
-                normalizeYn(request.useYn(), "Y")
+                normalizeYn(request.useYn(), "Y"),
+                blankToNull(normalizeGateCode(request.billGateCd()))
         );
 
-        return MenuResponse.from(menuRepository.save(menu));
+        Menu savedMenu = menuRepository.save(menu);
+        commonCodeService.ensureCode("MNU_NM", savedMenu.getMnuNmCd(), savedMenu.getMnuNm());
+        return toMenuResponse(savedMenu);
     }
 
     @Override
@@ -67,7 +79,7 @@ public class MenuServiceImpl implements MenuService {
                 ? menuRepository.findAllByOrderByMnuScopeCdAscDspOrdAscIdAsc()
                 : menuRepository.findAllByMnuScopeCdOrderByDspOrdAscIdAsc(normalizeScope(mnuScopeCd)))
                 .stream()
-                .map(MenuResponse::from)
+                .map(this::toMenuResponse)
                 .toList();
 
         return new MenuListResponse(items.size(), items);
@@ -86,12 +98,17 @@ public class MenuServiceImpl implements MenuService {
                 .toList();
 
         List<Role> roles = roleRepository.findByRoleCdIn(normalizedRoleCds);
-        return buildVisibleMenus(roles, mnuScopeCd);
+        return buildVisibleMenus(roles, mnuScopeCd, null);
     }
 
     @Override
     public MenuTreeResponse getVisibleMenusByUsr(Long usrId, String mnuScopeCd) {
         if (usrId == null) {
+            return new MenuTreeResponse(0, List.of());
+        }
+
+        User user = userRepository.findById(usrId).orElse(null);
+        if (user == null) {
             return new MenuTreeResponse(0, List.of());
         }
 
@@ -105,10 +122,28 @@ public class MenuServiceImpl implements MenuService {
         }
 
         List<Role> roles = roleRepository.findAllById(roleIds);
-        return buildVisibleMenus(roles, mnuScopeCd);
+        return buildVisibleMenus(roles, mnuScopeCd, user.getTenantId());
     }
 
-    private MenuTreeResponse buildVisibleMenus(List<Role> roles, String mnuScopeCd) {
+    @Override
+    public MenuTreeResponse getVisibleMenusForCurrentUser(AuthenticatedUser authenticatedUser, String mnuScopeCd) {
+        if (authenticatedUser == null) {
+            return new MenuTreeResponse(0, List.of());
+        }
+
+        String resolvedScope = mnuScopeCd;
+        if (resolvedScope == null || resolvedScope.isBlank()) {
+            resolvedScope = "ADMIN".equalsIgnoreCase(authenticatedUser.authGrpCd()) ? "ADMIN" : "CUSTOMER";
+        }
+
+        return buildVisibleMenus(
+                roleRepository.findByRoleCdIn(authenticatedUser.roleCds()),
+                resolvedScope,
+                authenticatedUser.tenantId()
+        );
+    }
+
+    private MenuTreeResponse buildVisibleMenus(List<Role> roles, String mnuScopeCd, Long tenantId) {
         if (roles.isEmpty()) {
             return new MenuTreeResponse(0, List.of());
         }
@@ -122,6 +157,7 @@ public class MenuServiceImpl implements MenuService {
                 ).stream()
                 .filter(auth -> "Y".equals(auth.getViewYn()))
                 .map(RoleMenuAuth::getMnuId)
+                .filter(menuId -> isBillingGateSatisfied(menuById.get(menuId), roles, tenantId))
                 .collect(LinkedHashSet::new, Set::add, Set::addAll);
 
         Set<Long> effectiveIds = new LinkedHashSet<>();
@@ -152,7 +188,7 @@ public class MenuServiceImpl implements MenuService {
 
     private List<MenuNodeResponse> buildMenuTree(List<Menu> menus) {
         Map<Long, MenuNodeResponse> nodeById = new LinkedHashMap<>();
-        menus.forEach(menu -> nodeById.put(menu.getId(), MenuNodeResponse.from(menu)));
+        menus.forEach(menu -> nodeById.put(menu.getId(), toMenuNodeResponse(menu)));
 
         List<MenuNodeResponse> roots = new ArrayList<>();
         for (Menu menu : menus) {
@@ -178,6 +214,13 @@ public class MenuServiceImpl implements MenuService {
         return value.trim().toUpperCase();
     }
 
+    private String normalizeCodeOrDefault(String value, String defaultValue) {
+        if (value == null || value.isBlank()) {
+            return defaultValue;
+        }
+        return value.trim().toUpperCase();
+    }
+
     private String normalizeYn(String value, String defaultValue) {
         if (value == null || value.isBlank()) {
             return defaultValue;
@@ -187,5 +230,44 @@ public class MenuServiceImpl implements MenuService {
 
     private String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private String normalizeGateCode(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim().toUpperCase();
+    }
+
+    private boolean isBillingGateSatisfied(Menu menu, List<Role> roles, Long tenantId) {
+        if (menu == null || menu.getBillGateCd() == null || menu.getBillGateCd().isBlank()) {
+            return true;
+        }
+
+        if ("PAID_CUSTOMER_ADMIN".equals(menu.getBillGateCd())) {
+            return hasCustomerAdminRole(roles) && billingAccessPolicyService.hasPaidAdminAccess(tenantId);
+        }
+
+        return true;
+    }
+
+    private boolean hasCustomerAdminRole(List<Role> roles) {
+        return roles.stream().anyMatch(role ->
+                "CUSTOMER".equalsIgnoreCase(role.getRoleD1Cd())
+                        && role.getRoleD2Cd() != null
+                        && !"USER".equalsIgnoreCase(role.getRoleD2Cd())
+        );
+    }
+
+    private MenuResponse toMenuResponse(Menu menu) {
+        return MenuResponse.from(menu, resolveMenuName(menu));
+    }
+
+    private MenuNodeResponse toMenuNodeResponse(Menu menu) {
+        return MenuNodeResponse.from(menu, resolveMenuName(menu));
+    }
+
+    private String resolveMenuName(Menu menu) {
+        return commonCodeService.resolveDisplayName("MNU_NM", menu.getMnuNmCd(), menu.getMnuNm());
     }
 }

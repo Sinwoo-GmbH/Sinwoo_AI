@@ -1,0 +1,82 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F3F6FA"/>
+      <stop offset="1" stop-color="#E7ECF4"/>
+    </linearGradient>
+    <linearGradient id="panel2" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F1D42"/>
+      <stop offset="1" stop-color="#15295C"/>
+    </linearGradient>
+    <filter id="shadow2" x="-50" y="-50" width="1700" height="1000" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#17284C" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg2)"/>
+  <rect x="28" y="28" width="1544" height="844" rx="28" fill="#F8FAFD" filter="url(#shadow2)"/>
+
+  <rect x="28" y="28" width="1544" height="86" rx="28" fill="#FFFFFF"/>
+  <text x="72" y="82" fill="#13254D" font-size="34" font-weight="800" font-style="italic" font-family="Segoe UI, Arial, sans-serif">SINWOO Operations Grid</text>
+  <text x="1292" y="82" fill="#7688AC" font-size="18" font-family="Segoe UI, Arial, sans-serif">Mon 09:42 · Berlin HQ</text>
+
+  <rect x="54" y="142" width="240" height="702" rx="28" fill="url(#panel2)"/>
+  <text x="86" y="196" fill="#95ACEE" font-size="13" letter-spacing="4" font-family="Segoe UI, Arial, sans-serif">OPS NAVIGATION</text>
+  <rect x="76" y="222" width="196" height="52" rx="16" fill="#2D4CA8"/>
+  <text x="104" y="255" fill="#FFFFFF" font-size="18" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Admin board</text>
+  <text x="104" y="312" fill="#C8D4F7" font-size="17" font-family="Segoe UI, Arial, sans-serif">Attendance control</text>
+  <text x="104" y="360" fill="#C8D4F7" font-size="17" font-family="Segoe UI, Arial, sans-serif">Document triage</text>
+  <text x="104" y="408" fill="#C8D4F7" font-size="17" font-family="Segoe UI, Arial, sans-serif">Accounting queue</text>
+  <text x="104" y="456" fill="#C8D4F7" font-size="17" font-family="Segoe UI, Arial, sans-serif">Employee ledger</text>
+  <text x="104" y="504" fill="#C8D4F7" font-size="17" font-family="Segoe UI, Arial, sans-serif">Billing approvals</text>
+  <text x="104" y="552" fill="#C8D4F7" font-size="17" font-family="Segoe UI, Arial, sans-serif">Audit evidence</text>
+
+  <rect x="326" y="142" width="1218" height="702" rx="28" fill="#EFF3F8"/>
+  <rect x="354" y="170" width="1162" height="88" rx="24" fill="#FFFFFF"/>
+  <text x="390" y="206" fill="#7386AA" font-size="14" letter-spacing="3" font-family="Segoe UI, Arial, sans-serif">LIVE OPERATIONS</text>
+  <text x="390" y="234" fill="#14274F" font-size="30" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Dense workflow layout for operations-heavy teams</text>
+
+  <rect x="354" y="282" width="754" height="260" rx="24" fill="#FFFFFF"/>
+  <rect x="1130" y="282" width="386" height="260" rx="24" fill="#FFFFFF"/>
+  <rect x="354" y="566" width="1162" height="250" rx="24" fill="#FFFFFF"/>
+
+  <text x="390" y="326" fill="#14274F" font-size="22" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Critical workflow queue</text>
+  <text x="390" y="352" fill="#7183A5" font-size="15" font-family="Segoe UI, Arial, sans-serif">Best for super admins, finance admins, and HR operations</text>
+
+  <rect x="390" y="386" width="682" height="44" rx="12" fill="#F5F7FB"/>
+  <rect x="390" y="438" width="682" height="44" rx="12" fill="#F5F7FB"/>
+  <rect x="390" y="490" width="682" height="44" rx="12" fill="#F5F7FB"/>
+  <text x="416" y="414" fill="#13254D" font-size="16" font-family="Segoe UI, Arial, sans-serif">Invoice OCR mismatch · 12 docs · Finance review</text>
+  <text x="416" y="466" fill="#13254D" font-size="16" font-family="Segoe UI, Arial, sans-serif">Late attendance correction · 8 employees · HR approval</text>
+  <text x="416" y="518" fill="#13254D" font-size="16" font-family="Segoe UI, Arial, sans-serif">Customer upgrade request · 2 tenants · Billing action</text>
+
+  <text x="1166" y="326" fill="#14274F" font-size="22" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Snapshot</text>
+  <rect x="1166" y="356" width="156" height="72" rx="18" fill="#1D419B"/>
+  <rect x="1338" y="356" width="156" height="72" rx="18" fill="#ECF2FF"/>
+  <rect x="1166" y="442" width="328" height="74" rx="18" fill="#ECF2FF"/>
+  <text x="1192" y="388" fill="#FFFFFF" font-size="14" letter-spacing="3" font-family="Segoe UI, Arial, sans-serif">OPEN TASKS</text>
+  <text x="1192" y="414" fill="#FFFFFF" font-size="28" font-weight="700" font-family="Segoe UI, Arial, sans-serif">37</text>
+  <text x="1364" y="388" fill="#556B98" font-size="14" letter-spacing="3" font-family="Segoe UI, Arial, sans-serif">SLA RISK</text>
+  <text x="1364" y="414" fill="#14274F" font-size="28" font-weight="700" font-family="Segoe UI, Arial, sans-serif">5</text>
+  <text x="1192" y="474" fill="#556B98" font-size="14" letter-spacing="3" font-family="Segoe UI, Arial, sans-serif">ACTIVE MANAGERS</text>
+  <text x="1192" y="504" fill="#14274F" font-size="32" font-weight="700" font-family="Segoe UI, Arial, sans-serif">14 connected</text>
+
+  <text x="390" y="610" fill="#14274F" font-size="22" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Operations table view</text>
+  <rect x="390" y="642" width="1090" height="36" rx="10" fill="#F5F7FB"/>
+  <text x="416" y="665" fill="#6F82A8" font-size="14" letter-spacing="2" font-family="Segoe UI, Arial, sans-serif">COMPANY</text>
+  <text x="650" y="665" fill="#6F82A8" font-size="14" letter-spacing="2" font-family="Segoe UI, Arial, sans-serif">MODULE</text>
+  <text x="872" y="665" fill="#6F82A8" font-size="14" letter-spacing="2" font-family="Segoe UI, Arial, sans-serif">OWNER</text>
+  <text x="1082" y="665" fill="#6F82A8" font-size="14" letter-spacing="2" font-family="Segoe UI, Arial, sans-serif">STATUS</text>
+  <text x="1264" y="665" fill="#6F82A8" font-size="14" letter-spacing="2" font-family="Segoe UI, Arial, sans-serif">UPDATED</text>
+  <rect x="390" y="690" width="1090" height="40" rx="10" fill="#FFFFFF"/>
+  <rect x="390" y="738" width="1090" height="40" rx="10" fill="#FFFFFF"/>
+  <text x="416" y="715" fill="#14274F" font-size="15" font-family="Segoe UI, Arial, sans-serif">Sinwoo ITC GmbH</text>
+  <text x="650" y="715" fill="#14274F" font-size="15" font-family="Segoe UI, Arial, sans-serif">Attendance</text>
+  <text x="872" y="715" fill="#14274F" font-size="15" font-family="Segoe UI, Arial, sans-serif">Anna Schmidt</text>
+  <text x="1082" y="715" fill="#1F8A62" font-size="15" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Stable</text>
+  <text x="1264" y="715" fill="#60739A" font-size="15" font-family="Segoe UI, Arial, sans-serif">3 min ago</text>
+  <text x="416" y="763" fill="#14274F" font-size="15" font-family="Segoe UI, Arial, sans-serif">Seoul HQ Branch</text>
+  <text x="650" y="763" fill="#14274F" font-size="15" font-family="Segoe UI, Arial, sans-serif">Document OCR</text>
+  <text x="872" y="763" fill="#14274F" font-size="15" font-family="Segoe UI, Arial, sans-serif">Kim Jiyoung</text>
+  <text x="1082" y="763" fill="#C48A1A" font-size="15" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Needs review</text>
+  <text x="1264" y="763" fill="#60739A" font-size="15" font-family="Segoe UI, Arial, sans-serif">8 min ago</text>
+</svg>

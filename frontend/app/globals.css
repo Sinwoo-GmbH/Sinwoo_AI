@@ -70,6 +70,51 @@
     overflow: visible;
   }
 
+  .workspace-shell {
+    min-height: 100dvh;
+  }
+
+  .workspace-tab-scroll {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .workspace-tab-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .workspace-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(35, 58, 122, 0.34) rgba(226, 232, 240, 0.55);
+    scrollbar-gutter: stable;
+  }
+
+  .workspace-scrollbar::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .workspace-scrollbar::-webkit-scrollbar-track {
+    background: rgba(226, 232, 240, 0.42);
+    border-radius: 999px;
+    margin: 6px 0;
+  }
+
+  .workspace-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(79, 114, 200, 0.78) 0%, rgba(35, 58, 122, 0.82) 100%);
+    border: 2px solid rgba(248, 250, 254, 0.9);
+    border-radius: 999px;
+    min-height: 44px;
+  }
+
+  .workspace-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(79, 114, 200, 0.92) 0%, rgba(24, 57, 126, 0.96) 100%);
+  }
+
+  .workspace-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
   @media (min-width: 1024px) and (min-height: 820px) {
     .login-shell {
       height: 100dvh;
@@ -87,6 +132,11 @@
     }
 
     .login-desktop-panel {
+      overflow: hidden;
+    }
+
+    .workspace-shell {
+      height: 100dvh;
       overflow: hidden;
     }
   }

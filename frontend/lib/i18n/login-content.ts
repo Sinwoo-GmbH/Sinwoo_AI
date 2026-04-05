@@ -1,4 +1,11 @@
 export const LOGIN_LOCALES = ["de", "en", "ko"] as const;
+export const LOGIN_LOCALE_STORAGE_KEY = "sinwoo.workspace.locale.v1";
+
+export const LOGIN_LOCALE_FLAGS: Record<LoginLocale, string> = {
+  de: "🇩🇪",
+  en: "🇬🇧",
+  ko: "🇰🇷",
+};
 
 export type LoginLocale = (typeof LOGIN_LOCALES)[number];
 

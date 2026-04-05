@@ -33,6 +33,7 @@ public class JwtTokenService {
                 .claim("usrId", user.usrId())
                 .claim("tenantId", user.tenantId())
                 .claim("coId", user.coId())
+                .claim("tenantTpCd", user.tenantTpCd())
                 .claim("lgnId", user.lgnId())
                 .claim("eml", user.eml())
                 .claim("dspNm", user.dspNm())
@@ -81,6 +82,7 @@ public class JwtTokenService {
                 claims.get("usrId", Long.class),
                 claims.get("tenantId", Long.class),
                 claims.get("coId", Long.class),
+                claims.get("tenantTpCd", String.class),
                 claims.get("lgnId", String.class),
                 claims.get("eml", String.class),
                 claims.get("dspNm", String.class),

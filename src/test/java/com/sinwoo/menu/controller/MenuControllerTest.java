@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sinwoo.common.accesslog.AccessLogService;
+import com.sinwoo.common.security.AuthenticatedUser;
 import com.sinwoo.common.security.SecurityConfig;
 import com.sinwoo.menu.dto.CreateMenuRequest;
 import com.sinwoo.menu.dto.MenuListResponse;
@@ -24,7 +25,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 
 @WebMvcTest(controllers = MenuController.class)
 @Import(SecurityConfig.class)
@@ -45,8 +48,8 @@ class MenuControllerTest {
     @Test
     void createMenuReturnsCreatedMenu() throws Exception {
         OffsetDateTime now = OffsetDateTime.parse("2026-04-04T00:00:00Z");
-        CreateMenuRequest request = new CreateMenuRequest("MNU_ADMIN_DASH", "Admin Dashboard", "ADMIN", null, "/admin/dashboard", "layout-dashboard", 10, "Y");
-        MenuResponse response = new MenuResponse(1L, "MNU_ADMIN_DASH", "Admin Dashboard", "ADMIN", null, "/admin/dashboard", "layout-dashboard", 10, "Y", now, now);
+        CreateMenuRequest request = new CreateMenuRequest("MNU_ADMIN_DASH", "MNU_ADMIN_DASH", "Admin Dashboard", "ADMIN", null, "/admin/dashboard", "layout-dashboard", 10, null, "Y");
+        MenuResponse response = new MenuResponse(1L, "MNU_ADMIN_DASH", "MNU_ADMIN_DASH", "Admin Dashboard", "ADMIN", null, "/admin/dashboard", "layout-dashboard", 10, null, "Y", now, now);
 
         given(menuService.createMenu(request)).willReturn(response);
 
@@ -64,7 +67,7 @@ class MenuControllerTest {
     void getVisibleMenusReturnsMenuTree() throws Exception {
         MenuTreeResponse response = new MenuTreeResponse(
                 1,
-                List.of(new MenuNodeResponse(1L, "MNU_CUSTOMER_DASH", "Customer Dashboard", "CUSTOMER", null, "/customer/dashboard", "layout-dashboard", 10, List.of()))
+                List.of(new MenuNodeResponse(1L, "MNU_CUSTOMER_DASH", "MNU_CUSTOMER_DASH", "Customer Dashboard", "CUSTOMER", null, "/customer/dashboard", "layout-dashboard", 10, null, List.of()))
         );
 
         given(menuService.getVisibleMenus(List.of("ROLE_CUSTOMER_USER_MEMBER"), "CUSTOMER")).willReturn(response);
@@ -82,7 +85,7 @@ class MenuControllerTest {
     void getVisibleMenusByUserReturnsMenuTree() throws Exception {
         MenuTreeResponse response = new MenuTreeResponse(
                 1,
-                List.of(new MenuNodeResponse(5L, "MNU_CUSTOMER_FIN", "Finance Management", "CUSTOMER", null, "/customer/finance", "wallet", 40, List.of()))
+                List.of(new MenuNodeResponse(5L, "MNU_CUSTOMER_FIN", "MNU_CUSTOMER_FIN", "Finance Management", "CUSTOMER", null, "/customer/finance", "wallet", 40, "PAID_CUSTOMER_ADMIN", List.of()))
         );
 
         given(menuService.getVisibleMenusByUsr(100L, "CUSTOMER")).willReturn(response);
@@ -100,7 +103,7 @@ class MenuControllerTest {
         OffsetDateTime now = OffsetDateTime.parse("2026-04-04T00:00:00Z");
         MenuListResponse response = new MenuListResponse(
                 1,
-                List.of(new MenuResponse(1L, "MNU_ADMIN_DASH", "Admin Dashboard", "ADMIN", null, "/admin/dashboard", "layout-dashboard", 10, "Y", now, now))
+                List.of(new MenuResponse(1L, "MNU_ADMIN_DASH", "MNU_ADMIN_DASH", "Admin Dashboard", "ADMIN", null, "/admin/dashboard", "layout-dashboard", 10, null, "Y", now, now))
         );
 
         given(menuService.getMenus("ADMIN")).willReturn(response);
@@ -109,5 +112,34 @@ class MenuControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totCnt").value(1))
                 .andExpect(jsonPath("$.itemList[0].mnuCd").value("MNU_ADMIN_DASH"));
+    }
+
+    @Test
+    void getVisibleMenusForCurrentUserReturnsMenuTree() throws Exception {
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser(
+                1L,
+                100L,
+                200L,
+                "CUSTOMER",
+                "GGAMGANG",
+                "ggamgang@sinwoo-itc.com",
+                "Sinwoo Admin",
+                "CUSTOMER",
+                "PASSWORD",
+                List.of("ROLE_CUSTOMER_ADMIN_MEMBER")
+        );
+        MenuTreeResponse response = new MenuTreeResponse(
+                1,
+                List.of(new MenuNodeResponse(5L, "MNU_CUSTOMER_PAY", "MNU_CUSTOMER_PAY", "Payment Center", "CUSTOMER", null, "/customer/payments", "receipt", 50, null, List.of()))
+        );
+
+        given(menuService.getVisibleMenusForCurrentUser(authenticatedUser, "CUSTOMER")).willReturn(response);
+
+        mockMvc.perform(get("/api/v1/menus/my")
+                        .param("mnuScopeCd", "CUSTOMER")
+                        .with(authentication(new UsernamePasswordAuthenticationToken(authenticatedUser, "token", List.of()))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totCnt").value(1))
+                .andExpect(jsonPath("$.itemList[0].mnuCd").value("MNU_CUSTOMER_PAY"));
     }
 }

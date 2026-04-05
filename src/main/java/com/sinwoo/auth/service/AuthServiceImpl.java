@@ -12,6 +12,7 @@ import com.sinwoo.auth.dto.CurrentUserResponse;
 import com.sinwoo.auth.repository.RoleRepository;
 import com.sinwoo.auth.repository.UserOauthIdentityRepository;
 import com.sinwoo.auth.repository.UserRoleRepository;
+import com.sinwoo.billing.support.BillingAccessPolicyService;
 import com.sinwoo.common.security.AuthProperties;
 import com.sinwoo.common.security.AuthenticatedUser;
 import com.sinwoo.common.security.CredentialEncryptionService;
@@ -53,6 +54,7 @@ public class AuthServiceImpl implements AuthService {
     private final CredentialEncryptionService credentialEncryptionService;
     private final AuthProperties authProperties;
     private final Optional<ClientRegistrationRepository> clientRegistrationRepository;
+    private final BillingAccessPolicyService billingAccessPolicyService;
 
     @Override
     public AuthProviderListResponse getOauthProviders() {
@@ -140,12 +142,14 @@ public class AuthServiceImpl implements AuthService {
                 authenticatedUser.usrId(),
                 authenticatedUser.tenantId(),
                 authenticatedUser.coId(),
+                authenticatedUser.tenantTpCd(),
                 authenticatedUser.lgnId(),
                 authenticatedUser.eml(),
                 authenticatedUser.dspNm(),
                 authenticatedUser.authGrpCd(),
                 authenticatedUser.authLvlCd(),
-                authenticatedUser.roleCds()
+                authenticatedUser.roleCds(),
+                billingAccessPolicyService.hasPaidAdminAccess(authenticatedUser.tenantId()) ? "Y" : "N"
         );
     }
 
@@ -155,6 +159,7 @@ public class AuthServiceImpl implements AuthService {
                 user.getId(),
                 user.getTenantId(),
                 user.getCoId(),
+                resolveTenantType(user.getTenantId()),
                 user.getLgnId(),
                 user.getEml(),
                 user.getDspNm(),
@@ -339,6 +344,12 @@ public class AuthServiceImpl implements AuthService {
 
     private String normalizeAuthGroup(String tenantTpCd) {
         return "INTERNAL".equalsIgnoreCase(tenantTpCd) ? "ADMIN" : "CUSTOMER";
+    }
+
+    private String resolveTenantType(Long tenantId) {
+        return tenantRepository.findById(tenantId)
+                .map(Tenant::getTenantTpCd)
+                .orElse("CUSTOMER");
     }
 
     private String resolveEmailVerified(Map<String, Object> attributes) {

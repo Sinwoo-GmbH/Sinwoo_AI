@@ -1,0 +1,72 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FBFE"/>
+      <stop offset="1" stop-color="#EEF3F9"/>
+    </linearGradient>
+    <linearGradient id="hero3" x1="0" y1="0" x2="1040" y2="220" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#143884"/>
+      <stop offset="1" stop-color="#2F61D1"/>
+    </linearGradient>
+    <filter id="shadow3" x="-50" y="-50" width="1700" height="1000" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="14" stdDeviation="22" flood-color="#203259" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg3)"/>
+  <rect x="28" y="28" width="1544" height="844" rx="32" fill="#FFFFFF" filter="url(#shadow3)"/>
+
+  <rect x="60" y="60" width="1480" height="76" rx="22" fill="#F6F9FD"/>
+  <text x="92" y="108" fill="#1A336F" font-size="28" font-weight="800" font-style="italic" font-family="Segoe UI, Arial, sans-serif">SINWOO Client Portal</text>
+  <text x="1168" y="108" fill="#7285A8" font-size="17" font-family="Segoe UI, Arial, sans-serif">Tenant Dashboard · Billing · Team</text>
+
+  <rect x="92" y="168" width="1018" height="212" rx="30" fill="url(#hero3)"/>
+  <text x="136" y="214" fill="#9EBBFF" font-size="14" letter-spacing="4" font-family="Segoe UI, Arial, sans-serif">CUSTOMER WORKSPACE</text>
+  <text x="136" y="278" fill="#FFFFFF" font-size="44" font-weight="800" font-family="Segoe UI, Arial, sans-serif">Clean portal for managers and members</text>
+  <text x="136" y="317" fill="#DBE7FF" font-size="21" font-family="Segoe UI, Arial, sans-serif">Best for customers who need a polished product feeling, not an ERP-heavy console.</text>
+
+  <rect x="1140" y="168" width="368" height="212" rx="30" fill="#F7FAFF"/>
+  <text x="1178" y="214" fill="#7084AC" font-size="14" letter-spacing="3" font-family="Segoe UI, Arial, sans-serif">TODAY</text>
+  <text x="1178" y="254" fill="#162D5C" font-size="22" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Pending actions</text>
+  <rect x="1178" y="284" width="292" height="48" rx="14" fill="#FFFFFF"/>
+  <rect x="1178" y="342" width="292" height="48" rx="14" fill="#FFFFFF"/>
+  <text x="1202" y="313" fill="#162D5C" font-size="16" font-family="Segoe UI, Arial, sans-serif">4 invoices require approval</text>
+  <text x="1202" y="371" fill="#162D5C" font-size="16" font-family="Segoe UI, Arial, sans-serif">2 employees need leave review</text>
+
+  <rect x="92" y="412" width="328" height="168" rx="24" fill="#F8FBFF"/>
+  <rect x="438" y="412" width="328" height="168" rx="24" fill="#F8FBFF"/>
+  <rect x="784" y="412" width="328" height="168" rx="24" fill="#F8FBFF"/>
+  <rect x="1130" y="412" width="378" height="168" rx="24" fill="#F8FBFF"/>
+
+  <text x="124" y="454" fill="#7084AC" font-size="14" letter-spacing="3" font-family="Segoe UI, Arial, sans-serif">ACTIVE PEOPLE</text>
+  <text x="124" y="516" fill="#162D5C" font-size="54" font-weight="700" font-family="Segoe UI, Arial, sans-serif">148</text>
+  <text x="124" y="545" fill="#2E9B6D" font-size="18" font-family="Segoe UI, Arial, sans-serif">12 online now</text>
+
+  <text x="470" y="454" fill="#7084AC" font-size="14" letter-spacing="3" font-family="Segoe UI, Arial, sans-serif">DOCUMENTS</text>
+  <text x="470" y="516" fill="#162D5C" font-size="54" font-weight="700" font-family="Segoe UI, Arial, sans-serif">412</text>
+  <text x="470" y="545" fill="#C38A15" font-size="18" font-family="Segoe UI, Arial, sans-serif">28 waiting OCR review</text>
+
+  <text x="816" y="454" fill="#7084AC" font-size="14" letter-spacing="3" font-family="Segoe UI, Arial, sans-serif">SUBSCRIPTION</text>
+  <text x="816" y="516" fill="#162D5C" font-size="54" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Growth</text>
+  <text x="816" y="545" fill="#2E9B6D" font-size="18" font-family="Segoe UI, Arial, sans-serif">Billing status healthy</text>
+
+  <text x="1162" y="454" fill="#7084AC" font-size="14" letter-spacing="3" font-family="Segoe UI, Arial, sans-serif">MEMBER EXPERIENCE</text>
+  <text x="1162" y="494" fill="#162D5C" font-size="22" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Quick actions with less admin noise</text>
+  <text x="1162" y="526" fill="#5C6F95" font-size="17" font-family="Segoe UI, Arial, sans-serif">Attendance, documents, approvals, and account status</text>
+
+  <rect x="92" y="612" width="598" height="212" rx="24" fill="#FFFFFF"/>
+  <rect x="716" y="612" width="792" height="212" rx="24" fill="#FFFFFF"/>
+  <text x="124" y="658" fill="#162D5C" font-size="22" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Attendance pulse</text>
+  <circle cx="236" cy="730" r="54" fill="#ECF4FF"/>
+  <circle cx="236" cy="730" r="38" fill="#2A5DD2"/>
+  <text x="214" y="738" fill="#FFFFFF" font-size="22" font-weight="700" font-family="Segoe UI, Arial, sans-serif">92%</text>
+  <text x="332" y="710" fill="#162D5C" font-size="18" font-family="Segoe UI, Arial, sans-serif">On-time arrival</text>
+  <text x="332" y="742" fill="#7084AC" font-size="16" font-family="Segoe UI, Arial, sans-serif">Hybrid schedule and leave overview</text>
+
+  <text x="748" y="658" fill="#162D5C" font-size="22" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Recent workflow</text>
+  <rect x="748" y="690" width="728" height="38" rx="10" fill="#F5F8FD"/>
+  <rect x="748" y="738" width="728" height="38" rx="10" fill="#F5F8FD"/>
+  <rect x="748" y="786" width="728" height="38" rx="10" fill="#F5F8FD"/>
+  <text x="772" y="714" fill="#162D5C" font-size="15" font-family="Segoe UI, Arial, sans-serif">Invoice 2026-0412 approved · Finance admin</text>
+  <text x="772" y="762" fill="#162D5C" font-size="15" font-family="Segoe UI, Arial, sans-serif">Annual leave accepted · HR admin</text>
+  <text x="772" y="810" fill="#162D5C" font-size="15" font-family="Segoe UI, Arial, sans-serif">Plan upgraded to Growth · Billing center</text>
+</svg>

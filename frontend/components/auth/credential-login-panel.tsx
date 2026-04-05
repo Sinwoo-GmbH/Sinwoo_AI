@@ -183,16 +183,16 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode =
           : "border border-slate-200 bg-white/96 shadow-[0_18px_38px_rgba(15,23,42,0.08)] backdrop-blur"
       )}
     >
-      <CardHeader className={cn("space-y-1.5", isDesktop ? "px-0 pb-4 pt-0" : "pb-3")}>
+      <CardHeader className={cn("space-y-1", isDesktop ? "px-0 pb-2.5 pt-0" : "pb-2")}>
         <div className="font-brand text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">{messages.cardEyebrow}</div>
         <CardTitle className={cn("font-brand font-semibold tracking-tight text-slate-950", isDesktop ? "text-[28px]" : "text-[24px]")}>
           {messages.signInTitle}
         </CardTitle>
       </CardHeader>
 
-      <CardContent className={cn("space-y-3", isDesktop ? "px-0 pb-0" : "")}>
-        <form className="space-y-3" onSubmit={handleSubmit}>
-          <div className="space-y-2">
+      <CardContent className={cn("space-y-2", isDesktop ? "px-0 pb-0" : "")}>
+        <form className="space-y-2.5" onSubmit={handleSubmit}>
+          <div className="space-y-1">
             <label htmlFor="credential-email" className="text-sm font-medium text-slate-700">
               {messages.emailLabel}
             </label>
@@ -205,12 +205,12 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode =
               autoComplete="username"
               className={cn(
                 "w-full border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[#233a7a]",
-                isDesktop ? "h-12 rounded-2xl" : "h-11 rounded-lg"
+                isDesktop ? "h-11 rounded-2xl" : "h-10 rounded-lg"
               )}
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <label htmlFor="credential-pwd" className="text-sm font-medium text-slate-700">
               {messages.passwordLabel}
             </label>
@@ -223,7 +223,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode =
               autoComplete="current-password"
               className={cn(
                 "w-full border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[#233a7a]",
-                isDesktop ? "h-12 rounded-2xl" : "h-11 rounded-lg"
+                isDesktop ? "h-11 rounded-2xl" : "h-10 rounded-lg"
               )}
             />
           </div>
@@ -239,7 +239,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode =
           </label>
 
           {errorMessage ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
               {errorMessage}
             </div>
           ) : null}
@@ -249,7 +249,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode =
             disabled={!canSubmit || isSubmitting}
             className={cn(
               "w-full bg-[#233a7a] text-sm font-semibold text-white hover:bg-[#1c2f64]",
-              isDesktop ? "h-12 rounded-2xl" : "h-11 rounded-lg"
+              isDesktop ? "h-11 rounded-2xl" : "h-10 rounded-lg"
             )}
           >
             {isSubmitting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -258,7 +258,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode =
         </form>
 
         {providers.length > 0 ? (
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-200" />

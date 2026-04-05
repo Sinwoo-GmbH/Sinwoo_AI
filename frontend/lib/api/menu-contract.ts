@@ -6,6 +6,7 @@ export interface CreateMenuReq {
   pathUri?: string | null;
   iconNm?: string | null;
   dspOrd?: number;
+  billGateCd?: string | null;
   useYn?: "Y" | "N";
 }
 
@@ -18,6 +19,7 @@ export interface MenuRes {
   pathUri?: string | null;
   iconNm?: string | null;
   dspOrd: number;
+  billGateCd?: string | null;
   useYn: "Y" | "N";
   crtDtm: string;
   updDtm: string;

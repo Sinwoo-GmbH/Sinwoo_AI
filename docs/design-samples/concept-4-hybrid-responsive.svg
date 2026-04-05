@@ -1,0 +1,74 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg4" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5F8FC"/>
+      <stop offset="1" stop-color="#E9EEF6"/>
+    </linearGradient>
+    <linearGradient id="phone4" x1="0" y1="0" x2="312" y2="640" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#143783"/>
+      <stop offset="1" stop-color="#244AAB"/>
+    </linearGradient>
+    <filter id="shadow4" x="-50" y="-50" width="1700" height="1000" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#1E3158" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg4)"/>
+  <rect x="28" y="28" width="1544" height="844" rx="34" fill="#F9FBFE" filter="url(#shadow4)"/>
+
+  <text x="94" y="104" fill="#162E67" font-size="34" font-weight="800" font-style="italic" font-family="Segoe UI, Arial, sans-serif">SINWOO Hybrid Workspace</text>
+  <text x="94" y="144" fill="#6F83AA" font-size="18" font-family="Segoe UI, Arial, sans-serif">A twin-track idea: clear desktop control with a compact mobile web companion.</text>
+
+  <rect x="80" y="190" width="968" height="600" rx="28" fill="#FFFFFF"/>
+  <rect x="80" y="190" width="218" height="600" rx="28" fill="#112B6F"/>
+  <text x="118" y="248" fill="#F7FAFF" font-size="42" font-weight="800" font-style="italic" font-family="Segoe UI, Arial, sans-serif">SINWOO</text>
+  <text x="118" y="280" fill="#A9BBF0" font-size="12" letter-spacing="4" font-family="Segoe UI, Arial, sans-serif">DESKTOP NAV</text>
+  <rect x="110" y="320" width="158" height="44" rx="14" fill="#2F57C1"/>
+  <text x="136" y="348" fill="#FFFFFF" font-size="16" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Dashboard</text>
+  <text x="136" y="400" fill="#C6D3F7" font-size="16" font-family="Segoe UI, Arial, sans-serif">Approvals</text>
+  <text x="136" y="446" fill="#C6D3F7" font-size="16" font-family="Segoe UI, Arial, sans-serif">Attendance</text>
+  <text x="136" y="492" fill="#C6D3F7" font-size="16" font-family="Segoe UI, Arial, sans-serif">Documents</text>
+  <text x="136" y="538" fill="#C6D3F7" font-size="16" font-family="Segoe UI, Arial, sans-serif">Billing</text>
+
+  <rect x="324" y="222" width="690" height="104" rx="24" fill="#F3F7FD"/>
+  <text x="358" y="260" fill="#7286AB" font-size="13" letter-spacing="3" font-family="Segoe UI, Arial, sans-serif">DESKTOP EXPERIENCE</text>
+  <text x="358" y="299" fill="#14284F" font-size="30" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Balanced dashboard with less noise, more action</text>
+
+  <rect x="324" y="350" width="214" height="150" rx="22" fill="#F6FAFF"/>
+  <rect x="556" y="350" width="214" height="150" rx="22" fill="#F6FAFF"/>
+  <rect x="788" y="350" width="226" height="150" rx="22" fill="#F6FAFF"/>
+  <text x="350" y="390" fill="#7185AA" font-size="13" letter-spacing="2" font-family="Segoe UI, Arial, sans-serif">MY TASKS</text>
+  <text x="350" y="445" fill="#14284F" font-size="44" font-weight="700" font-family="Segoe UI, Arial, sans-serif">12</text>
+  <text x="582" y="390" fill="#7185AA" font-size="13" letter-spacing="2" font-family="Segoe UI, Arial, sans-serif">DOC REVIEW</text>
+  <text x="582" y="445" fill="#14284F" font-size="44" font-weight="700" font-family="Segoe UI, Arial, sans-serif">34</text>
+  <text x="814" y="390" fill="#7185AA" font-size="13" letter-spacing="2" font-family="Segoe UI, Arial, sans-serif">ATTENDANCE</text>
+  <text x="814" y="445" fill="#14284F" font-size="44" font-weight="700" font-family="Segoe UI, Arial, sans-serif">97%</text>
+
+  <rect x="324" y="528" width="690" height="226" rx="22" fill="#F6FAFF"/>
+  <text x="356" y="568" fill="#14284F" font-size="22" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Weekly focus board</text>
+  <rect x="356" y="598" width="626" height="38" rx="10" fill="#FFFFFF"/>
+  <rect x="356" y="646" width="626" height="38" rx="10" fill="#FFFFFF"/>
+  <rect x="356" y="694" width="626" height="38" rx="10" fill="#FFFFFF"/>
+  <text x="380" y="621" fill="#14284F" font-size="15" font-family="Segoe UI, Arial, sans-serif">Approve OCR corrections before finance closing</text>
+  <text x="380" y="669" fill="#14284F" font-size="15" font-family="Segoe UI, Arial, sans-serif">Review attendance irregularities for two departments</text>
+  <text x="380" y="717" fill="#14284F" font-size="15" font-family="Segoe UI, Arial, sans-serif">Follow up on subscription upgrade requests</text>
+
+  <rect x="1150" y="192" width="330" height="640" rx="42" fill="#0F1D42"/>
+  <rect x="1160" y="204" width="310" height="616" rx="34" fill="url(#phone4)"/>
+  <rect x="1268" y="220" width="94" height="16" rx="8" fill="#E8EEFF" fill-opacity="0.68"/>
+  <text x="1186" y="270" fill="#A9BBF0" font-size="12" letter-spacing="3" font-family="Segoe UI, Arial, sans-serif">MOBILE WEB</text>
+  <text x="1186" y="308" fill="#FFFFFF" font-size="28" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Quick actions on the move</text>
+  <rect x="1186" y="334" width="258" height="94" rx="22" fill="#FFFFFF" fill-opacity="0.12"/>
+  <rect x="1186" y="444" width="122" height="118" rx="22" fill="#FFFFFF" fill-opacity="0.16"/>
+  <rect x="1322" y="444" width="122" height="118" rx="22" fill="#FFFFFF" fill-opacity="0.16"/>
+  <rect x="1186" y="578" width="258" height="150" rx="22" fill="#FFFFFF" fill-opacity="0.16"/>
+  <text x="1210" y="365" fill="#FFFFFF" font-size="16" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Today</text>
+  <text x="1210" y="401" fill="#E3EBFF" font-size="15" font-family="Segoe UI, Arial, sans-serif">Check-in, leave approval, billing alerts</text>
+  <text x="1210" y="482" fill="#FFFFFF" font-size="15" font-family="Segoe UI, Arial, sans-serif">Time</text>
+  <text x="1346" y="482" fill="#FFFFFF" font-size="15" font-family="Segoe UI, Arial, sans-serif">Docs</text>
+  <text x="1210" y="526" fill="#E3EBFF" font-size="13" font-family="Segoe UI, Arial, sans-serif">Fast mobile tap</text>
+  <text x="1346" y="526" fill="#E3EBFF" font-size="13" font-family="Segoe UI, Arial, sans-serif">Upload first</text>
+  <text x="1210" y="616" fill="#FFFFFF" font-size="16" font-weight="700" font-family="Segoe UI, Arial, sans-serif">Why this route</text>
+  <text x="1210" y="650" fill="#E3EBFF" font-size="15" font-family="Segoe UI, Arial, sans-serif">Desktop handles depth.</text>
+  <text x="1210" y="676" fill="#E3EBFF" font-size="15" font-family="Segoe UI, Arial, sans-serif">Mobile web handles urgency.</text>
+  <text x="1210" y="702" fill="#E3EBFF" font-size="15" font-family="Segoe UI, Arial, sans-serif">Same roles, different density.</text>
+</svg>

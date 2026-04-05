@@ -1,5 +1,8 @@
 package com.sinwoo.menu.controller;
 
+import com.sinwoo.auth.support.AuthErrorCode;
+import com.sinwoo.common.security.AuthenticatedUser;
+import com.sinwoo.common.web.ApiException;
 import com.sinwoo.menu.dto.CreateMenuRequest;
 import com.sinwoo.menu.dto.MenuListResponse;
 import com.sinwoo.menu.dto.MenuResponse;
@@ -9,6 +12,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,5 +53,20 @@ public class MenuController {
             @RequestParam(required = false) String mnuScopeCd
     ) {
         return menuService.getVisibleMenusByUsr(usrId, mnuScopeCd);
+    }
+
+    @GetMapping("/my")
+    public MenuTreeResponse getVisibleMenusForCurrentUser(
+            Authentication authentication,
+            @RequestParam(required = false) String mnuScopeCd
+    ) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof AuthenticatedUser authenticatedUser)) {
+            throw new ApiException(
+                    AuthErrorCode.AUTH_AUTHENTICATION_REQUIRED.status(),
+                    AuthErrorCode.AUTH_AUTHENTICATION_REQUIRED.code(),
+                    AuthErrorCode.AUTH_AUTHENTICATION_REQUIRED.message()
+            );
+        }
+        return menuService.getVisibleMenusForCurrentUser(authenticatedUser, mnuScopeCd);
     }
 }

@@ -8,6 +8,9 @@ public record CreateMenuRequest(
         @Size(max = 100)
         String mnuCd,
 
+        @Size(max = 100)
+        String mnuNmCd,
+
         @NotBlank
         @Size(max = 255)
         String mnuNm,
@@ -25,6 +28,9 @@ public record CreateMenuRequest(
         String iconNm,
 
         Integer dspOrd,
+
+        @Size(max = 30)
+        String billGateCd,
 
         @Size(max = 1)
         String useYn

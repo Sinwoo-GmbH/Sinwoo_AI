@@ -1,5 +1,6 @@
 package com.sinwoo.menu.service;
 
+import com.sinwoo.common.security.AuthenticatedUser;
 import com.sinwoo.menu.dto.CreateMenuRequest;
 import com.sinwoo.menu.dto.MenuListResponse;
 import com.sinwoo.menu.dto.MenuResponse;
@@ -15,4 +16,6 @@ public interface MenuService {
     MenuTreeResponse getVisibleMenus(List<String> roleCds, String mnuScopeCd);
 
     MenuTreeResponse getVisibleMenusByUsr(Long usrId, String mnuScopeCd);
+
+    MenuTreeResponse getVisibleMenusForCurrentUser(AuthenticatedUser authenticatedUser, String mnuScopeCd);
 }

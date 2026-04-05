@@ -23,6 +23,9 @@ public class Menu extends BaseEntity {
     @Column(name = "MNU_CD", nullable = false, length = 100)
     private String mnuCd;
 
+    @Column(name = "MNU_NM_CD", length = 100)
+    private String mnuNmCd;
+
     @Column(name = "MNU_NM", nullable = false, length = 255)
     private String mnuNm;
 
@@ -44,17 +47,23 @@ public class Menu extends BaseEntity {
     @Column(name = "USE_YN", nullable = false, length = 1, columnDefinition = "CHAR(1)")
     private String useYn;
 
+    @Column(name = "BILL_GATE_CD", length = 30)
+    private String billGateCd;
+
     private Menu(
             String mnuCd,
+            String mnuNmCd,
             String mnuNm,
             String mnuScopeCd,
             Long upMnuId,
             String pathUri,
             String iconNm,
             Integer dspOrd,
-            String useYn
+            String useYn,
+            String billGateCd
     ) {
         this.mnuCd = mnuCd;
+        this.mnuNmCd = mnuNmCd;
         this.mnuNm = mnuNm;
         this.mnuScopeCd = mnuScopeCd;
         this.upMnuId = upMnuId;
@@ -62,18 +71,21 @@ public class Menu extends BaseEntity {
         this.iconNm = iconNm;
         this.dspOrd = dspOrd;
         this.useYn = useYn;
+        this.billGateCd = billGateCd;
     }
 
     public static Menu create(
             String mnuCd,
+            String mnuNmCd,
             String mnuNm,
             String mnuScopeCd,
             Long upMnuId,
             String pathUri,
             String iconNm,
             Integer dspOrd,
-            String useYn
+            String useYn,
+            String billGateCd
     ) {
-        return new Menu(mnuCd, mnuNm, mnuScopeCd, upMnuId, pathUri, iconNm, dspOrd, useYn);
+        return new Menu(mnuCd, mnuNmCd, mnuNm, mnuScopeCd, upMnuId, pathUri, iconNm, dspOrd, useYn, billGateCd);
     }
 }

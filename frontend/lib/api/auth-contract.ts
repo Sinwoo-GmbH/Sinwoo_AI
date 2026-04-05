@@ -13,12 +13,14 @@ export type CurrentUser = {
   usrId: number;
   tenantId: number;
   coId: number | null;
+  tenantTpCd: string;
   lgnId: string;
   eml: string;
   dspNm: string;
   authGrpCd: string | null;
   authLvlCd: string | null;
   roleCds: string[];
+  billEntitledYn: "Y" | "N";
 };
 
 export type AuthTokenResponse = {

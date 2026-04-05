@@ -90,12 +90,14 @@ class AuthControllerTest {
                         1L,
                         100L,
                         200L,
+                        "INTERNAL",
                         "SINWOO.ADMIN",
                         "admin@sinwoo.com",
                         "Sinwoo Admin",
                         "ADMIN",
                         "PASSWORD",
-                        List.of("ROLE_PLATFORM_ADMIN")
+                        List.of("ROLE_PLATFORM_ADMIN"),
+                        "Y"
                 )
         );
 
@@ -118,6 +120,7 @@ class AuthControllerTest {
                 1L,
                 100L,
                 200L,
+                "INTERNAL",
                 "SINWOO.ADMIN",
                 "admin@sinwoo.com",
                 "Sinwoo Admin",
@@ -129,12 +132,14 @@ class AuthControllerTest {
                 1L,
                 100L,
                 200L,
+                "INTERNAL",
                 "SINWOO.ADMIN",
                 "admin@sinwoo.com",
                 "Sinwoo Admin",
                 "ADMIN",
                 "OAUTH",
-                List.of("ROLE_PLATFORM_ADMIN")
+                List.of("ROLE_PLATFORM_ADMIN"),
+                "Y"
         );
 
         given(authService.getCurrentUser(authenticatedUser)).willReturn(response);
