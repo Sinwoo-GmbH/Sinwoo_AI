@@ -34,6 +34,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body), "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
     background-image:
       radial-gradient(circle at top left, rgba(30, 79, 216, 0.08), transparent 30%),
       linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(245, 247, 250, 1));
@@ -43,6 +44,11 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .font-brand {
+    font-family: var(--font-brand), var(--font-body), sans-serif;
+    letter-spacing: -0.03em;
   }
 
   .login-shell {

@@ -154,8 +154,8 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode =
       )}
     >
       <CardHeader className={cn("space-y-1.5", isDesktop ? "px-0 pb-4 pt-0" : "pb-3")}>
-        <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">{messages.cardEyebrow}</div>
-        <CardTitle className={cn("font-semibold tracking-tight text-slate-950", isDesktop ? "text-[28px]" : "text-[24px]")}>
+        <div className="font-brand text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">{messages.cardEyebrow}</div>
+        <CardTitle className={cn("font-brand font-semibold tracking-tight text-slate-950", isDesktop ? "text-[28px]" : "text-[24px]")}>
           {messages.signInTitle}
         </CardTitle>
       </CardHeader>

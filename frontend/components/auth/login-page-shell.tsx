@@ -54,11 +54,11 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
                 key={item}
                 type="button"
                 onClick={() => setLocale(item)}
-                className={cn(
-                  "rounded-full px-2.5 py-1 text-[11px] font-semibold transition",
-                  locale === item
-                    ? "bg-[#233a7a] text-white"
-                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                    className={cn(
+                      "rounded-full px-2.5 py-1 text-[11px] font-semibold transition",
+                      locale === item
+                        ? "bg-[#233a7a] text-white"
+                        : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
                 )}
               >
                 {messages.localeNames[item]}
@@ -83,7 +83,7 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-slate-500 sm:text-[11px]">
+                  <p className="font-brand text-[10px] font-semibold uppercase tracking-[0.34em] text-slate-500 sm:text-[11px]">
                     {messages.productName}
                   </p>
                   <p className="mx-auto max-w-xl text-[10px] font-semibold italic tracking-[0.28em] leading-4 text-slate-400 sm:text-[11px]">
@@ -119,11 +119,11 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
                   </div>
 
                   <div className="space-y-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.36em] text-white/60">
+                    <p className="font-brand text-xs font-semibold uppercase tracking-[0.36em] text-white/60">
                       {messages.desktopLabel}
                     </p>
                     <div className="space-y-3">
-                      <h1 className="max-w-[480px] text-[clamp(2rem,2.8vw,3.2rem)] font-semibold leading-[1.02] tracking-[-0.05em] text-white">
+                      <h1 className="font-brand max-w-[480px] text-[clamp(2rem,2.8vw,3.2rem)] font-semibold leading-[1.02] tracking-[-0.05em] text-white">
                         {messages.productName}
                       </h1>
                       <p className="max-w-[430px] text-sm font-medium uppercase tracking-[0.26em] text-white/68">
@@ -160,7 +160,7 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
         </section>
 
         <footer className="mt-auto flex shrink-0 flex-col gap-1 border-t border-slate-200/90 pt-2.5 text-center text-[10px] leading-5 text-slate-500 sm:text-[11px] lg:flex-row lg:items-center lg:justify-between">
-          <p className="font-semibold tracking-[0.16em] text-slate-700">{messages.footerCompany}</p>
+          <p className="font-brand font-semibold tracking-[0.16em] text-slate-700">{messages.footerCompany}</p>
           <p>{messages.footerDescription}</p>
           <p>{messages.footerCopyright}</p>
         </footer>
