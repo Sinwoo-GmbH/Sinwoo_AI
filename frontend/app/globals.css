@@ -46,19 +46,19 @@
   }
 
   .login-shell {
-    min-height: 100dvh;
+    min-height: calc(100dvh - 8px);
     overflow-y: auto;
   }
 
   .login-shell-inner {
-    min-height: 100dvh;
+    min-height: calc(100dvh - 8px);
     box-sizing: border-box;
   }
 
   @media (min-width: 1024px) and (min-height: 760px) {
     .login-shell {
-      height: 100dvh;
-      min-height: 100dvh;
+      height: calc(100dvh - 8px);
+      min-height: calc(100dvh - 8px);
       overflow: hidden;
     }
 
