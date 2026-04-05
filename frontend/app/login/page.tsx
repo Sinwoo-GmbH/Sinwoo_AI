@@ -45,10 +45,7 @@ export default async function LoginPage() {
                 <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-slate-500 sm:text-[11px]">
                   OneGate Enterprise Console
                 </p>
-                <h1 className="text-[clamp(1.65rem,2.35vw,2.15rem)] font-semibold tracking-[-0.035em] text-slate-950">
-                  Sign in to your workspace
-                </h1>
-                <p className="mx-auto max-w-xl text-[13px] leading-6 text-slate-600 sm:text-sm">
+                <p className="mx-auto max-w-xl text-[10px] font-semibold uppercase tracking-[0.28em] leading-6 text-slate-400 sm:text-[11px]">
                   Access SINWOO internal administration and customer workspace operations.
                 </p>
               </div>
