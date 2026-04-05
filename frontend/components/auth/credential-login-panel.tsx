@@ -7,7 +7,7 @@ import { LoaderCircle } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { AuthProviderItem, AuthTokenResponse, CredentialLoginRequest } from "@/lib/api/auth-contract";
+import type { ApiErrorResponse, AuthProviderItem, AuthTokenResponse, CredentialLoginRequest } from "@/lib/api/auth-contract";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -19,22 +19,10 @@ const SAVED_EMAIL_KEY = "sinwoo.savedLoginEmail";
 const SAVE_EMAIL_YN_KEY = "sinwoo.saveLoginEmailYn";
 
 async function resolveLoginErrorMessage(response: Response): Promise<string> {
-  if (response.status === 401) {
-    return "Email address or password is incorrect.";
-  }
-
-  if (response.status === 403) {
-    return "Your account is not allowed to sign in right now.";
-  }
-
-  if (response.status === 400) {
-    return "Please check your email address and password.";
-  }
-
   try {
     const contentType = response.headers.get("content-type") ?? "";
     if (contentType.includes("application/json")) {
-      const payload = (await response.json()) as { message?: string; error?: string };
+      const payload = (await response.json()) as Partial<ApiErrorResponse>;
       if (payload.message && payload.message.trim()) {
         return payload.message.trim();
       }
@@ -49,6 +37,18 @@ async function resolveLoginErrorMessage(response: Response): Promise<string> {
     }
   } catch {
     // Ignore parse failures and fall back to generic text.
+  }
+
+  if (response.status === 401) {
+    return "Email address or password is incorrect.";
+  }
+
+  if (response.status === 403) {
+    return "Your account is not allowed to sign in right now.";
+  }
+
+  if (response.status === 400) {
+    return "Please check your email address and password.";
   }
 
   return "Unable to sign in. Please try again.";

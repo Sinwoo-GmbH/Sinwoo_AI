@@ -14,10 +14,12 @@ import com.sinwoo.auth.repository.UserRoleRepository;
 import com.sinwoo.common.security.AuthProperties;
 import com.sinwoo.common.security.AuthenticatedUser;
 import com.sinwoo.common.security.JwtTokenService;
+import com.sinwoo.common.web.ApiException;
 import com.sinwoo.tenant.domain.Tenant;
 import com.sinwoo.tenant.repository.TenantRepository;
 import com.sinwoo.user.domain.User;
 import com.sinwoo.user.repository.UserRepository;
+import com.sinwoo.auth.support.AuthErrorCode;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -33,7 +35,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -76,14 +77,14 @@ public class AuthServiceImpl implements AuthService {
         Tenant tenant = resolveTenantByLoginEmail(normalizedEmail);
 
         User user = userRepository.findByTenantIdAndEmlIgnoreCase(tenant.getId(), normalizedEmail)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid login credentials"));
+                .orElseThrow(() -> authException(AuthErrorCode.AUTH_INVALID_CREDENTIALS));
 
         if (!"ACTIVE".equalsIgnoreCase(user.getStsCd())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not active");
+            throw authException(AuthErrorCode.AUTH_USER_INACTIVE);
         }
 
         if (!passwordEncoder.matches(request.pwd(), user.getPwdHash())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid login credentials");
+            throw authException(AuthErrorCode.AUTH_INVALID_CREDENTIALS);
         }
 
         return issueTokens(buildAuthenticatedUser(user));
@@ -110,7 +111,7 @@ public class AuthServiceImpl implements AuthService {
         Tenant tenant = resolveTenantForOauthLogin(tenantCd, eml);
 
         if (oauthSub == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OAuth subject was not provided by provider");
+            throw authException(AuthErrorCode.AUTH_OAUTH_SUBJECT_MISSING);
         }
 
         User user = userOauthIdentityRepository.findByOauthProvCdAndOauthSub(providerCd, oauthSub)
@@ -168,7 +169,7 @@ public class AuthServiceImpl implements AuthService {
 
     private User syncExistingIdentity(UserOauthIdentity identity, String eml, String emlVrfyYn) {
         User user = userRepository.findById(identity.getUsrId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Linked user not found"));
+                .orElseThrow(() -> authException(AuthErrorCode.AUTH_LINKED_USER_NOT_FOUND));
         identity.markLogin(eml, emlVrfyYn, OffsetDateTime.now(ZoneOffset.UTC));
         return user;
     }
@@ -182,7 +183,7 @@ public class AuthServiceImpl implements AuthService {
             String dspNm
     ) {
         if (eml == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OAuth provider email is required");
+            throw authException(AuthErrorCode.AUTH_OAUTH_EMAIL_REQUIRED);
         }
 
         User user = userRepository.findByTenantIdAndEmlIgnoreCase(tenant.getId(), eml)
@@ -226,13 +227,13 @@ public class AuthServiceImpl implements AuthService {
                 ? authProperties.internalDefaultRoleCd()
                 : authProperties.customerDefaultRoleCd();
         return roleRepository.findByRoleCd(roleCd)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Default role not found"));
+                .orElseThrow(() -> authException(AuthErrorCode.AUTH_DEFAULT_ROLE_NOT_FOUND));
     }
 
     private Tenant resolveTenantForOauthLogin(String tenantCd, String eml) {
         if (tenantCd != null && !tenantCd.isBlank()) {
             return tenantRepository.findByTenantCdIgnoreCase(tenantCd.trim())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tenant not found"));
+                    .orElseThrow(() -> authException(AuthErrorCode.AUTH_TENANT_NOT_FOUND));
         }
         return resolveTenantByLoginEmail(eml);
     }
@@ -242,7 +243,7 @@ public class AuthServiceImpl implements AuthService {
                 .map(UserRole::getRoleId)
                 .distinct()
                 .map(roleId -> roleRepository.findById(roleId)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role not found")))
+                        .orElseThrow(() -> authException(AuthErrorCode.AUTH_ROLE_NOT_FOUND)))
                 .map(Role::getRoleCd)
                 .toList();
     }
@@ -261,12 +262,12 @@ public class AuthServiceImpl implements AuthService {
         List<User> matchedUsers = userRepository.findAllByEmlIgnoreCase(normalizedEmail);
         if (matchedUsers.size() == 1) {
             return tenantRepository.findById(matchedUsers.get(0).getTenantId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tenant not found"));
+                    .orElseThrow(() -> authException(AuthErrorCode.AUTH_TENANT_NOT_FOUND));
         }
         if (matchedUsers.size() > 1) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Multiple tenants matched this email");
+            throw authException(AuthErrorCode.AUTH_TENANT_AMBIGUOUS);
         }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tenant could not be resolved from email");
+        throw authException(AuthErrorCode.AUTH_TENANT_UNRESOLVED);
     }
 
     private String createUniqueLoginId(Long tenantId, String eml) {
@@ -287,7 +288,7 @@ public class AuthServiceImpl implements AuthService {
 
     private String normalizeEmail(String eml) {
         if (eml == null || eml.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
+            throw authException(AuthErrorCode.AUTH_EMAIL_REQUIRED);
         }
         return eml.trim().toLowerCase(Locale.ROOT);
     }
@@ -342,5 +343,9 @@ public class AuthServiceImpl implements AuthService {
             }
         }
         return null;
+    }
+
+    private ApiException authException(AuthErrorCode errorCode) {
+        return new ApiException(errorCode.status(), errorCode.code(), errorCode.message());
     }
 }

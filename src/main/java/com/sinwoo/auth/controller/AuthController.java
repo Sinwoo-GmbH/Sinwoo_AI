@@ -4,8 +4,10 @@ import com.sinwoo.auth.dto.AuthProviderListResponse;
 import com.sinwoo.auth.dto.AuthTokenResponse;
 import com.sinwoo.auth.dto.CredentialLoginRequest;
 import com.sinwoo.auth.dto.CurrentUserResponse;
+import com.sinwoo.auth.support.AuthErrorCode;
 import com.sinwoo.auth.service.AuthService;
 import com.sinwoo.common.security.AuthenticatedUser;
+import com.sinwoo.common.web.ApiException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -59,7 +61,11 @@ public class AuthController {
     @GetMapping("/me")
     public CurrentUserResponse getCurrentUser(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof AuthenticatedUser authenticatedUser)) {
-            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Authentication required");
+            throw new ApiException(
+                    AuthErrorCode.AUTH_AUTHENTICATION_REQUIRED.status(),
+                    AuthErrorCode.AUTH_AUTHENTICATION_REQUIRED.code(),
+                    AuthErrorCode.AUTH_AUTHENTICATION_REQUIRED.message()
+            );
         }
         return authService.getCurrentUser(authenticatedUser);
     }
