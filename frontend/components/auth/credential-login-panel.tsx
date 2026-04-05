@@ -8,21 +8,28 @@ import { LoaderCircle } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ApiErrorResponse, AuthProviderItem, AuthTokenResponse, CredentialLoginRequest } from "@/lib/api/auth-contract";
+import { getLoginMessages, type LoginLocale } from "@/lib/i18n/login-content";
 import { cn } from "@/lib/utils";
 
 type Props = {
   backendBaseUrl: string;
   providers: AuthProviderItem[];
+  locale: LoginLocale;
 };
 
 const SAVED_EMAIL_KEY = "sinwoo.savedLoginEmail";
 const SAVE_EMAIL_YN_KEY = "sinwoo.saveLoginEmailYn";
 
-async function resolveLoginErrorMessage(response: Response): Promise<string> {
+async function resolveLoginErrorMessage(response: Response, locale: LoginLocale): Promise<string> {
+  const messages = getLoginMessages(locale).errorMessages;
+
   try {
     const contentType = response.headers.get("content-type") ?? "";
     if (contentType.includes("application/json")) {
       const payload = (await response.json()) as Partial<ApiErrorResponse>;
+      if (payload.code && messages[payload.code]) {
+        return messages[payload.code];
+      }
       if (payload.message && payload.message.trim()) {
         return payload.message.trim();
       }
@@ -40,27 +47,28 @@ async function resolveLoginErrorMessage(response: Response): Promise<string> {
   }
 
   if (response.status === 401) {
-    return "Email address or password is incorrect.";
+    return messages.DEFAULT_401;
   }
 
   if (response.status === 403) {
-    return "Your account is not allowed to sign in right now.";
+    return messages.DEFAULT_403;
   }
 
   if (response.status === 400) {
-    return "Please check your email address and password.";
+    return messages.DEFAULT_400;
   }
 
-  return "Unable to sign in. Please try again.";
+  return messages.DEFAULT_FALLBACK;
 }
 
-export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
+export function CredentialLoginPanel({ backendBaseUrl, providers, locale }: Props) {
   const router = useRouter();
   const [eml, setEml] = useState("");
   const [pwd, setPwd] = useState("");
   const [saveLoginId, setSaveLoginId] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const messages = useMemo(() => getLoginMessages(locale), [locale]);
 
   useEffect(() => {
     const saveYn = window.localStorage.getItem(SAVE_EMAIL_YN_KEY);
@@ -118,7 +126,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
       });
 
       if (!response.ok) {
-        throw new Error(await resolveLoginErrorMessage(response));
+        throw new Error(await resolveLoginErrorMessage(response, locale));
       }
 
       const data = (await response.json()) as AuthTokenResponse;
@@ -128,7 +136,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
       router.push("/");
       router.refresh();
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
+      setErrorMessage(error instanceof Error ? error.message : messages.errorMessages.DEFAULT_FALLBACK);
     } finally {
       setIsSubmitting(false);
     }
@@ -137,22 +145,22 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
   return (
     <Card className="w-full border border-slate-200 bg-white/96 shadow-[0_18px_38px_rgba(15,23,42,0.08)] backdrop-blur">
       <CardHeader className="space-y-1.5 pb-3">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">Workspace Access</div>
-        <CardTitle className="text-[24px] font-semibold tracking-tight text-slate-950">Sign in</CardTitle>
+        <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">{messages.cardEyebrow}</div>
+        <CardTitle className="text-[24px] font-semibold tracking-tight text-slate-950">{messages.signInTitle}</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-3">
         <form className="space-y-3" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label htmlFor="credential-email" className="text-sm font-medium text-slate-700">
-              Email address
+              {messages.emailLabel}
             </label>
             <input
               id="credential-email"
               type="email"
               value={eml}
               onChange={(event) => setEml(event.target.value)}
-              placeholder="name@company.com"
+              placeholder={messages.emailPlaceholder}
               autoComplete="username"
               className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[#233a7a]"
             />
@@ -160,14 +168,14 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
 
           <div className="space-y-2">
             <label htmlFor="credential-pwd" className="text-sm font-medium text-slate-700">
-              Password
+              {messages.passwordLabel}
             </label>
             <input
               id="credential-pwd"
               type="password"
               value={pwd}
               onChange={(event) => setPwd(event.target.value)}
-              placeholder="Enter your password"
+              placeholder={messages.passwordPlaceholder}
               autoComplete="current-password"
               className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[#233a7a]"
             />
@@ -180,7 +188,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
               onChange={(event) => setSaveLoginId(event.target.checked)}
               className="h-4 w-4 rounded border-slate-300 text-slate-900"
             />
-            Remember email
+            {messages.rememberEmail}
           </label>
 
           {errorMessage ? (
@@ -191,7 +199,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
 
           <Button type="submit" disabled={!canSubmit || isSubmitting} className="h-11 w-full rounded-lg bg-[#233a7a] text-sm font-semibold text-white hover:bg-[#1c2f64]">
             {isSubmitting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Sign in
+            {messages.signInButton}
           </Button>
         </form>
 
@@ -202,7 +210,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
                 <div className="w-full border-t border-slate-200" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-white px-3 text-xs font-medium tracking-[0.2em] text-slate-400">SSO</span>
+                <span className="bg-white px-3 text-xs font-medium tracking-[0.2em] text-slate-400">{messages.ssoLabel}</span>
               </div>
             </div>
 
@@ -216,7 +224,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
                     "flex h-11 w-full justify-center rounded-lg border-slate-300 text-sm font-medium text-slate-700"
                   )}
                 >
-                  Continue with {provider.providerNm}
+                  {messages.continueWith} {provider.providerNm}
                 </Link>
               ))}
             </div>
