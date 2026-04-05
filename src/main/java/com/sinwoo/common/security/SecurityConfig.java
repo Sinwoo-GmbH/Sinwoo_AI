@@ -46,6 +46,7 @@ public class SecurityConfig {
                                 "/actuator/info",
                                 "/error",
                                 "/api/v1/system/ping",
+                                "/api/v1/auth/credential-key",
                                 "/api/v1/auth/oauth/providers",
                                 "/api/v1/auth/oauth/authorize/**",
                                 "/api/v1/auth/oauth/failure",

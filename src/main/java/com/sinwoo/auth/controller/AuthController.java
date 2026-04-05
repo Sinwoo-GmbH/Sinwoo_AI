@@ -2,6 +2,7 @@ package com.sinwoo.auth.controller;
 
 import com.sinwoo.auth.dto.AuthProviderListResponse;
 import com.sinwoo.auth.dto.AuthTokenResponse;
+import com.sinwoo.auth.dto.CredentialKeyResponse;
 import com.sinwoo.auth.dto.CredentialLoginRequest;
 import com.sinwoo.auth.dto.CurrentUserResponse;
 import com.sinwoo.auth.support.AuthErrorCode;
@@ -35,6 +36,11 @@ public class AuthController {
     @GetMapping("/oauth/providers")
     public AuthProviderListResponse getOauthProviders() {
         return authService.getOauthProviders();
+    }
+
+    @GetMapping("/credential-key")
+    public CredentialKeyResponse getCredentialKey() {
+        return authService.getCredentialKey();
     }
 
     @PostMapping("/login")

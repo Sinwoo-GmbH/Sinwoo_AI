@@ -6,6 +6,7 @@ import com.sinwoo.auth.domain.UserRole;
 import com.sinwoo.auth.dto.AuthProviderListResponse;
 import com.sinwoo.auth.dto.AuthProviderResponse;
 import com.sinwoo.auth.dto.AuthTokenResponse;
+import com.sinwoo.auth.dto.CredentialKeyResponse;
 import com.sinwoo.auth.dto.CredentialLoginRequest;
 import com.sinwoo.auth.dto.CurrentUserResponse;
 import com.sinwoo.auth.repository.RoleRepository;
@@ -13,6 +14,7 @@ import com.sinwoo.auth.repository.UserOauthIdentityRepository;
 import com.sinwoo.auth.repository.UserRoleRepository;
 import com.sinwoo.common.security.AuthProperties;
 import com.sinwoo.common.security.AuthenticatedUser;
+import com.sinwoo.common.security.CredentialEncryptionService;
 import com.sinwoo.common.security.JwtTokenService;
 import com.sinwoo.common.web.ApiException;
 import com.sinwoo.tenant.domain.Tenant;
@@ -48,6 +50,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserOauthIdentityRepository userOauthIdentityRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenService jwtTokenService;
+    private final CredentialEncryptionService credentialEncryptionService;
     private final AuthProperties authProperties;
     private final Optional<ClientRegistrationRepository> clientRegistrationRepository;
 
@@ -72,9 +75,19 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public CredentialKeyResponse getCredentialKey() {
+        try {
+            return credentialEncryptionService.getCredentialKey();
+        } catch (RuntimeException exception) {
+            throw authException(AuthErrorCode.AUTH_CREDENTIAL_KEY_UNAVAILABLE);
+        }
+    }
+
+    @Override
     public AuthTokenResponse loginWithCredentials(CredentialLoginRequest request) {
         String normalizedEmail = normalizeEmail(request.eml());
         Tenant tenant = resolveTenantByLoginEmail(normalizedEmail);
+        String rawPassword = resolveRawPassword(request);
 
         User user = userRepository.findByTenantIdAndEmlIgnoreCase(tenant.getId(), normalizedEmail)
                 .orElseThrow(() -> authException(AuthErrorCode.AUTH_INVALID_CREDENTIALS));
@@ -83,7 +96,7 @@ public class AuthServiceImpl implements AuthService {
             throw authException(AuthErrorCode.AUTH_USER_INACTIVE);
         }
 
-        if (!passwordEncoder.matches(request.pwd(), user.getPwdHash())) {
+        if (!passwordEncoder.matches(rawPassword, user.getPwdHash())) {
             throw authException(AuthErrorCode.AUTH_INVALID_CREDENTIALS);
         }
 
@@ -291,6 +304,22 @@ public class AuthServiceImpl implements AuthService {
             throw authException(AuthErrorCode.AUTH_EMAIL_REQUIRED);
         }
         return eml.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String resolveRawPassword(CredentialLoginRequest request) {
+        if (request.pwdEnc() == null || request.pwdEnc().isBlank()) {
+            throw authException(AuthErrorCode.AUTH_PASSWORD_PAYLOAD_INVALID);
+        }
+
+        try {
+            String decrypted = credentialEncryptionService.decryptPassword(request.pwdEnc());
+            if (decrypted.isBlank()) {
+                throw authException(AuthErrorCode.AUTH_PASSWORD_PAYLOAD_INVALID);
+            }
+            return decrypted;
+        } catch (IllegalArgumentException exception) {
+            throw authException(AuthErrorCode.AUTH_PASSWORD_PAYLOAD_INVALID);
+        }
     }
 
     private String normalizeLocale(String locale) {

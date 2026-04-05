@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sinwoo.auth.dto.AuthProviderListResponse;
 import com.sinwoo.auth.dto.AuthProviderResponse;
 import com.sinwoo.auth.dto.AuthTokenResponse;
+import com.sinwoo.auth.dto.CredentialKeyResponse;
 import com.sinwoo.auth.dto.CredentialLoginRequest;
 import com.sinwoo.auth.dto.CurrentUserResponse;
 import com.sinwoo.auth.service.AuthService;
@@ -61,8 +62,23 @@ class AuthControllerTest {
     }
 
     @Test
+    void getCredentialKeyReturnsPublicKeyPayload() throws Exception {
+        given(authService.getCredentialKey()).willReturn(new CredentialKeyResponse(
+                "RSA_OAEP_SHA256",
+                "SPKI",
+                "PUBLIC_KEY_BASE64"
+        ));
+
+        mockMvc.perform(get("/api/v1/auth/credential-key"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.alg").value("RSA_OAEP_SHA256"))
+                .andExpect(jsonPath("$.keyFormat").value("SPKI"))
+                .andExpect(jsonPath("$.publicKey").value("PUBLIC_KEY_BASE64"));
+    }
+
+    @Test
     void loginReturnsJwtPayload() throws Exception {
-        CredentialLoginRequest request = new CredentialLoginRequest("admin@sinwoo.com", "password123");
+        CredentialLoginRequest request = new CredentialLoginRequest("admin@sinwoo.com", "encrypted-password");
         AuthTokenResponse response = new AuthTokenResponse(
                 "access-token",
                 3600,

@@ -11,7 +11,7 @@ public record CredentialLoginRequest(
         String eml,
 
         @NotBlank
-        @Size(min = 4, max = 100)
-        String pwd
+        @Size(max = 2048)
+        String pwdEnc
 ) {
 }

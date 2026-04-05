@@ -14,7 +14,9 @@ public enum AuthErrorCode {
     AUTH_TENANT_NOT_FOUND(HttpStatus.BAD_REQUEST, "The requested workspace could not be found."),
     AUTH_DEFAULT_ROLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "The default access role is not configured."),
     AUTH_LINKED_USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "The linked account could not be found."),
-    AUTH_ROLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "The assigned role could not be found.");
+    AUTH_ROLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "The assigned role could not be found."),
+    AUTH_PASSWORD_PAYLOAD_INVALID(HttpStatus.BAD_REQUEST, "The password payload is invalid."),
+    AUTH_CREDENTIAL_KEY_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "The sign-in encryption key is not available.");
 
     private final HttpStatus status;
     private final String message;

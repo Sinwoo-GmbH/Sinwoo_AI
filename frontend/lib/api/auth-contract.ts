@@ -33,7 +33,13 @@ export type AuthTokenResponse = {
 
 export type CredentialLoginRequest = {
   eml: string;
-  pwd: string;
+  pwdEnc: string;
+};
+
+export type CredentialKeyResponse = {
+  alg: string;
+  keyFormat: string;
+  publicKey: string;
 };
 
 export type ApiErrorResponse = {

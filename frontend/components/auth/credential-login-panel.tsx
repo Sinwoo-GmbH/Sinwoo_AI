@@ -7,8 +7,15 @@ import { LoaderCircle } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ApiErrorResponse, AuthProviderItem, AuthTokenResponse, CredentialLoginRequest } from "@/lib/api/auth-contract";
+import type {
+  ApiErrorResponse,
+  AuthProviderItem,
+  AuthTokenResponse,
+  CredentialKeyResponse,
+  CredentialLoginRequest,
+} from "@/lib/api/auth-contract";
 import { getLoginMessages, type LoginLocale } from "@/lib/i18n/login-content";
+import { encryptCredentialPassword } from "@/lib/security/credential-encryption";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -20,6 +27,21 @@ type Props = {
 
 const SAVED_EMAIL_KEY = "sinwoo.savedLoginEmail";
 const SAVE_EMAIL_YN_KEY = "sinwoo.saveLoginEmailYn";
+
+async function getCredentialKey(backendBaseUrl: string): Promise<CredentialKeyResponse> {
+  const response = await fetch(`${backendBaseUrl}/api/v1/auth/credential-key`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to initialize secure sign-in.");
+  }
+
+  return response.json() as Promise<CredentialKeyResponse>;
+}
 
 async function resolveLoginErrorMessage(response: Response, locale: LoginLocale): Promise<string> {
   const messages = getLoginMessages(locale).errorMessages;
@@ -113,12 +135,20 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode =
     setIsSubmitting(true);
     setErrorMessage(null);
 
-    const payload: CredentialLoginRequest = {
-      eml: eml.trim().toLowerCase(),
-      pwd,
-    };
-
     try {
+      let pwdEnc: string;
+      try {
+        const credentialKey = await getCredentialKey(backendBaseUrl);
+        pwdEnc = await encryptCredentialPassword(pwd, credentialKey);
+      } catch {
+        throw new Error(messages.errorMessages.DEFAULT_FALLBACK);
+      }
+
+      const payload: CredentialLoginRequest = {
+        eml: eml.trim().toLowerCase(),
+        pwdEnc,
+      };
+
       const response = await fetch(`${backendBaseUrl}/api/v1/auth/login`, {
         method: "POST",
         headers: {
