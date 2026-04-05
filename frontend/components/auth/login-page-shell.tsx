@@ -44,31 +44,31 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
       </div>
 
       <div className="login-shell-inner relative mx-auto flex max-w-5xl flex-col box-border px-5 py-4 sm:px-6 lg:px-8 lg:py-5">
+        <div className="flex justify-end pb-2 sm:pb-3">
+          <div className="inline-flex items-center gap-1 rounded-full border border-slate-200/80 bg-white/80 p-1 shadow-sm backdrop-blur">
+            <span className="px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              {messages.localeLabel}
+            </span>
+            {LOGIN_LOCALES.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setLocale(item)}
+                className={cn(
+                  "rounded-full px-2.5 py-1 text-[11px] font-semibold transition",
+                  locale === item
+                    ? "bg-[#233a7a] text-white"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                )}
+              >
+                {messages.localeNames[item]}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <section className="flex flex-1 items-center justify-center py-3 sm:py-5 lg:min-h-0 lg:py-4">
           <div className="w-full max-w-[438px] space-y-4 text-center lg:space-y-3.5">
-            <div className="flex justify-center">
-              <div className="inline-flex items-center gap-1 rounded-full border border-slate-200/80 bg-white/80 p-1 shadow-sm backdrop-blur">
-                <span className="px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  {messages.localeLabel}
-                </span>
-                {LOGIN_LOCALES.map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => setLocale(item)}
-                    className={cn(
-                      "rounded-full px-2.5 py-1 text-[11px] font-semibold transition",
-                      locale === item
-                        ? "bg-[#233a7a] text-white"
-                        : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-                    )}
-                  >
-                    {messages.localeNames[item]}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <div className="flex flex-col items-center gap-4">
               <div className="w-full max-w-[136px] sm:max-w-[148px]">
                 <Image
