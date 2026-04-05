@@ -26,7 +26,7 @@ export default async function LoginPage() {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.52)_100%)]" />
       </div>
 
-      <div className="login-shell-inner relative mx-auto flex max-w-5xl flex-col px-5 py-4 sm:px-6 lg:px-8 lg:py-5">
+      <div className="login-shell-inner relative mx-auto flex max-w-5xl flex-col box-border px-5 py-4 sm:px-6 lg:px-8 lg:py-5">
         <section className="flex flex-1 items-center justify-center py-3 sm:py-5 lg:min-h-0 lg:py-4">
           <div className="w-full max-w-[438px] space-y-4 text-center lg:space-y-3.5">
             <div className="flex flex-col items-center gap-4">
