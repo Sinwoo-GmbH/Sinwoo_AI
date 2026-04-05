@@ -18,6 +18,42 @@ type Props = {
 const SAVED_EMAIL_KEY = "sinwoo.savedLoginEmail";
 const SAVE_EMAIL_YN_KEY = "sinwoo.saveLoginEmailYn";
 
+async function resolveLoginErrorMessage(response: Response): Promise<string> {
+  if (response.status === 401) {
+    return "Email address or password is incorrect.";
+  }
+
+  if (response.status === 403) {
+    return "Your account is not allowed to sign in right now.";
+  }
+
+  if (response.status === 400) {
+    return "Please check your email address and password.";
+  }
+
+  try {
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json")) {
+      const payload = (await response.json()) as { message?: string; error?: string };
+      if (payload.message && payload.message.trim()) {
+        return payload.message.trim();
+      }
+      if (payload.error && payload.error.trim()) {
+        return payload.error.trim();
+      }
+    }
+
+    const body = await response.text();
+    if (body.trim()) {
+      return body.trim();
+    }
+  } catch {
+    // Ignore parse failures and fall back to generic text.
+  }
+
+  return "Unable to sign in. Please try again.";
+}
+
 export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
   const router = useRouter();
   const [eml, setEml] = useState("");
@@ -82,8 +118,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
       });
 
       if (!response.ok) {
-        const body = await response.text();
-        throw new Error(body || "Login failed");
+        throw new Error(await resolveLoginErrorMessage(response));
       }
 
       const data = (await response.json()) as AuthTokenResponse;
@@ -93,7 +128,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers }: Props) {
       router.push("/");
       router.refresh();
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Login failed");
+      setErrorMessage(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
