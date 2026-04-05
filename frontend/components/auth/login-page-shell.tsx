@@ -85,9 +85,6 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
                 <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-slate-500 sm:text-[11px]">
                   {messages.productName}
                 </p>
-                <h1 className="text-[clamp(1.8rem,3vw,2.4rem)] font-semibold tracking-[-0.04em] text-slate-950">
-                  {messages.accessTitle}
-                </h1>
                 <p className="mx-auto max-w-xl text-[10px] font-semibold italic tracking-[0.28em] leading-4 text-slate-400 sm:text-[11px]">
                   {messages.tagline}
                 </p>
