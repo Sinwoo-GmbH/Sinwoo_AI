@@ -103,11 +103,11 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
 
           <div className="hidden w-full lg:flex lg:flex-1 lg:items-center">
             <div className="grid h-[min(620px,calc(100dvh-168px))] w-full grid-cols-[minmax(0,1.1fr)_minmax(360px,430px)] overflow-hidden rounded-[34px] border border-slate-200/80 bg-white/75 shadow-[0_30px_80px_rgba(15,23,42,0.12)] backdrop-blur">
-              <div className="relative flex h-full flex-col justify-between overflow-hidden bg-[linear-gradient(145deg,_rgba(35,58,122,0.98)_0%,_rgba(17,34,78,0.92)_100%)] px-9 py-8 text-white">
+              <div className="relative flex h-full flex-col justify-center overflow-hidden bg-[linear-gradient(145deg,_rgba(35,58,122,0.98)_0%,_rgba(17,34,78,0.92)_100%)] px-10 py-10 text-white">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(125,154,230,0.22),transparent_28%)]" />
 
-                <div className="relative space-y-8">
-                  <div className="w-full max-w-[220px]">
+                <div className="relative mx-auto flex w-full max-w-[460px] flex-col gap-7">
+                  <div className="w-full max-w-[196px]">
                     <Image
                       src="/brand/sinwoo-logo.png"
                       alt="Sinwoo International"
@@ -118,30 +118,32 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
                     />
                   </div>
 
-                  <div className="space-y-4">
-                    <p className="font-brand text-xs font-semibold uppercase tracking-[0.36em] text-white/60">
+                  <div className="space-y-3">
+                    <p className="font-brand text-[11px] font-semibold uppercase tracking-[0.32em] text-white/58">
                       {messages.desktopLabel}
                     </p>
-                    <div className="space-y-3">
-                      <h1 className="font-brand max-w-[460px] text-[clamp(1.9rem,2.5vw,2.8rem)] font-semibold leading-[1.02] tracking-[-0.05em] text-white">
+                    <div className="space-y-4">
+                      <h1 className="font-brand max-w-[420px] text-[clamp(1.85rem,2.4vw,2.65rem)] font-semibold leading-[1.02] tracking-[-0.05em] text-white">
                         {messages.productName}
                       </h1>
-                      <p className="max-w-[430px] text-sm font-medium uppercase tracking-[0.26em] text-white/68">
+                      <p className="max-w-[420px] text-[15px] leading-7 text-white/72">
                         {messages.tagline}
                       </p>
                     </div>
                   </div>
-                </div>
 
-                <div className="relative grid gap-3">
-                  {messages.desktopHighlights.map((item) => (
-                    <div
-                      key={item}
-                      className="rounded-2xl border border-white/12 bg-white/8 px-4 py-3 text-sm leading-6 text-white/88 backdrop-blur-sm"
-                    >
-                      {item}
-                    </div>
-                  ))}
+                  <div className="h-px w-full bg-white/14" />
+
+                  <div className="grid gap-2.5">
+                    {messages.desktopHighlights.map((item) => (
+                      <div
+                        key={item}
+                        className="border-l-2 border-white/28 pl-4 text-[14px] leading-6 text-white/86"
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
