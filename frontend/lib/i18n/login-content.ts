@@ -1,4 +1,4 @@
-export const LOGIN_LOCALES = ["ko", "en", "de"] as const;
+export const LOGIN_LOCALES = ["de", "en", "ko"] as const;
 
 export type LoginLocale = (typeof LOGIN_LOCALES)[number];
 
@@ -176,27 +176,26 @@ export function getLoginMessages(locale: LoginLocale): LoginMessages {
 
 export function detectBrowserLoginLocale(): LoginLocale {
   if (typeof window === "undefined") {
-    return "ko";
+    return "en";
   }
 
   const candidates = [
-    window.localStorage.getItem("sinwoo.loginLocale"),
     window.navigator.language,
     ...(window.navigator.languages ?? []),
   ].filter(Boolean) as string[];
 
   for (const candidate of candidates) {
     const normalized = candidate.toLowerCase();
-    if (normalized.startsWith("ko")) {
-      return "ko";
-    }
     if (normalized.startsWith("de")) {
       return "de";
     }
     if (normalized.startsWith("en")) {
       return "en";
     }
+    if (normalized.startsWith("ko")) {
+      return "ko";
+    }
   }
 
-  return "ko";
+  return "en";
 }

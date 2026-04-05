@@ -18,10 +18,8 @@ type Props = {
   providers: AuthProviderItem[];
 };
 
-const LOCALE_STORAGE_KEY = "sinwoo.loginLocale";
-
 export function LoginPageShell({ backendBaseUrl, providers }: Props) {
-  const [locale, setLocale] = useState<LoginLocale>("ko");
+  const [locale, setLocale] = useState<LoginLocale>("en");
 
   useEffect(() => {
     const resolvedLocale = detectBrowserLoginLocale();
@@ -30,7 +28,6 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
 
   useEffect(() => {
     document.documentElement.lang = locale;
-    window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
   }, [locale]);
 
   const messages = useMemo(() => getLoginMessages(locale), [locale]);
@@ -54,11 +51,11 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
                 key={item}
                 type="button"
                 onClick={() => setLocale(item)}
-                    className={cn(
-                      "rounded-full px-2.5 py-1 text-[11px] font-semibold transition",
-                      locale === item
-                        ? "bg-[#233a7a] text-white"
-                        : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                className={cn(
+                  "rounded-full px-2.5 py-1 text-[11px] font-semibold transition",
+                  locale === item
+                    ? "bg-[#233a7a] text-white"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
                 )}
               >
                 {messages.localeNames[item]}
@@ -102,11 +99,11 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
           </div>
 
           <div className="hidden w-full lg:flex lg:flex-1 lg:items-center">
-            <div className="grid h-[min(620px,calc(100dvh-168px))] w-full grid-cols-[minmax(0,1.1fr)_minmax(360px,430px)] overflow-hidden rounded-[34px] border border-slate-200/80 bg-white/75 shadow-[0_30px_80px_rgba(15,23,42,0.12)] backdrop-blur">
+            <div className="grid h-[min(620px,calc(100dvh-168px))] w-full grid-cols-[minmax(0,1.18fr)_minmax(360px,420px)] overflow-hidden rounded-[34px] border border-slate-200/80 bg-white/75 shadow-[0_30px_80px_rgba(15,23,42,0.12)] backdrop-blur">
               <div className="relative flex h-full flex-col justify-center overflow-hidden bg-[linear-gradient(145deg,_rgba(35,58,122,0.98)_0%,_rgba(17,34,78,0.92)_100%)] px-10 py-10 text-white">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(125,154,230,0.22),transparent_28%)]" />
 
-                <div className="relative mx-auto flex w-full max-w-[460px] flex-col gap-7">
+                <div className="relative mx-auto flex w-full max-w-[500px] flex-col gap-7">
                   <div className="w-full max-w-[196px]">
                     <Image
                       src="/brand/sinwoo-logo.png"
@@ -123,10 +120,10 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
                       {messages.desktopLabel}
                     </p>
                     <div className="space-y-4">
-                      <h1 className="font-brand max-w-[420px] text-[clamp(1.85rem,2.4vw,2.65rem)] font-semibold leading-[1.02] tracking-[-0.05em] text-white">
+                      <h1 className="font-brand max-w-[460px] text-[clamp(1.85rem,2.4vw,2.65rem)] font-semibold leading-[1.02] tracking-[-0.05em] text-white">
                         {messages.productName}
                       </h1>
-                      <p className="max-w-[420px] text-[15px] leading-7 text-white/72">
+                      <p className="max-w-[470px] text-[15px] leading-7 text-white/72">
                         {messages.tagline}
                       </p>
                     </div>
@@ -134,11 +131,11 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
 
                   <div className="h-px w-full bg-white/14" />
 
-                  <div className="grid gap-2.5">
+                  <div className="grid max-w-[500px] gap-3">
                     {messages.desktopHighlights.map((item) => (
                       <div
                         key={item}
-                        className="border-l-2 border-white/28 pl-4 text-[14px] leading-6 text-white/86"
+                        className="flex min-h-[72px] items-start border-l-2 border-white/28 pl-4 pr-4 text-[14px] leading-6 text-white/86"
                       >
                         {item}
                       </div>
