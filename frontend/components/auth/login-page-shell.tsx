@@ -92,7 +92,7 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
 
           <div className="hidden w-full lg:flex lg:flex-1 lg:items-center">
             <div className="login-desktop-frame grid w-full grid-cols-[minmax(0,1.18fr)_minmax(340px,392px)] overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/75 shadow-[0_22px_56px_rgba(15,23,42,0.12)] backdrop-blur">
-              <div className="relative flex h-full flex-col justify-center overflow-hidden bg-[linear-gradient(145deg,_rgba(35,58,122,0.98)_0%,_rgba(17,34,78,0.92)_100%)] px-6 py-6 text-white">
+              <div className="relative flex h-full flex-col justify-center overflow-hidden bg-[linear-gradient(145deg,_rgba(35,58,122,0.98)_0%,_rgba(17,34,78,0.92)_100%)] px-6 py-8 text-white">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(125,154,230,0.22),transparent_28%)]" />
 
                 <div className="relative mx-auto flex w-full flex-col gap-4.5">
@@ -111,27 +111,24 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
                     <p className="font-brand text-[10px] font-semibold uppercase tracking-[0.26em] text-white/58">
                       {messages.desktopLabel}
                     </p>
-                    <div className="space-y-2.5">
-                      <h1 className="font-brand max-w-[430px] text-[clamp(1.7rem,2.25vw,2.35rem)] font-semibold leading-[0.98] tracking-[-0.05em] text-white">
-                        {messages.productName}
-                      </h1>
-                      <p className="max-w-[440px] text-[14px] leading-5 text-white/72">
-                        {messages.tagline}
-                      </p>
-                    </div>
+                    <p className="max-w-[440px] text-[14px] leading-5 text-white/72">
+                      {messages.tagline}
+                    </p>
                   </div>
 
-                  <div className="h-px w-full bg-white/14" />
+                  <div className="space-y-2.5">
+                    <div className="h-px w-full bg-white/14" />
 
-                  <div className="grid max-w-[560px] gap-2">
-                    {messages.desktopHighlights.map((item) => (
-                      <div
-                        key={item}
-                        className="flex min-h-[auto] items-start border-l-2 border-white/28 pl-3 pr-3 text-[13px] leading-5 text-white/86"
-                      >
-                        {item}
-                      </div>
-                    ))}
+                    <div className="grid max-w-[560px] gap-2">
+                      {messages.desktopHighlights.map((item) => (
+                        <div
+                          key={item}
+                          className="flex min-h-[auto] items-start border-l-2 border-white/28 pl-3 pr-3 text-[13px] leading-5 text-white/86"
+                        >
+                          {item}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

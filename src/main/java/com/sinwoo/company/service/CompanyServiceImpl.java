@@ -37,6 +37,10 @@ public class CompanyServiceImpl implements CompanyService {
                 normalizedCoCd,
                 request.coNm().trim(),
                 blankToNull(request.regNo()),
+                normalizeCountryCode(request.hqCtryCd()),
+                normalizeRegionCode(request.hqRegionCd()),
+                blankToNull(request.hqCityNm()),
+                blankToNull(request.hqAddr1()),
                 normalizedStsCd
         );
 
@@ -67,6 +71,20 @@ public class CompanyServiceImpl implements CompanyService {
     private String normalizeStatus(String value) {
         if (value == null || value.isBlank()) {
             return "ACTIVE";
+        }
+        return value.trim().toUpperCase();
+    }
+
+    private String normalizeCountryCode(String value) {
+        if (value == null || value.isBlank()) {
+            return "DE";
+        }
+        return value.trim().toUpperCase();
+    }
+
+    private String normalizeRegionCode(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
         }
         return value.trim().toUpperCase();
     }

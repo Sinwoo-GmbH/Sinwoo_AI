@@ -21,6 +21,18 @@ public record CreateCompanyRequest(
         @Size(max = 100)
         String regNo,
 
+        @Size(max = 10)
+        String hqCtryCd,
+
+        @Size(max = 20)
+        String hqRegionCd,
+
+        @Size(max = 255)
+        String hqCityNm,
+
+        @Size(max = 255)
+        String hqAddr1,
+
         @Size(max = 20)
         String stsCd
 ) {

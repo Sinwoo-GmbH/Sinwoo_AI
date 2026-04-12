@@ -10,6 +10,7 @@ import com.sinwoo.employee.repository.EmployeeRepository;
 import com.sinwoo.tenant.repository.TenantRepository;
 import com.sinwoo.user.domain.User;
 import com.sinwoo.user.repository.UserRepository;
+import com.sinwoo.worklocation.repository.WorkLocationRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final CompanyRepository companyRepository;
     private final DepartmentRepository departmentRepository;
     private final UserRepository userRepository;
+    private final WorkLocationRepository workLocationRepository;
 
     @Override
     @Transactional
@@ -34,6 +36,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         validateTenant(request.tenantId());
         validateCompany(request.tenantId(), request.coId());
         validateDepartment(request.tenantId(), request.coId(), request.deptId());
+        validateWorkLocation(request.tenantId(), request.coId(), request.workLocId());
         validateManager(request.tenantId(), request.coId(), request.mgrEmpId());
         validateUser(request.tenantId(), request.coId(), request.usrId());
 
@@ -51,6 +54,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 request.coId(),
                 request.usrId(),
                 request.deptId(),
+                request.workLocId(),
                 request.mgrEmpId(),
                 normalizedEmpNo,
                 request.empNm().trim(),
@@ -98,6 +102,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         if (departmentRepository.findByIdAndTenantIdAndCoId(deptId, tenantId, coId).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Department not found in company");
+        }
+    }
+
+    private void validateWorkLocation(Long tenantId, Long coId, Long workLocId) {
+        if (workLocId == null) {
+            return;
+        }
+        if (workLocationRepository.findByIdAndTenantIdAndCoId(workLocId, tenantId, coId).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Work location not found in company");
         }
     }
 

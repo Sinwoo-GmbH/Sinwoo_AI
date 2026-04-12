@@ -17,6 +17,8 @@ public record CreateEmployeeRequest(
 
         Long deptId,
 
+        Long workLocId,
+
         Long mgrEmpId,
 
         @NotBlank

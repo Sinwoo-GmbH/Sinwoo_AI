@@ -34,6 +34,9 @@ public class Employee extends BaseEntity {
     @Column(name = "DEPT_ID")
     private Long deptId;
 
+    @Column(name = "WORK_LOC_ID")
+    private Long workLocId;
+
     @Column(name = "MGR_EMP_ID")
     private Long mgrEmpId;
 
@@ -63,6 +66,7 @@ public class Employee extends BaseEntity {
             Long coId,
             Long usrId,
             Long deptId,
+            Long workLocId,
             Long mgrEmpId,
             String empNo,
             String empNm,
@@ -76,6 +80,7 @@ public class Employee extends BaseEntity {
         this.coId = coId;
         this.usrId = usrId;
         this.deptId = deptId;
+        this.workLocId = workLocId;
         this.mgrEmpId = mgrEmpId;
         this.empNo = empNo;
         this.empNm = empNm;
@@ -91,6 +96,7 @@ public class Employee extends BaseEntity {
             Long coId,
             Long usrId,
             Long deptId,
+            Long workLocId,
             Long mgrEmpId,
             String empNo,
             String empNm,
@@ -100,6 +106,6 @@ public class Employee extends BaseEntity {
             LocalDate retrDt,
             String stsCd
     ) {
-        return new Employee(tenantId, coId, usrId, deptId, mgrEmpId, empNo, empNm, teamRoleCd, jobTtlNm, hireDt, retrDt, stsCd);
+        return new Employee(tenantId, coId, usrId, deptId, workLocId, mgrEmpId, empNo, empNm, teamRoleCd, jobTtlNm, hireDt, retrDt, stsCd);
     }
 }

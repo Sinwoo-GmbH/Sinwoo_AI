@@ -25,6 +25,7 @@ import {
 import { LocaleCombobox } from "@/components/common/locale-combobox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { WorkspaceAttendanceCard } from "@/components/workspace/workspace-attendance-card";
 import type { MenuNodeRes, MenuTreeRes } from "@/lib/api/menu-contract";
 import {
   detectBrowserLoginLocale,
@@ -59,6 +60,51 @@ const DEMO_USER_KEY = "ggamgang@sinwoo-itc.com";
 const PROFILE_TAB_ID = "my-profile";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 const TAB_CONTEXT_MENU_WIDTH = 164;
+const LEGACY_MENU_ID_ALIASES: Record<string, string> = {
+  "admin-overview": "MNU_ADMIN_DASH",
+  "client-dashboard": "MNU_CUSTOMER_DASH",
+  "tenant-control": "MNU_ADMIN_TENANT",
+  "tenant-list": "MNU_ADMIN_TENANT_LIST",
+  "tenant-settings": "MNU_ADMIN_TENANT_SETTINGS",
+  "company-profile": "MNU_ADMIN_COMPANY_PROFILE",
+  "workspace-policy": "MNU_ADMIN_WORKSPACE_POLICY",
+  "menu-policy": "MNU_ADMIN_MENU_POLICY",
+  authorization: "MNU_ADMIN_AUTH",
+  "role-policy": "MNU_ADMIN_ROLE_POLICY",
+  "menu-management": "MNU_ADMIN_MENU",
+  "menu-tree": "MNU_ADMIN_MENU_TREE",
+  "tab-policy": "MNU_ADMIN_TAB_POLICY",
+  "depth-policy": "MNU_ADMIN_DEPTH_POLICY",
+  "depth-editor": "MNU_ADMIN_DEPTH_EDITOR",
+  "billing-ops": "MNU_ADMIN_BILL",
+  "plan-catalog": "MNU_ADMIN_PLAN_CATALOG",
+  "payment-gates": "MNU_ADMIN_PAYMENT_GATES",
+  "upgrade-queue": "MNU_ADMIN_UPGRADE_QUEUE",
+  "audit-center": "MNU_ADMIN_AUDIT",
+  "change-history": "MNU_ADMIN_CHANGE_HISTORY",
+  "access-logs": "MNU_ADMIN_ACCESS_LOGS",
+  compliance: "MNU_ADMIN_COMPLIANCE",
+  "billing-center": "MNU_CUSTOMER_PAY",
+  workspace: "MNU_CUSTOMER_WORKSPACE",
+  documents: "MNU_CUSTOMER_DOC",
+  "ocr-inbox": "MNU_CUSTOMER_OCR_INBOX",
+  "expense-review": "MNU_CUSTOMER_EXPENSE_REVIEW",
+  archive: "MNU_CUSTOMER_ARCHIVE",
+  attendance: "MNU_CUSTOMER_ATTENDANCE",
+  "my-time": "MNU_CUSTOMER_MY_TIME",
+  "team-time": "MNU_CUSTOMER_TEAM_TIME",
+  leave: "MNU_CUSTOMER_LEAVE",
+  people: "MNU_CUSTOMER_PEOPLE",
+  employees: "MNU_CUSTOMER_EMPLOYEES",
+  organization: "MNU_CUSTOMER_ORG",
+  departments: "MNU_CUSTOMER_DEPARTMENTS",
+  roles: "MNU_CUSTOMER_ROLES",
+  subscription: "MNU_CUSTOMER_SUBSCRIPTION",
+  payments: "MNU_CUSTOMER_PAYMENTS",
+};
+const REVERSE_LEGACY_MENU_ID_ALIASES = Object.fromEntries(
+  Object.entries(LEGACY_MENU_ID_ALIASES).map(([legacyId, dbId]) => [dbId, legacyId])
+) as Record<string, string>;
 
 const iconMap = {
   grid: Grid2X2,
@@ -291,6 +337,27 @@ function buildMenuFallbackMap(menus: MenuNode[], bucket = new Map<string, MenuNo
   return bucket;
 }
 
+function menuExists(menus: MenuNode[], targetId: string) {
+  return Boolean(findMenuTitleFromNodes(menus, targetId));
+}
+
+function canonicalizeMenuId(menus: MenuNode[], targetId: string) {
+  if (menuExists(menus, targetId)) {
+    return targetId;
+  }
+
+  const alias = LEGACY_MENU_ID_ALIASES[targetId];
+  if (alias && menuExists(menus, alias)) {
+    return alias;
+  }
+
+  return targetId;
+}
+
+function resolveFallbackMenuId(targetId: string) {
+  return REVERSE_LEGACY_MENU_ID_ALIASES[targetId] ?? targetId;
+}
+
 function normalizeApiMenus(items: MenuNodeRes[], fallbackMenus: MenuNode[]): MenuNode[] {
   const fallbackMap = buildMenuFallbackMap(fallbackMenus);
 
@@ -311,6 +378,7 @@ function normalizeApiMenus(items: MenuNodeRes[], fallbackMenus: MenuNode[]): Men
 
 export function PlatformShell() {
   const tabScrollRef = useRef<HTMLDivElement | null>(null);
+  const previousModeRef = useRef<WorkspaceMode>("client");
   const [mode, setMode] = useState<WorkspaceMode>("client");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [openTabs, setOpenTabs] = useState<TabItem[]>([]);
@@ -337,7 +405,18 @@ export function PlatformShell() {
 
   const getTabTitle = (tabId: string, fallbackTitle?: string) => {
     if (tabId === PROFILE_TAB_ID) return ui.profileTab;
-    return findMenuTitleFromNodes(currentMenus, tabId) ?? findMenuTitle(mode, tabId, locale) ?? fallbackTitle ?? tabId;
+    const resolvedTitle = findMenuTitleFromNodes(currentMenus, tabId);
+    if (resolvedTitle) {
+      return resolvedTitle;
+    }
+
+    const fallbackMenuId = resolveFallbackMenuId(tabId);
+    const fallbackMenuTitle = findMenuTitle(mode, fallbackMenuId, locale);
+    if (fallbackMenuTitle !== fallbackMenuId) {
+      return fallbackMenuTitle;
+    }
+
+    return fallbackTitle ?? tabId;
   };
 
   const getTabContextMenuStyle = () => {
@@ -412,13 +491,17 @@ export function PlatformShell() {
     const fallbackMenus = config.menus;
     const scope = mode === "admin" ? "ADMIN" : "CUSTOMER";
     let aborted = false;
+    const modeChanged = previousModeRef.current !== mode;
+    previousModeRef.current = mode;
 
     if (!accessToken) {
       redirectToLogin();
       return;
     }
 
-    setResolvedMenus(fallbackMenus);
+    if (modeChanged || !resolvedMenus.length) {
+      setResolvedMenus(fallbackMenus);
+    }
 
     fetch(`${API_BASE_URL}/api/v1/menus/my?mnuScopeCd=${scope}`, {
       method: "GET",
@@ -457,7 +540,7 @@ export function PlatformShell() {
     return () => {
       aborted = true;
     };
-  }, [accessToken, config.menus, isReady, locale, mode]);
+  }, [accessToken, config.menus, isReady, locale, mode, resolvedMenus.length]);
 
   useEffect(() => {
     if (!isReady) return;
@@ -465,10 +548,7 @@ export function PlatformShell() {
     setOpenTabs((current) => {
       let changed = false;
       const next = current.map((tab) => {
-        const nextTitle =
-          tab.id === PROFILE_TAB_ID
-            ? ui.profileTab
-            : findMenuTitleFromNodes(currentMenus, tab.id) ?? findMenuTitle(mode, tab.id, locale) ?? tab.title;
+        const nextTitle = getTabTitle(tab.id, tab.title);
 
         if (nextTitle !== tab.title) {
           changed = true;
@@ -480,7 +560,61 @@ export function PlatformShell() {
 
       return changed ? next : current;
     });
-  }, [currentMenus, isReady, locale, mode, ui.profileTab]);
+  }, [currentMenus, getTabTitle, isReady, locale, mode, ui.profileTab]);
+
+  useEffect(() => {
+    if (!isReady || !currentMenus.length) return;
+
+    let nextActiveTabId = activeTabId;
+
+    setOpenTabs((current) => {
+      let changed = false;
+      const seen = new Set<string>();
+      const nextTabs: TabItem[] = [];
+
+      for (const tab of current) {
+        const nextId =
+          tab.id === PROFILE_TAB_ID ? PROFILE_TAB_ID : canonicalizeMenuId(currentMenus, tab.id);
+        const nextTitle = getTabTitle(nextId, tab.title);
+
+        if (nextId !== tab.id || nextTitle !== tab.title) {
+          changed = true;
+        }
+
+        if (seen.has(nextId)) {
+          changed = true;
+          continue;
+        }
+
+        seen.add(nextId);
+        nextTabs.push({ id: nextId, title: nextTitle });
+      }
+
+      if (!nextTabs.length) {
+        const defaultTabId = canonicalizeMenuId(currentMenus, config.defaultTabId);
+        nextTabs.push({
+          id: defaultTabId,
+          title: getTabTitle(defaultTabId, findMenuTitle(mode, config.defaultTabId, locale)),
+        });
+        changed = true;
+      }
+
+      const canonicalActive =
+        nextActiveTabId === PROFILE_TAB_ID
+          ? PROFILE_TAB_ID
+          : canonicalizeMenuId(currentMenus, nextActiveTabId || config.defaultTabId);
+
+      nextActiveTabId = nextTabs.some((tab) => tab.id === canonicalActive)
+        ? canonicalActive
+        : nextTabs[0].id;
+
+      return changed ? nextTabs : current;
+    });
+
+    if (nextActiveTabId !== activeTabId) {
+      setActiveTabId(nextActiveTabId);
+    }
+  }, [activeTabId, config.defaultTabId, currentMenus, getTabTitle, isReady, locale, mode]);
 
   useEffect(() => {
     const tabScroller = tabScrollRef.current;
@@ -949,17 +1083,25 @@ export function PlatformShell() {
                   </CardContent>
                 </Card>
 
-                <Card id="workspace-rules-card">
-                  <CardHeader>
-                    <CardDescription id="workspace-rules-eyebrow">{ui.quickActions}</CardDescription>
-                    <CardTitle id="workspace-rules-title" className="font-brand text-2xl">{ui.rulesTitle}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3 text-sm text-slate-600">
-                    <div id="workspace-rule-client-admin-switch" className="rounded-2xl bg-slate-50 p-4">{ui.ruleOne}</div>
-                    <div id="workspace-rule-depth-menu" className="rounded-2xl bg-slate-50 p-4">{ui.ruleTwo}</div>
-                    <div id="workspace-rule-mobile-simplify" className="rounded-2xl bg-slate-50 p-4">{ui.ruleThree}</div>
-                  </CardContent>
-                </Card>
+                {mode === "client" ? (
+                  <WorkspaceAttendanceCard
+                    accessToken={accessToken}
+                    locale={locale}
+                    onUnauthorized={redirectToLogin}
+                    onLoadingChange={setLoading}
+                  />
+                ) : (
+                  <Card id="workspace-rules-card">
+                    <CardHeader>
+                      <CardDescription id="workspace-rules-eyebrow">{ui.quickActions}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3 text-sm text-slate-600">
+                      <div id="workspace-rule-client-admin-switch" className="rounded-2xl bg-slate-50 p-4">{ui.ruleOne}</div>
+                      <div id="workspace-rule-depth-menu" className="rounded-2xl bg-slate-50 p-4">{ui.ruleTwo}</div>
+                      <div id="workspace-rule-mobile-simplify" className="rounded-2xl bg-slate-50 p-4">{ui.ruleThree}</div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
 
               <div id="workspace-kpi-grid" className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">

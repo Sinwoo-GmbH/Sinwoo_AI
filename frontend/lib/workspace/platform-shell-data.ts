@@ -269,6 +269,62 @@ const baseViewModels: Record<string, ViewModel> = {
       { name: "Field Sales", owner: "HR admin", status: "Late check-in", updated: "15 min ago" },
     ],
   },
+  MNU_CUSTOMER_WORK_LOCATIONS_I18N_SHADOW: {
+    eyebrow: "work locations",
+    title: "Dispatch and work region control",
+    description: "Manage headquarters defaults, client sites, and employee work-location assignments so local holiday rules follow the real workplace.",
+    kpis: [
+      { label: "HQ rule", value: "Default", delta: "Company fallback" },
+      { label: "Client sites", value: "6", delta: "Regional coverage" },
+      { label: "Assigned staff", value: "128", delta: "Workplace override" },
+      { label: "Holiday sync", value: "Live", delta: "Open API" },
+    ],
+    highlights: [
+      { title: "Frankfurt remains the headquarters default", meta: "Company baseline" },
+      { title: "Berlin and Munich dispatch sites override HQ holidays", meta: "Work location priority", emphasis: "warning" },
+      { title: "Customer admins can maintain work locations directly", meta: "Delegated control", emphasis: "success" },
+    ],
+    gridTitle: "Work location roster",
+    gridRows: [
+      { name: "Frankfurt HQ", owner: "Headquarters", status: "Default", updated: "Today" },
+      { name: "QCells Berlin", owner: "Client site", status: "Active", updated: "12 min ago" },
+      { name: "Samsung Semiconductor Munich", owner: "Client site", status: "Active", updated: "28 min ago" },
+    ],
+  },
+  MNU_CUSTOMER_WORK_LOCATIONS: {
+    eyebrow: "work locations",
+    title: "Dispatch and work region control",
+    description: "Manage headquarters defaults, client sites, and employee work-location assignments so local holiday rules follow the real workplace.",
+    kpis: [
+      { label: "HQ rule", value: "Default", delta: "Company fallback" },
+      { label: "Client sites", value: "6", delta: "Regional coverage" },
+      { label: "Assigned staff", value: "128", delta: "Workplace override" },
+      { label: "Holiday sync", value: "Live", delta: "Open API" },
+    ],
+    highlights: [
+      { title: "Frankfurt remains the headquarters default", meta: "Company baseline" },
+      { title: "Berlin and Munich dispatch sites override HQ holidays", meta: "Work location priority", emphasis: "warning" },
+      { title: "Customer admins can maintain work locations directly", meta: "Delegated control", emphasis: "success" },
+    ],
+    gridTitle: "Work location roster",
+    gridRows: [
+      { name: "Frankfurt HQ", owner: "Headquarters", status: "Default", updated: "Today" },
+      { name: "QCells Berlin", owner: "Client site", status: "Active", updated: "12 min ago" },
+      { name: "Samsung Semiconductor Munich", owner: "Client site", status: "Active", updated: "28 min ago" },
+    ],
+    /*
+    de: {
+      eyebrow: "einsatzorte",
+      title: "Einsatz- und Regionssteuerung",
+      description: "Verwalten Sie Hauptsitz-Standards, Kundeneinsatzorte und Mitarbeiterzuordnungen, damit Feiertage nach dem realen Arbeitsort angewendet werden.",
+    },
+    ko: {
+      eyebrow: "근무지",
+      title: "파견지 및 지역 관리",
+      description: "본사 기준값, 고객사 파견지, 직원 근무지 배정을 함께 관리하여 실제 근무 지역의 휴일 규칙이 적용되도록 합니다.",
+    },
+    */
+  },
   "billing-center": {
     eyebrow: "billing",
     title: "Billing and upgrade gateway",
