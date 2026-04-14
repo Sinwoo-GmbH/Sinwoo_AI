@@ -1,11 +1,16 @@
 package com.sinwoo.common.web;
 
+import com.sinwoo.common.accesslog.AccessLogFilter;
+import com.sinwoo.common.security.AuthenticatedUser;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.OffsetDateTime;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,10 +18,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalApiExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ApiErrorResponse> handleApiException(ApiException exception, HttpServletRequest request) {
+        logException(exception.getStatus(), exception, request);
         return ResponseEntity.status(exception.getStatus())
                 .body(buildResponse(
                         exception.getStatus(),
@@ -32,6 +39,7 @@ public class GlobalApiExceptionHandler {
             HttpServletRequest request
     ) {
         String message = resolveValidationMessage(exception.getBindingResult().getFieldErrors());
+        logException(HttpStatus.BAD_REQUEST, exception, request);
         return ResponseEntity.badRequest()
                 .body(buildResponse(
                         HttpStatus.BAD_REQUEST,
@@ -46,6 +54,7 @@ public class GlobalApiExceptionHandler {
             HttpMessageNotReadableException exception,
             HttpServletRequest request
     ) {
+        logException(HttpStatus.BAD_REQUEST, exception, request);
         return ResponseEntity.badRequest()
                 .body(buildResponse(
                         HttpStatus.BAD_REQUEST,
@@ -61,6 +70,7 @@ public class GlobalApiExceptionHandler {
             HttpServletRequest request
     ) {
         HttpStatus status = HttpStatus.valueOf(exception.getStatusCode().value());
+        logException(status, exception, request);
         return ResponseEntity.status(status)
                 .body(buildResponse(
                         status,
@@ -72,6 +82,7 @@ public class GlobalApiExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleUnexpectedException(Exception exception, HttpServletRequest request) {
+        logException(HttpStatus.INTERNAL_SERVER_ERROR, exception, request);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(buildResponse(
                         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -104,6 +115,17 @@ public class GlobalApiExceptionHandler {
         return "Please check the required fields and try again.";
     }
 
+    private void logException(HttpStatus status, Exception exception, HttpServletRequest request) {
+        String requestContext = buildRequestContext(request);
+
+        if (status.is5xxServerError()) {
+            log.error("Unhandled API error: {}", requestContext, exception);
+            return;
+        }
+
+        log.warn("API request failed: {}", requestContext, exception);
+    }
+
     private String resolveReasonOrDefault(HttpStatus status, String reason) {
         if (reason != null && !reason.isBlank()) {
             return reason;
@@ -115,5 +137,37 @@ public class GlobalApiExceptionHandler {
             case CONFLICT -> "The request could not be completed due to a conflict.";
             default -> "The request could not be completed.";
         };
+    }
+
+    private String buildRequestContext(HttpServletRequest request) {
+        String method = request.getMethod();
+        String path = request.getRequestURI();
+        String query = request.getQueryString();
+        Object requestId = request.getAttribute(AccessLogFilter.REQUEST_ID_ATTRIBUTE);
+        Long authenticatedUserId = resolveAuthenticatedUserId();
+
+        return "requestId=%s method=%s path=%s query=%s userId=%s".formatted(
+                valueOrDash(requestId),
+                valueOrDash(method),
+                valueOrDash(path),
+                valueOrDash(query),
+                authenticatedUserId == null ? "-" : authenticatedUserId
+        );
+    }
+
+    private Long resolveAuthenticatedUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof AuthenticatedUser authenticatedUser)) {
+            return null;
+        }
+        return authenticatedUser.usrId();
+    }
+
+    private String valueOrDash(Object value) {
+        if (value == null) {
+            return "-";
+        }
+        String text = String.valueOf(value);
+        return text.isBlank() ? "-" : text;
     }
 }

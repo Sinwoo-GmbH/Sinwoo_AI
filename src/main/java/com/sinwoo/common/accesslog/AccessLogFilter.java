@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.core.Authentication;
@@ -29,6 +30,8 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 public class AccessLogFilter extends OncePerRequestFilter {
 
     private static final int MAX_LOG_LENGTH = 4000;
+    private static final int MAX_AUDIT_ACTOR_LENGTH = 100;
+    public static final String REQUEST_ID_ATTRIBUTE = "sinwoo.requestId";
 
     private final AccessLogService accessLogService;
     private final ObjectMapper objectMapper;
@@ -54,7 +57,9 @@ public class AccessLogFilter extends OncePerRequestFilter {
         ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
 
         String reqId = UUID.randomUUID().toString();
+        wrappedRequest.setAttribute(REQUEST_ID_ATTRIBUTE, reqId);
         wrappedResponse.setHeader("X-Request-Id", reqId);
+        MDC.put("reqId", reqId);
 
         Exception failure = null;
         try {
@@ -68,6 +73,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
             } catch (Exception ignored) {
                 // Access log must never break the request lifecycle.
             } finally {
+                MDC.remove("reqId");
                 wrappedResponse.copyBodyToResponse();
             }
         }
@@ -160,7 +166,11 @@ public class AccessLogFilter extends OncePerRequestFilter {
     }
 
     private String defaultActor(String usrKey) {
-        return usrKey == null || usrKey.isBlank() ? "SYSTEM" : usrKey;
+        String actor = usrKey == null || usrKey.isBlank() ? "SYSTEM" : usrKey;
+        if (actor.length() <= MAX_AUDIT_ACTOR_LENGTH) {
+            return actor;
+        }
+        return actor.substring(0, MAX_AUDIT_ACTOR_LENGTH);
     }
 
     private String blankToNull(String value) {

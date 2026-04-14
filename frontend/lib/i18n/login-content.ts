@@ -12,12 +12,15 @@ export type LoginLocale = (typeof LOGIN_LOCALES)[number];
 export type LoginMessages = {
   localeLabel: string;
   localeNames: Record<LoginLocale, string>;
-  productName: string;
+  platformEyebrow: string;
+  platformTitle: string;
+  platformDescription: string;
   tagline: string;
   desktopLabel: string;
   desktopHighlights: string[];
   cardEyebrow: string;
   signInTitle: string;
+  formDescription: string;
   emailLabel: string;
   emailPlaceholder: string;
   passwordLabel: string;
@@ -40,7 +43,9 @@ const loginMessages: Record<LoginLocale, LoginMessages> = {
       en: "English",
       de: "Deutsch",
     },
-    productName: "OneGate Enterprise Console",
+    platformEyebrow: "Enterprise B2B Workspace",
+    platformTitle: "SINWOO Platform",
+    platformDescription: "독일 법인 운영, 고객사 관리, 감사 추적을 하나의 입구에서 처리하는 기업형 워크스페이스입니다.",
     tagline: "Access Sinwoo internal administration and customer workspace operations.",
     desktopLabel: "Enterprise access",
     desktopHighlights: [
@@ -50,6 +55,7 @@ const loginMessages: Record<LoginLocale, LoginMessages> = {
     ],
     cardEyebrow: "Workspace Access",
     signInTitle: "로그인",
+    formDescription: "회사 이메일과 비밀번호로 안전하게 접속하세요.",
     emailLabel: "이메일 주소",
     emailPlaceholder: "name@company.com",
     passwordLabel: "비밀번호",
@@ -86,7 +92,9 @@ const loginMessages: Record<LoginLocale, LoginMessages> = {
       en: "English",
       de: "Deutsch",
     },
-    productName: "OneGate Enterprise Console",
+    platformEyebrow: "Enterprise B2B Workspace",
+    platformTitle: "SINWOO Platform",
+    platformDescription: "A structured enterprise workspace for internal operations, customer administration, and audit-ready workflows.",
     tagline: "Access Sinwoo internal administration and customer workspace operations.",
     desktopLabel: "Enterprise access",
     desktopHighlights: [
@@ -96,6 +104,7 @@ const loginMessages: Record<LoginLocale, LoginMessages> = {
     ],
     cardEyebrow: "Workspace Access",
     signInTitle: "Sign in",
+    formDescription: "Use your company email and password to access the platform securely.",
     emailLabel: "Email address",
     emailPlaceholder: "name@company.com",
     passwordLabel: "Password",
@@ -132,7 +141,9 @@ const loginMessages: Record<LoginLocale, LoginMessages> = {
       en: "English",
       de: "Deutsch",
     },
-    productName: "OneGate Enterprise Console",
+    platformEyebrow: "Enterprise B2B Workspace",
+    platformTitle: "SINWOO Platform",
+    platformDescription: "Ein strukturierter Enterprise-Workspace für interne Abläufe, Kundenverwaltung und auditfeste Betriebsprozesse.",
     tagline: "Access Sinwoo internal administration and customer workspace operations.",
     desktopLabel: "Enterprise access",
     desktopHighlights: [
@@ -142,6 +153,7 @@ const loginMessages: Record<LoginLocale, LoginMessages> = {
     ],
     cardEyebrow: "Workspace Access",
     signInTitle: "Anmelden",
+    formDescription: "Melden Sie sich mit Ihrer Firmen-E-Mail und Ihrem Passwort sicher an.",
     emailLabel: "E-Mail-Adresse",
     emailPlaceholder: "name@company.com",
     passwordLabel: "Passwort",

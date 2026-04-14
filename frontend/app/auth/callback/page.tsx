@@ -6,12 +6,22 @@ import { CheckCircle2, TriangleAlert } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getAuthCallbackMessages } from "@/lib/i18n/auth-callback-content";
+import {
+  detectBrowserLoginLocale,
+  isSupportedLoginLocale,
+  LOGIN_LOCALE_STORAGE_KEY,
+  type LoginLocale,
+} from "@/lib/i18n/login-content";
 import { cn } from "@/lib/utils";
 
 export default function AuthCallbackPage() {
   const [params, setParams] = useState<URLSearchParams | null>(null);
+  const [locale, setLocale] = useState<LoginLocale>("en");
 
   useEffect(() => {
+    const savedLocale = window.localStorage.getItem(LOGIN_LOCALE_STORAGE_KEY);
+    setLocale(isSupportedLoginLocale(savedLocale) ? savedLocale : detectBrowserLoginLocale());
     setParams(new URLSearchParams(window.location.search));
   }, []);
 
@@ -32,6 +42,7 @@ export default function AuthCallbackPage() {
   }, [accessToken, refreshToken]);
 
   const isSuccess = useMemo(() => Boolean(accessToken) && !error, [accessToken, error]);
+  const messages = useMemo(() => getAuthCallbackMessages(locale), [locale]);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(15,23,42,0.1),_transparent_35%),linear-gradient(180deg,_#f8fafc_0%,_#eef2ff_100%)]">
@@ -41,32 +52,32 @@ export default function AuthCallbackPage() {
             <div className={`mb-3 flex h-12 w-12 items-center justify-center rounded-2xl ${isSuccess ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
               {isSuccess ? <CheckCircle2 className="h-5 w-5" /> : <TriangleAlert className="h-5 w-5" />}
             </div>
-            <CardTitle>{isSuccess ? "OAuth login completed" : "OAuth login failed"}</CardTitle>
+            <CardTitle>{isSuccess ? messages.successTitle : messages.failureTitle}</CardTitle>
             <CardDescription>
               {isSuccess
-                ? "SINWOO application tokens have been issued and stored in the browser."
-                : "The provider callback did not complete successfully."}
+                ? messages.successDescription
+                : messages.failureDescription}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-slate-600">
             {isSuccess ? (
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p>Provider: {providerCd}</p>
-                <p>User ID: {usrId}</p>
-                <p>Tenant ID: {tenantId}</p>
+                <p>{messages.providerLabel}: {providerCd}</p>
+                <p>{messages.userIdLabel}: {usrId}</p>
+                <p>{messages.tenantIdLabel}: {tenantId}</p>
               </div>
             ) : (
               <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
-                {error ?? "Unknown OAuth error"}
+                {error ?? messages.unknownError}
               </div>
             )}
 
             <div className="flex gap-3">
               <Link href="/" className={cn(buttonVariants({ variant: "default" }))}>
-                Go to dashboard
+                {messages.goToDashboard}
               </Link>
               <Link href="/login" className={cn(buttonVariants({ variant: "outline" }))}>
-                Back to login
+                {messages.backToLogin}
               </Link>
             </div>
           </CardContent>

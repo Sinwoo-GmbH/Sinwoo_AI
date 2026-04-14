@@ -12,6 +12,7 @@ import type {
 } from "@/lib/api/attendance-contract";
 import { ATTENDANCE_API_PATH } from "@/lib/api/attendance-contract";
 import type { LoginLocale } from "@/lib/i18n/login-content";
+import { getWorkspaceAttendanceMessages } from "@/lib/i18n/workspace-content";
 import { cn } from "@/lib/utils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
@@ -136,7 +137,7 @@ export function WorkspaceAttendanceCard({
   const [manualCheckIn, setManualCheckIn] = useState("09:00");
   const [manualCheckOut, setManualCheckOut] = useState("18:00");
 
-  const messages = attendanceMessages[locale];
+  const messages = getWorkspaceAttendanceMessages(locale);
   const weekdayLabels = messages.weekdays as string[];
   const monthLabel = useMemo(() => formatMonthLabel(yearMonth, locale), [locale, yearMonth]);
 

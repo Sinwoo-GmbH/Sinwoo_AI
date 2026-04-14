@@ -1,5 +1,6 @@
 package com.sinwoo.menu.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,6 +37,9 @@ class MenuControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private MenuController menuController;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -141,5 +146,39 @@ class MenuControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totCnt").value(1))
                 .andExpect(jsonPath("$.itemList[0].mnuCd").value("MNU_CUSTOMER_PAY"));
+    }
+
+    @Test
+    void getVisibleMenusForCurrentUserAppliesRequestedLangToLocaleContext() throws Exception {
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser(
+                1L,
+                100L,
+                200L,
+                "CUSTOMER",
+                "GGAMGANG",
+                "ggamgang@sinwoo-itc.com",
+                "Sinwoo Admin",
+                "CUSTOMER",
+                "PASSWORD",
+                List.of("ROLE_CUSTOMER_ADMIN_MEMBER")
+        );
+        MenuTreeResponse response = new MenuTreeResponse(
+                1,
+                List.of(new MenuNodeResponse(5L, "MNU_CUSTOMER_PAY", "MNU_CUSTOMER_PAY", "Zahlungscenter", "CUSTOMER", null, "/customer/payments", "receipt", 50, null, List.of()))
+        );
+
+        given(menuService.getVisibleMenusForCurrentUser(authenticatedUser, "CUSTOMER")).willAnswer(invocation -> {
+            assertThat(LocaleContextHolder.getLocale().getLanguage()).isEqualTo("de");
+            return response;
+        });
+
+        MenuTreeResponse actual = menuController.getVisibleMenusForCurrentUser(
+                new UsernamePasswordAuthenticationToken(authenticatedUser, "token", List.of()),
+                "CUSTOMER",
+                "de"
+        );
+
+        assertThat(actual.itemList()).hasSize(1);
+        assertThat(actual.itemList().getFirst().mnuNm()).isEqualTo("Zahlungscenter");
     }
 }

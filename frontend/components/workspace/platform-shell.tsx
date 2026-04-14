@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BriefcaseBusiness,
   Building2,
@@ -26,6 +26,9 @@ import { LocaleCombobox } from "@/components/common/locale-combobox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { WorkspaceAttendanceCard } from "@/components/workspace/workspace-attendance-card";
+import { WorkspaceContentContainer } from "@/components/workspace/workspace-content-container";
+import { WorkspacePageHeader } from "@/components/workspace/workspace-page-header";
+import { WorkspaceSectionPanel } from "@/components/workspace/workspace-section-panel";
 import type { MenuNodeRes, MenuTreeRes } from "@/lib/api/menu-contract";
 import {
   detectBrowserLoginLocale,
@@ -34,11 +37,17 @@ import {
   LOGIN_LOCALE_STORAGE_KEY,
   type LoginLocale,
 } from "@/lib/i18n/login-content";
+import {
+  getWorkspaceShellMessages,
+  getWorkspaceTabContextMenuLabels,
+} from "@/lib/i18n/workspace-content";
 import { cn } from "@/lib/utils";
 import {
   findMenuTitle,
+  getFallbackMenuPresentation,
   getLocalizedViewModel,
   getWorkspaceModeConfig,
+  localizeMenuNodesWithFallbackTitles,
   type MenuNode,
   type TabItem,
   type WorkspaceMode,
@@ -60,7 +69,9 @@ const DEMO_USER_KEY = "ggamgang@sinwoo-itc.com";
 const PROFILE_TAB_ID = "my-profile";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 const TAB_CONTEXT_MENU_WIDTH = 164;
-const LEGACY_MENU_ID_ALIASES: Record<string, string> = {
+// Compatibility-only mapping:
+// this exists to reopen old persisted tabs safely while the UI moves to DB menu ids.
+const MENU_ID_COMPAT_ALIASES: Record<string, string> = {
   "admin-overview": "MNU_ADMIN_DASH",
   "client-dashboard": "MNU_CUSTOMER_DASH",
   "tenant-control": "MNU_ADMIN_TENANT",
@@ -102,8 +113,8 @@ const LEGACY_MENU_ID_ALIASES: Record<string, string> = {
   subscription: "MNU_CUSTOMER_SUBSCRIPTION",
   payments: "MNU_CUSTOMER_PAYMENTS",
 };
-const REVERSE_LEGACY_MENU_ID_ALIASES = Object.fromEntries(
-  Object.entries(LEGACY_MENU_ID_ALIASES).map(([legacyId, dbId]) => [dbId, legacyId])
+const REVERSE_MENU_ID_COMPAT_ALIASES = Object.fromEntries(
+  Object.entries(MENU_ID_COMPAT_ALIASES).map(([legacyId, dbId]) => [dbId, legacyId])
 ) as Record<string, string>;
 
 const iconMap = {
@@ -152,6 +163,9 @@ const uiMessages = {
     mobileWeb: "Mobile web",
     mobileFocusTitle: "Mobile focus",
     mobileFocusDescription: "On mobile web, tabs are removed and the current menu becomes the main view.",
+    tabContextClose: "Close",
+    tabContextCloseOther: "Close other tab",
+    tabContextCloseAll: "Close all tab",
   },
   de: {
     eyebrow: "OneGate workspace shell",
@@ -186,6 +200,9 @@ const uiMessages = {
     mobileWeb: "Mobile Web",
     mobileFocusTitle: "Mobile Fokusansicht",
     mobileFocusDescription: "Im Mobile Web werden Tabs entfernt. Die aktive Auswahl bleibt die einzige Arbeitsansicht.",
+    tabContextClose: "Schliessen",
+    tabContextCloseOther: "Andere Tabs schliessen",
+    tabContextCloseAll: "Alle Tabs schliessen",
   },
   ko: {
     eyebrow: "OneGate workspace shell",
@@ -227,6 +244,24 @@ function simulateLoading(setLoading: (value: boolean) => void) {
   setLoading(true);
   window.setTimeout(() => setLoading(false), 280);
 }
+
+const tabContextMenuLabels = {
+  en: {
+    close: "Close",
+    closeOther: "Close other tab",
+    closeAll: "Close all tab",
+  },
+  de: {
+    close: "Schliessen",
+    closeOther: "Andere Tabs schliessen",
+    closeAll: "Alle Tabs schliessen",
+  },
+  ko: {
+    close: "\uB2EB\uAE30",
+    closeOther: "\uB2E4\uB978 \uD0ED \uB2EB\uAE30",
+    closeAll: "\uBAA8\uB4E0 \uD0ED \uB2EB\uAE30",
+  },
+} satisfies Record<LoginLocale, { close: string; closeOther: string; closeAll: string }>;
 
 function buildStorageKey(mode: WorkspaceMode) {
   return `${STORAGE_NAMESPACE}:${DEMO_USER_KEY}:${mode}`;
@@ -327,16 +362,6 @@ function findMenuTrailIds(
   return null;
 }
 
-function buildMenuFallbackMap(menus: MenuNode[], bucket = new Map<string, MenuNode>()) {
-  for (const menu of menus) {
-    bucket.set(menu.id, menu);
-    if (menu.children?.length) {
-      buildMenuFallbackMap(menu.children, bucket);
-    }
-  }
-  return bucket;
-}
-
 function menuExists(menus: MenuNode[], targetId: string) {
   return Boolean(findMenuTitleFromNodes(menus, targetId));
 }
@@ -346,7 +371,7 @@ function canonicalizeMenuId(menus: MenuNode[], targetId: string) {
     return targetId;
   }
 
-  const alias = LEGACY_MENU_ID_ALIASES[targetId];
+  const alias = MENU_ID_COMPAT_ALIASES[targetId];
   if (alias && menuExists(menus, alias)) {
     return alias;
   }
@@ -355,20 +380,21 @@ function canonicalizeMenuId(menus: MenuNode[], targetId: string) {
 }
 
 function resolveFallbackMenuId(targetId: string) {
-  return REVERSE_LEGACY_MENU_ID_ALIASES[targetId] ?? targetId;
+  return REVERSE_MENU_ID_COMPAT_ALIASES[targetId] ?? targetId;
 }
 
-function normalizeApiMenus(items: MenuNodeRes[], fallbackMenus: MenuNode[]): MenuNode[] {
-  const fallbackMap = buildMenuFallbackMap(fallbackMenus);
-
+// Developer note:
+// API menu tree is primary. Frontend fallback only supplies presentation metadata
+// when backend icon data is absent, and only as a safe boot fallback.
+function normalizeApiMenus(items: MenuNodeRes[]): MenuNode[] {
   const walk = (nodes: MenuNodeRes[]): MenuNode[] =>
     nodes.map((node) => {
-      const fallback = fallbackMap.get(node.mnuCd);
+      const fallbackPresentation = getFallbackMenuPresentation(node.mnuCd);
       return {
         id: node.mnuCd,
         title: node.mnuNm,
-        icon: node.iconNm ?? fallback?.icon,
-        closable: fallback?.closable,
+        icon: node.iconNm ?? fallbackPresentation?.icon,
+        closable: fallbackPresentation?.closable,
         children: node.childList?.length ? walk(node.childList) : undefined,
       };
     });
@@ -396,28 +422,34 @@ export function PlatformShell() {
   const [tabContextMenu, setTabContextMenu] = useState<TabContextMenuState>(null);
   const [headerHeight, setHeaderHeight] = useState(56);
 
-  const ui = uiMessages[locale];
+  const ui = getWorkspaceShellMessages(locale);
   const config = useMemo(() => getWorkspaceModeConfig(mode, locale), [mode, locale]);
-  const currentMenus = resolvedMenus.length ? resolvedMenus : config.menus;
+  const fallbackMenus = config.menus;
+  const currentMenus = resolvedMenus.length ? resolvedMenus : fallbackMenus;
   const activeView = useMemo(() => getLocalizedViewModel(activeTabId || config.defaultTabId, locale), [activeTabId, config.defaultTabId, locale]);
   const mobileMenus = useMemo(() => extractMenusForMobile(currentMenus, config.mobileQuickMenus), [currentMenus, config.mobileQuickMenus]);
   const localeMessages = useMemo(() => getLoginMessages(locale), [locale]);
+  const tabContextUi = useMemo(() => getWorkspaceTabContextMenuLabels(locale), [locale]);
 
-  const getTabTitle = (tabId: string, fallbackTitle?: string) => {
-    if (tabId === PROFILE_TAB_ID) return ui.profileTab;
-    const resolvedTitle = findMenuTitleFromNodes(currentMenus, tabId);
-    if (resolvedTitle) {
-      return resolvedTitle;
-    }
+  const getTabTitle = useCallback(
+    (tabId: string, fallbackTitle?: string) => {
+      if (tabId === PROFILE_TAB_ID) return ui.profileTab;
 
-    const fallbackMenuId = resolveFallbackMenuId(tabId);
-    const fallbackMenuTitle = findMenuTitle(mode, fallbackMenuId, locale);
-    if (fallbackMenuTitle !== fallbackMenuId) {
-      return fallbackMenuTitle;
-    }
+      const resolvedTitle = findMenuTitleFromNodes(currentMenus, tabId);
+      if (resolvedTitle) {
+        return resolvedTitle;
+      }
 
-    return fallbackTitle ?? tabId;
-  };
+      const fallbackMenuId = resolveFallbackMenuId(tabId);
+      const fallbackMenuTitle = findMenuTitle(mode, fallbackMenuId, locale);
+      if (fallbackMenuTitle !== fallbackMenuId) {
+        return fallbackMenuTitle;
+      }
+
+      return fallbackTitle ?? tabId;
+    },
+    [currentMenus, locale, mode, ui.profileTab]
+  );
 
   const getTabContextMenuStyle = () => {
     if (typeof window === "undefined" || !tabContextMenu) return undefined;
@@ -464,7 +496,7 @@ export function PlatformShell() {
     setOpenTabs(state?.openTabs?.length ? cloneTabs(state.openTabs) : [{ id: baseConfig.defaultTabId, title: findMenuTitle(preferredMode, baseConfig.defaultTabId, initialLocale) }]);
     setActiveTabId(state?.activeTabId ?? baseConfig.defaultTabId);
     setExpandedMenuIds([baseConfig.menus[1]?.id, baseConfig.menus[1]?.children?.[0]?.id].filter(Boolean) as string[]);
-    setResolvedMenus(baseConfig.menus);
+    setResolvedMenus([]);
     setIsReady(true);
   }, []);
 
@@ -486,9 +518,20 @@ export function PlatformShell() {
   }, [activeTabId, config.defaultTabId, isReady, openTabs]);
 
   useEffect(() => {
+    if (!isReady || !resolvedMenus.length) return;
+
+    setResolvedMenus((current) => {
+      if (!current.length) {
+        return current;
+      }
+
+      return localizeMenuNodesWithFallbackTitles(current, locale);
+    });
+  }, [isReady, locale, resolvedMenus.length]);
+
+  useEffect(() => {
     if (!isReady) return;
 
-    const fallbackMenus = config.menus;
     const scope = mode === "admin" ? "ADMIN" : "CUSTOMER";
     let aborted = false;
     const modeChanged = previousModeRef.current !== mode;
@@ -499,16 +542,20 @@ export function PlatformShell() {
       return;
     }
 
-    if (modeChanged || !resolvedMenus.length) {
-      setResolvedMenus(fallbackMenus);
+    if (modeChanged) {
+      setResolvedMenus([]);
     }
 
-    fetch(`${API_BASE_URL}/api/v1/menus/my?mnuScopeCd=${scope}`, {
+    const menuParams = new URLSearchParams({
+      mnuScopeCd: scope,
+      lang: locale,
+    });
+
+    fetch(`${API_BASE_URL}/api/v1/menus/my?${menuParams.toString()}`, {
       method: "GET",
       headers: {
         Accept: "application/json",
         Authorization: `Bearer ${accessToken}`,
-        "Accept-Language": locale,
       },
       cache: "no-store",
     })
@@ -527,20 +574,20 @@ export function PlatformShell() {
       .then((payload) => {
         if (aborted || !payload) return;
         const nextMenus = payload.itemList?.length
-          ? normalizeApiMenus(payload.itemList, fallbackMenus)
+          ? normalizeApiMenus(payload.itemList)
           : fallbackMenus;
         setResolvedMenus(nextMenus);
       })
       .catch(() => {
         if (!aborted) {
-          setResolvedMenus(fallbackMenus);
+          setResolvedMenus([]);
         }
       });
 
     return () => {
       aborted = true;
     };
-  }, [accessToken, config.menus, isReady, locale, mode, resolvedMenus.length]);
+  }, [accessToken, config.menus, isReady, locale, mode]);
 
   useEffect(() => {
     if (!isReady) return;
@@ -560,7 +607,7 @@ export function PlatformShell() {
 
       return changed ? next : current;
     });
-  }, [currentMenus, getTabTitle, isReady, locale, mode, ui.profileTab]);
+  }, [getTabTitle, isReady]);
 
   useEffect(() => {
     if (!isReady || !currentMenus.length) return;
@@ -614,7 +661,7 @@ export function PlatformShell() {
     if (nextActiveTabId !== activeTabId) {
       setActiveTabId(nextActiveTabId);
     }
-  }, [activeTabId, config.defaultTabId, currentMenus, getTabTitle, isReady, locale, mode]);
+  }, [activeTabId, config.defaultTabId, currentMenus, getTabTitle, isReady]);
 
   useEffect(() => {
     const tabScroller = tabScrollRef.current;
@@ -1036,7 +1083,7 @@ export function PlatformShell() {
                   onClick={() => closeTab(tabContextMenu.tabId)}
                   className="flex w-full items-center rounded-lg px-2.5 py-1.5 text-left text-[12px] text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-default disabled:text-slate-300 disabled:hover:bg-transparent"
                 >
-                  Close
+                  {tabContextUi.close}
                 </button>
                 <button
                   id="workspace-tab-context-close-others"
@@ -1044,7 +1091,7 @@ export function PlatformShell() {
                   onClick={() => closeOtherTabs(tabContextMenu.tabId)}
                   className="flex w-full items-center rounded-lg px-2.5 py-1.5 text-left text-[12px] text-slate-700 transition-colors hover:bg-slate-100"
                 >
-                  Close other tab
+                  {tabContextUi.closeOther}
                 </button>
                 <button
                   id="workspace-tab-context-close-all"
@@ -1052,21 +1099,50 @@ export function PlatformShell() {
                   onClick={closeAllTabs}
                   className="flex w-full items-center rounded-lg px-2.5 py-1.5 text-left text-[12px] text-slate-700 transition-colors hover:bg-slate-100"
                 >
-                  Close all tab
+                  {tabContextUi.closeAll}
                 </button>
               </div>
             ) : null}
 
             <div id="workspace-body" className="workspace-scrollbar flex-1 overflow-y-auto p-5">
               <div id="workspace-hero-grid" className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-                <Card id="workspace-hero-card" className="border-white bg-gradient-to-br from-[#132C67] via-[#1F4FAE] to-[#4F72C8] text-white shadow-[0_24px_60px_rgba(35,58,122,0.28)]">
-                  <CardHeader>
-                    <CardDescription id="workspace-hero-eyebrow" className="text-slate-200 uppercase tracking-[0.28em]">{activeView.eyebrow}</CardDescription>
-                    <CardTitle id="workspace-hero-title" className="font-brand text-4xl font-bold">{activeView.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p id="workspace-hero-description" className="max-w-2xl text-base text-slate-100">{activeView.description}</p>
-                    <div id="workspace-hero-stats" className="mt-6 grid gap-3 md:grid-cols-3">
+                <WorkspacePageHeader
+                  id="workspace-hero-card"
+                  eyebrow={activeView.eyebrow}
+                  eyebrowId="workspace-hero-eyebrow"
+                  title={activeView.title}
+                  titleId="workspace-hero-title"
+                  description={activeView.description}
+                  descriptionId="workspace-hero-description"
+                  actionsId="workspace-page-header-actions"
+                  actions={
+                    <>
+                      <div
+                        id="workspace-page-header-action-mode"
+                        className="rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-left text-white"
+                      >
+                        <div className="text-[11px] uppercase tracking-[0.24em] text-slate-200">{ui.modeLabel}</div>
+                        <div className="mt-1 text-sm font-semibold">{mode === "admin" ? ui.modeAdminValue : ui.modeClientValue}</div>
+                      </div>
+                      <div
+                        id="workspace-page-header-action-sidebar"
+                        className="rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-left text-white"
+                      >
+                        <div className="text-[11px] uppercase tracking-[0.24em] text-slate-200">{ui.sidebarLabel}</div>
+                        <div className="mt-1 text-sm font-semibold">{sidebarCollapsed ? ui.collapsed : ui.expanded}</div>
+                      </div>
+                      <div
+                        id="workspace-page-header-action-tabs"
+                        className="rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-left text-white"
+                      >
+                        <div className="text-[11px] uppercase tracking-[0.24em] text-slate-200">{ui.tabsLabel}</div>
+                        <div className="mt-1 text-sm font-semibold">{desktopTabs.length}</div>
+                      </div>
+                    </>
+                  }
+                  footerId="workspace-hero-stats"
+                  footer={
+                    <div className="grid gap-3 md:grid-cols-3">
                       <div id="workspace-stat-mode" className="rounded-2xl border border-white/15 bg-white/10 p-4">
                         <div className="text-xs uppercase tracking-[0.24em] text-slate-200">{ui.modeLabel}</div>
                         <div className="mt-2 text-xl font-semibold">{mode === "admin" ? ui.modeAdminValue : ui.modeClientValue}</div>
@@ -1080,8 +1156,12 @@ export function PlatformShell() {
                         <div className="mt-2 text-xl font-semibold">{desktopTabs.length}</div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  }
+                  className="border-white bg-gradient-to-br from-[#132C67] via-[#1F4FAE] to-[#4F72C8] text-white shadow-[0_24px_60px_rgba(35,58,122,0.28)]"
+                  eyebrowClassName="text-slate-200"
+                  titleClassName="text-4xl font-bold text-white"
+                  descriptionClassName="text-base text-slate-100"
+                />
 
                 {mode === "client" ? (
                   <WorkspaceAttendanceCard
@@ -1091,16 +1171,16 @@ export function PlatformShell() {
                     onLoadingChange={setLoading}
                   />
                 ) : (
-                  <Card id="workspace-rules-card">
-                    <CardHeader>
-                      <CardDescription id="workspace-rules-eyebrow">{ui.quickActions}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3 text-sm text-slate-600">
+                  <WorkspaceSectionPanel
+                    id="workspace-rules-card"
+                    eyebrow={ui.quickActions}
+                    eyebrowId="workspace-rules-eyebrow"
+                    contentClassName="space-y-3 text-sm text-slate-600"
+                  >
                       <div id="workspace-rule-client-admin-switch" className="rounded-2xl bg-slate-50 p-4">{ui.ruleOne}</div>
                       <div id="workspace-rule-depth-menu" className="rounded-2xl bg-slate-50 p-4">{ui.ruleTwo}</div>
                       <div id="workspace-rule-mobile-simplify" className="rounded-2xl bg-slate-50 p-4">{ui.ruleThree}</div>
-                    </CardContent>
-                  </Card>
+                  </WorkspaceSectionPanel>
                 )}
               </div>
 
@@ -1119,43 +1199,47 @@ export function PlatformShell() {
               </div>
 
               <div id="workspace-bottom-grid" className="mt-5 grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
-                <Card id="workspace-priority-card">
-                  <CardHeader>
-                    <CardTitle id="workspace-priority-title" className="font-brand text-2xl">{ui.focusTitle}</CardTitle>
-                    <CardDescription id="workspace-priority-description">{ui.focusDescription}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
+                <WorkspaceSectionPanel
+                  id="workspace-priority-card"
+                  title={ui.focusTitle}
+                  titleId="workspace-priority-title"
+                  description={ui.focusDescription}
+                  descriptionId="workspace-priority-description"
+                  contentClassName="space-y-3"
+                >
                     {activeView.highlights.map((item, index) => (
                       <div id={`workspace-highlight-card-${index + 1}`} key={`${item.title}-${index}`} className={cn("rounded-2xl border p-4", item.emphasis === "warning" ? "border-amber-200 bg-amber-50" : item.emphasis === "success" ? "border-emerald-200 bg-emerald-50" : "border-slate-200 bg-slate-50")}>
                         <div id={`workspace-highlight-title-${index + 1}`} className="font-medium text-slate-950">{item.title}</div>
                         <div id={`workspace-highlight-meta-${index + 1}`} className="mt-1 text-sm text-slate-500">{item.meta}</div>
                       </div>
                     ))}
-                  </CardContent>
-                </Card>
+                </WorkspaceSectionPanel>
 
-                <Card id="workspace-grid-card">
-                  <CardHeader>
-                    <CardTitle id="workspace-grid-title" className="font-brand text-2xl">{activeView.gridTitle}</CardTitle>
-                    <CardDescription id="workspace-grid-description">{ui.tableDescription}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div id="workspace-grid-header" className="grid grid-cols-[1.7fr_1.1fr_1fr_0.9fr] gap-3 rounded-2xl bg-slate-100 px-4 py-3 text-xs uppercase tracking-[0.22em] text-slate-500">
+                <WorkspaceSectionPanel
+                  id="workspace-grid-card"
+                  title={activeView.gridTitle}
+                  titleId="workspace-grid-title"
+                  description={ui.tableDescription}
+                  descriptionId="workspace-grid-description"
+                  contentClassName="space-y-3"
+                >
+                  <WorkspaceContentContainer id="workspace-grid-container" className="space-y-3 bg-slate-50/55">
+                    <div id="workspace-grid-header" className="grid grid-cols-[1.7fr_1.1fr_1fr_0.9fr] gap-3 rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-xs uppercase tracking-[0.22em] text-slate-500">
                       <div>{ui.name}</div>
                       <div>{ui.owner}</div>
                       <div>{ui.status}</div>
                       <div>{ui.updated}</div>
                     </div>
                     {activeView.gridRows.map((row, index) => (
-                      <div id={`workspace-grid-row-${index + 1}`} key={`${row.name}-${row.updated}-${index}`} className="grid grid-cols-[1.7fr_1.1fr_1fr_0.9fr] gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm">
+                      <div id={`workspace-grid-row-${index + 1}`} key={`${row.name}-${row.updated}-${index}`} className="grid grid-cols-[1.7fr_1.1fr_1fr_0.9fr] gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm shadow-[0_8px_18px_rgba(148,163,184,0.06)]">
                         <div id={`workspace-grid-name-${index + 1}`} className="font-medium text-slate-950">{row.name}</div>
                         <div id={`workspace-grid-owner-${index + 1}`} className="text-slate-600">{row.owner}</div>
                         <div id={`workspace-grid-status-${index + 1}`} className="text-slate-700">{row.status}</div>
                         <div id={`workspace-grid-updated-${index + 1}`} className="text-slate-500">{row.updated}</div>
                       </div>
                     ))}
-                  </CardContent>
-                </Card>
+                  </WorkspaceContentContainer>
+                </WorkspaceSectionPanel>
               </div>
             </div>
           </section>

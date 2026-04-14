@@ -3,8 +3,10 @@ package com.sinwoo.menu.service;
 import com.sinwoo.auth.domain.Role;
 import com.sinwoo.auth.repository.RoleRepository;
 import com.sinwoo.auth.repository.UserRoleRepository;
+import com.sinwoo.auth.support.AuthErrorCode;
 import com.sinwoo.billing.support.BillingAccessPolicyService;
 import com.sinwoo.common.security.AuthenticatedUser;
+import com.sinwoo.common.web.ApiException;
 import com.sinwoo.code.service.CommonCodeService;
 import com.sinwoo.menu.domain.Menu;
 import com.sinwoo.menu.domain.RoleMenuAuth;
@@ -20,6 +22,7 @@ import com.sinwoo.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -107,28 +110,19 @@ public class MenuServiceImpl implements MenuService {
             return new MenuTreeResponse(0, List.of());
         }
 
-        User user = userRepository.findById(usrId).orElse(null);
+        User user = findUser(usrId);
         if (user == null) {
             return new MenuTreeResponse(0, List.of());
         }
 
-        List<Long> roleIds = userRoleRepository.findAllByUsrId(usrId).stream()
-                .map(userRole -> userRole.getRoleId())
-                .distinct()
-                .toList();
-
-        if (roleIds.isEmpty()) {
-            return new MenuTreeResponse(0, List.of());
-        }
-
-        List<Role> roles = roleRepository.findAllById(roleIds);
+        List<Role> roles = findRolesByUserId(usrId);
         return buildVisibleMenus(roles, mnuScopeCd, user.getTenantId());
     }
 
     @Override
     public MenuTreeResponse getVisibleMenusForCurrentUser(AuthenticatedUser authenticatedUser, String mnuScopeCd) {
         if (authenticatedUser == null) {
-            return new MenuTreeResponse(0, List.of());
+            throw invalidAuthenticationContext();
         }
 
         String resolvedScope = mnuScopeCd;
@@ -136,10 +130,74 @@ public class MenuServiceImpl implements MenuService {
             resolvedScope = "ADMIN".equalsIgnoreCase(authenticatedUser.authGrpCd()) ? "ADMIN" : "CUSTOMER";
         }
 
+        if (authenticatedUser.usrId() != null) {
+            User persistedUser = findUser(authenticatedUser.usrId());
+            if (persistedUser == null) {
+                throw invalidAuthenticationContext();
+            }
+            return getVisibleMenusByUsr(authenticatedUser.usrId(), resolvedScope);
+        }
+
+        List<Role> roles = findRolesByRoleCds(authenticatedUser.roleCds());
+        if (roles.isEmpty()) {
+            throw invalidAuthenticationContext();
+        }
+
         return buildVisibleMenus(
-                roleRepository.findByRoleCdIn(authenticatedUser.roleCds()),
+                roles,
                 resolvedScope,
                 authenticatedUser.tenantId()
+        );
+    }
+
+    private User findUser(Long usrId) {
+        if (usrId == null) {
+            return null;
+        }
+        return userRepository.findById(usrId).orElse(null);
+    }
+
+    private List<Role> findRolesByUserId(Long usrId) {
+        if (usrId == null) {
+            return List.of();
+        }
+
+        List<Long> roleIds = userRoleRepository.findAllByUsrId(usrId).stream()
+                .map(userRole -> userRole.getRoleId())
+                .filter(roleId -> roleId != null)
+                .distinct()
+                .toList();
+
+        if (roleIds.isEmpty()) {
+            return List.of();
+        }
+
+        return roleRepository.findAllById(roleIds);
+    }
+
+    private List<Role> findRolesByRoleCds(Collection<String> roleCds) {
+        if (roleCds == null || roleCds.isEmpty()) {
+            return List.of();
+        }
+
+        List<String> normalizedRoleCds = roleCds.stream()
+                .filter(roleCd -> roleCd != null && !roleCd.isBlank())
+                .map(roleCd -> roleCd.trim().toUpperCase())
+                .distinct()
+                .toList();
+
+        if (normalizedRoleCds.isEmpty()) {
+            return List.of();
+        }
+
+        return roleRepository.findByRoleCdIn(normalizedRoleCds);
+    }
+
+    private ApiException invalidAuthenticationContext() {
+        return new ApiException(
+                AuthErrorCode.AUTH_AUTHENTICATION_REQUIRED.status(),
+                AuthErrorCode.AUTH_AUTHENTICATION_REQUIRED.code(),
+                "Your sign-in session is incomplete. Please sign in again."
         );
     }
 
@@ -148,12 +206,22 @@ public class MenuServiceImpl implements MenuService {
             return new MenuTreeResponse(0, List.of());
         }
 
+        List<Long> roleIds = roles.stream()
+                .map(Role::getId)
+                .filter(roleId -> roleId != null)
+                .distinct()
+                .toList();
+
+        if (roleIds.isEmpty()) {
+            return new MenuTreeResponse(0, List.of());
+        }
+
         List<Menu> allMenus = menuRepository.findAllByOrderByMnuScopeCdAscDspOrdAscIdAsc();
         Map<Long, Menu> menuById = new LinkedHashMap<>();
         allMenus.forEach(menu -> menuById.put(menu.getId(), menu));
 
         Set<Long> visibleIds = roleMenuAuthRepository.findAllByRoleIdIn(
-                        roles.stream().map(Role::getId).toList()
+                        roleIds
                 ).stream()
                 .filter(auth -> "Y".equals(auth.getViewYn()))
                 .map(RoleMenuAuth::getMnuId)
@@ -268,6 +336,23 @@ public class MenuServiceImpl implements MenuService {
     }
 
     private String resolveMenuName(Menu menu) {
-        return commonCodeService.resolveDisplayName("MNU_NM", menu.getMnuNmCd(), menu.getMnuNm());
+        return firstNonBlank(
+                commonCodeService.resolveDisplayName("MNU_NM", menu.getMnuNmCd(), resolveBaseMenuName(menu)),
+                resolveBaseMenuName(menu),
+                menu.getMnuCd()
+        );
+    }
+
+    private String resolveBaseMenuName(Menu menu) {
+        return firstNonBlank(menu.getMnuNm(), menu.getMnuNmCd(), menu.getMnuCd());
+    }
+
+    private String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value.trim();
+            }
+        }
+        return "";
     }
 }

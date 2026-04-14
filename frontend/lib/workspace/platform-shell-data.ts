@@ -2,6 +2,11 @@ import type { LoginLocale } from "@/lib/i18n/login-content";
 
 export type WorkspaceMode = "client" | "admin";
 
+type FallbackMenuSeed = {
+  id: string;
+  children?: FallbackMenuSeed[];
+};
+
 export type MenuNode = {
   id: string;
   title: string;
@@ -47,138 +52,206 @@ export type WorkspaceModeConfig = {
   mobileQuickMenus: string[];
 };
 
-const baseWorkspaceModes: WorkspaceModeConfig[] = [
+type WorkspaceModeSeed = {
+  mode: WorkspaceMode;
+  defaultTabId: string;
+  mobileQuickMenus: string[];
+  menus: FallbackMenuSeed[];
+};
+
+type MenuPresentationMetadata = Pick<MenuNode, "icon" | "closable">;
+
+// Developer note:
+// The API menu tree is the primary source of truth.
+// This fallback seed intentionally keeps only the minimum structure needed
+// to boot the shell safely when menu API data is missing or unavailable.
+const fallbackWorkspaceModeSeeds: WorkspaceModeSeed[] = [
   {
     mode: "client",
-    label: "Client workspace",
-    shellTitle: "Customer operations portal",
-    shellSubtitle: "Work on approvals, people, documents, and billing from one product shell.",
     defaultTabId: "client-dashboard",
     mobileQuickMenus: ["client-dashboard", "documents", "attendance", "billing-center"],
     menus: [
-      { id: "client-dashboard", title: "Dashboard", icon: "grid" },
+      { id: "client-dashboard" },
       {
         id: "workspace",
-        title: "Workspace",
-        icon: "briefcase",
         children: [
           {
             id: "documents",
-            title: "Documents",
             children: [
-              { id: "ocr-inbox", title: "OCR Inbox" },
-              { id: "expense-review", title: "Expense Review" },
-              { id: "archive", title: "Archive" },
+              { id: "ocr-inbox" },
+              { id: "expense-review" },
+              { id: "archive" },
             ],
           },
           {
             id: "attendance",
-            title: "Attendance",
             children: [
-              { id: "my-time", title: "My Time" },
-              { id: "team-time", title: "Team Time" },
-              { id: "leave", title: "Leave Requests" },
+              { id: "my-time" },
+              { id: "team-time" },
+              { id: "leave" },
             ],
           },
         ],
       },
       {
         id: "people",
-        title: "People",
-        icon: "users",
         children: [
-          { id: "employees", title: "Employees" },
+          { id: "employees" },
           {
             id: "organization",
-            title: "Organization",
             children: [
-              { id: "departments", title: "Departments" },
-              { id: "roles", title: "Roles" },
+              { id: "departments" },
+              { id: "roles" },
             ],
           },
         ],
       },
       {
         id: "billing-center",
-        title: "Billing Center",
-        icon: "credit-card",
         children: [
-          { id: "subscription", title: "Subscription" },
-          { id: "payments", title: "Payments" },
+          { id: "subscription" },
+          { id: "payments" },
+        ],
+      },
+      {
+        id: "MNU_CUSTOMER_REPORTS",
+        children: [
+          {
+            id: "MNU_CUSTOMER_WORK_TIME",
+            children: [{ id: "MNU_CUSTOMER_WORK_TIME_HISTORY" }],
+          },
         ],
       },
     ],
   },
   {
     mode: "admin",
-    label: "Admin console",
-    shellTitle: "Platform control tower",
-    shellSubtitle: "Supervise tenants, approvals, billing gates, and audit evidence across the platform.",
     defaultTabId: "admin-overview",
     mobileQuickMenus: ["admin-overview", "tenant-control", "billing-ops", "audit-center"],
     menus: [
-      { id: "admin-overview", title: "Overview", icon: "shield" },
+      { id: "admin-overview" },
       {
         id: "tenant-control",
-        title: "Tenant Control",
-        icon: "building",
         children: [
-          { id: "tenant-list", title: "Tenant List" },
+          { id: "tenant-list" },
           {
             id: "tenant-settings",
-            title: "Tenant Settings",
             children: [
-              { id: "company-profile", title: "Company Profile" },
-              { id: "workspace-policy", title: "Workspace Policy" },
-              { id: "menu-policy", title: "Menu Policy" },
+              { id: "company-profile" },
+              { id: "workspace-policy" },
+              { id: "menu-policy" },
             ],
           },
         ],
       },
       {
         id: "authorization",
-        title: "Authorization",
-        icon: "key",
         children: [
           {
             id: "menu-management",
-            title: "Menu Management",
             children: [
-              { id: "menu-tree", title: "Menu Tree" },
-              { id: "tab-policy", title: "Tab Policy" },
+              { id: "menu-tree" },
+              { id: "tab-policy" },
               {
                 id: "depth-policy",
-                title: "Depth Policy",
-                children: [{ id: "depth-editor", title: "Depth 1-4 Editor" }],
+                children: [{ id: "depth-editor" }],
               },
             ],
           },
-          { id: "role-policy", title: "Role Policy" },
+          { id: "role-policy" },
         ],
       },
       {
         id: "billing-ops",
-        title: "Billing Ops",
-        icon: "wallet",
         children: [
-          { id: "plan-catalog", title: "Plan Catalog" },
-          { id: "payment-gates", title: "Payment Gates" },
-          { id: "upgrade-queue", title: "Upgrade Queue" },
+          { id: "plan-catalog" },
+          { id: "payment-gates" },
+          { id: "upgrade-queue" },
         ],
       },
       {
         id: "audit-center",
-        title: "Audit Center",
-        icon: "activity",
         children: [
-          { id: "change-history", title: "Change History" },
-          { id: "access-logs", title: "Access Logs" },
-          { id: "compliance", title: "Compliance Desk" },
+          { id: "change-history" },
+          { id: "access-logs" },
+          { id: "compliance" },
+        ],
+      },
+      {
+        id: "MNU_ADMIN_REPORTS",
+        children: [
+          {
+            id: "MNU_ADMIN_WORK_TIME",
+            children: [{ id: "MNU_ADMIN_WORK_TIME_HISTORY" }],
+          },
         ],
       },
     ],
   },
 ];
+
+const fallbackMenuPresentationMetadata: Record<string, MenuPresentationMetadata> = {
+  "client-dashboard": { icon: "grid" },
+  workspace: { icon: "briefcase" },
+  people: { icon: "users" },
+  "billing-center": { icon: "credit-card" },
+  MNU_CUSTOMER_REPORTS: { icon: "grid" },
+  "admin-overview": { icon: "shield" },
+  "tenant-control": { icon: "building" },
+  authorization: { icon: "key" },
+  "billing-ops": { icon: "wallet" },
+  "audit-center": { icon: "activity" },
+  MNU_ADMIN_REPORTS: { icon: "grid" },
+};
+
+const fallbackMenuTitleTranslations: Partial<Record<string, Partial<Record<LoginLocale, string>>>> = {
+  "client-dashboard": { en: "Dashboard", de: "Dashboard", ko: "대시보드" },
+  workspace: { en: "Workspace", de: "Workspace", ko: "워크스페이스" },
+  documents: { en: "Documents", de: "Dokumente", ko: "문서" },
+  "ocr-inbox": { en: "OCR Inbox", de: "OCR Inbox", ko: "OCR 받은함" },
+  "expense-review": { en: "Expense Review", de: "Kostenprüfung", ko: "비용 검토" },
+  archive: { en: "Archive", de: "Archiv", ko: "보관함" },
+  attendance: { en: "Attendance", de: "Zeiterfassung", ko: "근태" },
+  "my-time": { en: "My Time", de: "Meine Zeiten", ko: "내 근무시간" },
+  "team-time": { en: "Team Time", de: "Team-Zeiten", ko: "팀 근무현황" },
+  leave: { en: "Leave Requests", de: "Urlaubsanträge", ko: "휴가 요청" },
+  people: { en: "People", de: "Mitarbeitende", ko: "인원" },
+  employees: { en: "Employees", de: "Mitarbeiter", ko: "직원" },
+  organization: { en: "Organization", de: "Organisation", ko: "조직" },
+  departments: { en: "Departments", de: "Abteilungen", ko: "부서" },
+  roles: { en: "Roles", de: "Rollen", ko: "권한" },
+  "billing-center": { en: "Billing Center", de: "Billing Center", ko: "결제 센터" },
+  subscription: { en: "Subscription", de: "Abonnement", ko: "구독" },
+  payments: { en: "Payments", de: "Zahlungen", ko: "결제" },
+  MNU_CUSTOMER_REPORTS: { en: "Reports", de: "Berichte", ko: "리포트" },
+  MNU_CUSTOMER_WORK_TIME: { en: "Work Time", de: "Arbeitszeit", ko: "근태" },
+  MNU_CUSTOMER_WORK_TIME_HISTORY: { en: "History", de: "Verlauf", ko: "이력" },
+  "admin-overview": { en: "Overview", de: "Überblick", ko: "개요" },
+  "tenant-control": { en: "Tenant Control", de: "Mandantenverwaltung", ko: "테넌트 관리" },
+  "tenant-list": { en: "Tenant List", de: "Mandanten 목록", ko: "테넌트 목록" },
+  "tenant-settings": { en: "Tenant Settings", de: "Mandanten 설정", ko: "테넌트 설정" },
+  "company-profile": { en: "Company Profile", de: "Unternehmensprofil", ko: "회사 프로필" },
+  "workspace-policy": { en: "Workspace Policy", de: "Workspace 정책", ko: "워크스페이스 정책" },
+  "menu-policy": { en: "Menu Policy", de: "Menü 정책", ko: "메뉴 정책" },
+  authorization: { en: "Authorization", de: "권한 관리", ko: "권한 관리" },
+  "menu-management": { en: "Menu Management", de: "Menü 관리", ko: "메뉴 관리" },
+  "menu-tree": { en: "Menu Tree", de: "Menü 트리", ko: "메뉴 트리" },
+  "tab-policy": { en: "Tab Policy", de: "Tab 정책", ko: "탭 정책" },
+  "depth-policy": { en: "Depth Policy", de: "Depth 정책", ko: "뎁스 정책" },
+  "depth-editor": { en: "Depth 1-4 Editor", de: "Depth 1-4 Editor", ko: "1-4뎁스 편집기" },
+  "role-policy": { en: "Role Policy", de: "Rollen 정책", ko: "권한 정책" },
+  "billing-ops": { en: "Billing Ops", de: "결제 운영", ko: "결제 운영" },
+  "plan-catalog": { en: "Plan Catalog", de: "Plan-Katalog", ko: "플랜 카탈로그" },
+  "payment-gates": { en: "Payment Gates", de: "Payment Gates", ko: "결제 게이트" },
+  "upgrade-queue": { en: "Upgrade Queue", de: "Upgrade Queue", ko: "업그레이드 큐" },
+  "audit-center": { en: "Audit Center", de: "감사 센터", ko: "감사 센터" },
+  "change-history": { en: "Change History", de: "Änderungsverlauf", ko: "변경 이력" },
+  "access-logs": { en: "Access Logs", de: "Zugriffsprotokolle", ko: "접속 로그" },
+  compliance: { en: "Compliance Desk", de: "Compliance Desk", ko: "컴플라이언스 데스크" },
+  MNU_ADMIN_REPORTS: { en: "Reports", de: "Berichte", ko: "리포트" },
+  MNU_ADMIN_WORK_TIME: { en: "Work Time", de: "Arbeitszeit", ko: "근태" },
+  MNU_ADMIN_WORK_TIME_HISTORY: { en: "History", de: "Verlauf", ko: "이력" },
+};
 
 const baseViewModels: Record<string, ViewModel> = {
   "my-profile": {
@@ -347,6 +420,28 @@ const baseViewModels: Record<string, ViewModel> = {
       { name: "Payment method review", owner: "Billing team", status: "Open", updated: "1 hr ago" },
     ],
   },
+  MNU_CUSTOMER_WORK_TIME_HISTORY: {
+    eyebrow: "reports",
+    title: "Work time history",
+    description: "Monthly work time reporting for employees, departments, and exports.",
+    kpis: [
+      { label: "Current month", value: "Now", delta: "Default scope" },
+      { label: "Scope", value: "Team", delta: "By role" },
+      { label: "Export", value: "2", delta: "Excel / PDF" },
+      { label: "Records", value: "Live", delta: "Attendance table" },
+    ],
+    highlights: [
+      { title: "Monthly work history filters by employee and department", meta: "Reporting query" },
+      { title: "Normal users stay scoped to their own records", meta: "Role-based access", emphasis: "success" },
+      { title: "Admins can export the filtered result set", meta: "Excel and PDF", emphasis: "warning" },
+    ],
+    gridTitle: "Work time report",
+    gridRows: [
+      { name: "Target month", owner: "Default", status: "Current month", updated: "Now" },
+      { name: "Employee scope", owner: "Role policy", status: "Resolved", updated: "Now" },
+      { name: "Department scope", owner: "Role policy", status: "Resolved", updated: "Now" },
+    ],
+  },
   "admin-overview": {
     eyebrow: "platform admin",
     title: "Control tower",
@@ -367,6 +462,28 @@ const baseViewModels: Record<string, ViewModel> = {
       { name: "Tenant Sinwoo ITC GmbH", owner: "Platform Admin", status: "Healthy", updated: "Now" },
       { name: "Role policy rollout", owner: "Super Admin", status: "Propagating", updated: "6 min ago" },
       { name: "Billing gate mismatch", owner: "Billing Ops", status: "Needs review", updated: "18 min ago" },
+    ],
+  },
+  MNU_ADMIN_WORK_TIME_HISTORY: {
+    eyebrow: "reports",
+    title: "Work time history",
+    description: "Monthly work time reporting for employees, departments, and exports.",
+    kpis: [
+      { label: "Current month", value: "Now", delta: "Default scope" },
+      { label: "Scope", value: "Tenant", delta: "Admin view" },
+      { label: "Export", value: "2", delta: "Excel / PDF" },
+      { label: "Records", value: "Live", delta: "Attendance table" },
+    ],
+    highlights: [
+      { title: "Monthly work history filters by employee and department", meta: "Reporting query" },
+      { title: "Normal users stay scoped to their own records", meta: "Role-based access", emphasis: "success" },
+      { title: "Admins can export the filtered result set", meta: "Excel and PDF", emphasis: "warning" },
+    ],
+    gridTitle: "Work time report",
+    gridRows: [
+      { name: "Target month", owner: "Default", status: "Current month", updated: "Now" },
+      { name: "Employee scope", owner: "Role policy", status: "Resolved", updated: "Now" },
+      { name: "Department scope", owner: "Role policy", status: "Resolved", updated: "Now" },
     ],
   },
   "tenant-control": {
@@ -588,29 +705,47 @@ const viewTranslations: Partial<Record<string, Partial<Record<LoginLocale, Parti
   },
 };
 
-function cloneMenuNode(menu: MenuNode): MenuNode {
+function getFallbackMenuTitle(id: string, locale: LoginLocale): string {
+  return (
+    fallbackMenuTitleTranslations[id]?.[locale] ??
+    fallbackMenuTitleTranslations[id]?.en ??
+    id
+  );
+}
+
+function buildFallbackMenuNode(seed: FallbackMenuSeed, locale: LoginLocale): MenuNode {
+  const presentation = fallbackMenuPresentationMetadata[seed.id];
   return {
-    ...menu,
-    children: menu.children?.map((child) => cloneMenuNode(child)),
+    id: seed.id,
+    title: getFallbackMenuTitle(seed.id, locale),
+    icon: presentation?.icon,
+    closable: presentation?.closable,
+    children: seed.children?.map((child) => buildFallbackMenuNode(child, locale)),
   };
 }
 
-function getBaseWorkspaceMode(mode: WorkspaceMode): WorkspaceModeConfig {
-  return baseWorkspaceModes.find((item) => item.mode === mode) ?? baseWorkspaceModes[0];
+function getBaseWorkspaceModeSeed(mode: WorkspaceMode): WorkspaceModeSeed {
+  return fallbackWorkspaceModeSeeds.find((item) => item.mode === mode) ?? fallbackWorkspaceModeSeeds[0];
 }
 
-export const workspaceModes = baseWorkspaceModes;
+export const workspaceModes = fallbackWorkspaceModeSeeds.map((modeSeed) => ({
+  ...modeSeed,
+  label: modeTranslations[modeSeed.mode].en.label,
+  shellTitle: modeTranslations[modeSeed.mode].en.shellTitle,
+  shellSubtitle: modeTranslations[modeSeed.mode].en.shellSubtitle,
+  menus: modeSeed.menus.map((menu) => buildFallbackMenuNode(menu, "en")),
+}));
 export const viewModels = baseViewModels;
 
 export function getWorkspaceModeConfig(mode: WorkspaceMode, locale: LoginLocale): WorkspaceModeConfig {
-  const base = getBaseWorkspaceMode(mode);
+  const base = getBaseWorkspaceModeSeed(mode);
   const translated = modeTranslations[mode][locale];
   return {
     ...base,
     label: translated.label,
     shellTitle: translated.shellTitle,
     shellSubtitle: translated.shellSubtitle,
-    menus: base.menus.map((menu) => cloneMenuNode(menu)),
+    menus: base.menus.map((menu) => buildFallbackMenuNode(menu, locale)),
   };
 }
 
@@ -633,7 +768,7 @@ export function getLocalizedViewModel(id: string, locale: LoginLocale): ViewMode
 }
 
 export function findMenuTitle(mode: WorkspaceMode, id: string, locale: LoginLocale = "en"): string {
-  const config = getWorkspaceModeConfig(mode, locale);
+  const modeConfig = getWorkspaceModeConfig(mode, locale);
   const search = (menus: MenuNode[]): string | null => {
     for (const menu of menus) {
       if (menu.id === id) return menu.title;
@@ -644,5 +779,24 @@ export function findMenuTitle(mode: WorkspaceMode, id: string, locale: LoginLoca
     }
     return null;
   };
-  return search(config.menus) ?? id;
+  return search(modeConfig.menus) ?? getFallbackMenuTitle(id, locale);
+}
+
+export function getFallbackMenuPresentation(id: string): MenuPresentationMetadata | undefined {
+  return fallbackMenuPresentationMetadata[id];
+}
+
+export function localizeMenuNodesWithFallbackTitles(
+  menus: MenuNode[],
+  locale: LoginLocale
+): MenuNode[] {
+  return menus.map((menu) => ({
+    ...menu,
+    title: fallbackMenuTitleTranslations[menu.id]
+      ? getFallbackMenuTitle(menu.id, locale)
+      : menu.title,
+    children: menu.children?.length
+      ? localizeMenuNodesWithFallbackTitles(menu.children, locale)
+      : undefined,
+  }));
 }

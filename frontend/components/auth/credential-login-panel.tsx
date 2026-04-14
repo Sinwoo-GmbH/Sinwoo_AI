@@ -179,21 +179,24 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode =
       className={cn(
         "w-full",
         isDesktop
-          ? "border-0 bg-transparent shadow-none"
-          : "border border-slate-200 bg-white/96 shadow-[0_18px_38px_rgba(15,23,42,0.08)] backdrop-blur"
+          ? "rounded-[28px] border border-slate-200/80 bg-white/96 shadow-[0_18px_38px_rgba(15,23,42,0.08)] backdrop-blur"
+          : "rounded-[24px] border border-slate-200/90 bg-white/96 shadow-[0_18px_38px_rgba(15,23,42,0.08)] backdrop-blur"
       )}
     >
-      <CardHeader className={cn("space-y-1", isDesktop ? "px-0 pb-2.5 pt-0" : "pb-2")}>
+      <CardHeader className={cn("space-y-2", isDesktop ? "px-7 pb-4 pt-7" : "px-5 pb-3 pt-5")}>
         <div className="font-brand text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">{messages.cardEyebrow}</div>
-        <CardTitle className={cn("font-brand font-semibold tracking-tight text-slate-950", isDesktop ? "text-[28px]" : "text-[24px]")}>
+        <CardTitle className={cn("font-brand font-semibold tracking-tight text-slate-950", isDesktop ? "text-[30px]" : "text-[24px]")}>
           {messages.signInTitle}
         </CardTitle>
+        <p className="max-w-md text-[14px] leading-6 text-slate-600">
+          {messages.formDescription}
+        </p>
       </CardHeader>
 
-      <CardContent className={cn("space-y-2", isDesktop ? "px-0 pb-0" : "")}>
-        <form className="space-y-2.5" onSubmit={handleSubmit}>
-          <div className="space-y-1">
-            <label htmlFor="credential-email" className="text-sm font-medium text-slate-700">
+      <CardContent className={cn("space-y-4", isDesktop ? "px-7 pb-7 pt-0" : "px-5 pb-5 pt-0")}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div className="space-y-1.5">
+            <label htmlFor="credential-email" className="text-[13px] font-semibold uppercase tracking-[0.08em] text-slate-500">
               {messages.emailLabel}
             </label>
             <input
@@ -204,14 +207,14 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode =
               placeholder={messages.emailPlaceholder}
               autoComplete="username"
               className={cn(
-                "w-full border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[#233a7a]",
-                isDesktop ? "h-11 rounded-2xl" : "h-10 rounded-lg"
+                "w-full border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#233a7a] focus:ring-4 focus:ring-[#233a7a]/10",
+                isDesktop ? "h-12 rounded-2xl" : "h-11 rounded-xl"
               )}
             />
           </div>
 
-          <div className="space-y-1">
-            <label htmlFor="credential-pwd" className="text-sm font-medium text-slate-700">
+          <div className="space-y-1.5">
+            <label htmlFor="credential-pwd" className="text-[13px] font-semibold uppercase tracking-[0.08em] text-slate-500">
               {messages.passwordLabel}
             </label>
             <input
@@ -222,8 +225,8 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode =
               placeholder={messages.passwordPlaceholder}
               autoComplete="current-password"
               className={cn(
-                "w-full border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[#233a7a]",
-                isDesktop ? "h-11 rounded-2xl" : "h-10 rounded-lg"
+                "w-full border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#233a7a] focus:ring-4 focus:ring-[#233a7a]/10",
+                isDesktop ? "h-12 rounded-2xl" : "h-11 rounded-xl"
               )}
             />
           </div>
@@ -248,8 +251,8 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode =
             type="submit"
             disabled={!canSubmit || isSubmitting}
             className={cn(
-              "w-full bg-[#233a7a] text-sm font-semibold text-white hover:bg-[#1c2f64]",
-              isDesktop ? "h-11 rounded-2xl" : "h-10 rounded-lg"
+              "w-full bg-[#233a7a] text-sm font-semibold text-white shadow-[0_12px_24px_rgba(35,58,122,0.22)] hover:bg-[#1c2f64]",
+              isDesktop ? "h-12 rounded-2xl" : "h-11 rounded-xl"
             )}
           >
             {isSubmitting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -258,7 +261,7 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode =
         </form>
 
         {providers.length > 0 ? (
-          <div className="space-y-2">
+          <div className="space-y-3 pt-1">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-200" />
@@ -275,8 +278,8 @@ export function CredentialLoginPanel({ backendBaseUrl, providers, locale, mode =
                   href={`${backendBaseUrl}${provider.authorizeUri}`}
                   className={cn(
                     buttonVariants({ variant: "outline" }),
-                    "flex w-full justify-center border-slate-300 text-sm font-medium text-slate-700",
-                    isDesktop ? "h-12 rounded-2xl" : "h-11 rounded-lg"
+                    "flex w-full justify-center border-slate-300 bg-white text-sm font-medium text-slate-700",
+                    isDesktop ? "h-12 rounded-2xl" : "h-11 rounded-xl"
                   )}
                 >
                   {messages.continueWith} {provider.providerNm}

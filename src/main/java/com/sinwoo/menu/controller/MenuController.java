@@ -9,9 +9,12 @@ import com.sinwoo.menu.dto.MenuResponse;
 import com.sinwoo.menu.dto.MenuTreeResponse;
 import com.sinwoo.menu.service.MenuService;
 import jakarta.validation.Valid;
+import java.util.Locale;
 import java.util.List;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,30 +38,36 @@ public class MenuController {
     }
 
     @GetMapping
-    public MenuListResponse getMenus(@RequestParam(required = false) String mnuScopeCd) {
-        return menuService.getMenus(mnuScopeCd);
+    public MenuListResponse getMenus(
+            @RequestParam(required = false) String mnuScopeCd,
+            @RequestParam(required = false) String lang
+    ) {
+        return withRequestedLocale(lang, () -> menuService.getMenus(mnuScopeCd));
     }
 
     @GetMapping("/visible")
     public MenuTreeResponse getVisibleMenus(
             @RequestParam List<String> roleCd,
-            @RequestParam(required = false) String mnuScopeCd
+            @RequestParam(required = false) String mnuScopeCd,
+            @RequestParam(required = false) String lang
     ) {
-        return menuService.getVisibleMenus(roleCd, mnuScopeCd);
+        return withRequestedLocale(lang, () -> menuService.getVisibleMenus(roleCd, mnuScopeCd));
     }
 
     @GetMapping("/visible-by-user")
     public MenuTreeResponse getVisibleMenusByUsr(
             @RequestParam Long usrId,
-            @RequestParam(required = false) String mnuScopeCd
+            @RequestParam(required = false) String mnuScopeCd,
+            @RequestParam(required = false) String lang
     ) {
-        return menuService.getVisibleMenusByUsr(usrId, mnuScopeCd);
+        return withRequestedLocale(lang, () -> menuService.getVisibleMenusByUsr(usrId, mnuScopeCd));
     }
 
     @GetMapping("/my")
     public MenuTreeResponse getVisibleMenusForCurrentUser(
             Authentication authentication,
-            @RequestParam(required = false) String mnuScopeCd
+            @RequestParam(required = false) String mnuScopeCd,
+            @RequestParam(required = false) String lang
     ) {
         if (authentication == null || !(authentication.getPrincipal() instanceof AuthenticatedUser authenticatedUser)) {
             throw new ApiException(
@@ -67,6 +76,29 @@ public class MenuController {
                     AuthErrorCode.AUTH_AUTHENTICATION_REQUIRED.message()
             );
         }
-        return menuService.getVisibleMenusForCurrentUser(authenticatedUser, mnuScopeCd);
+        return withRequestedLocale(lang, () -> menuService.getVisibleMenusForCurrentUser(authenticatedUser, mnuScopeCd));
+    }
+
+    private <T> T withRequestedLocale(String lang, Supplier<T> action) {
+        Locale previousLocale = LocaleContextHolder.getLocale();
+        try {
+            LocaleContextHolder.setLocale(resolveRequestedLocale(lang, previousLocale));
+            return action.get();
+        } finally {
+            LocaleContextHolder.setLocale(previousLocale);
+        }
+    }
+
+    private Locale resolveRequestedLocale(String lang, Locale fallbackLocale) {
+        if (lang == null || lang.isBlank()) {
+            return fallbackLocale == null ? Locale.ENGLISH : fallbackLocale;
+        }
+
+        String normalized = lang.trim().toLowerCase(Locale.ROOT);
+        return switch (normalized) {
+            case "ko", "ko-kr" -> Locale.KOREAN;
+            case "de", "de-de" -> Locale.GERMAN;
+            default -> Locale.ENGLISH;
+        };
     }
 }
