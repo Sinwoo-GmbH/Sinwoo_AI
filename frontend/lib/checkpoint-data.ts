@@ -5,6 +5,10 @@ import type { MenuListRes, MenuTreeRes } from "@/lib/api/menu-contract";
 import type { RoleListRes } from "@/lib/api/role-contract";
 import type { TenantListRes } from "@/lib/api/tenant-contract";
 
+// Developer note:
+// Checkpoint data is a local inspection/dev preview helper only.
+// It must not be treated as runtime source-of-truth for workspace UI state.
+
 type CompanyRes = {
   coId: number;
   tenantId: number;

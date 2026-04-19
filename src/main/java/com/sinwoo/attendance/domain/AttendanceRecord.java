@@ -1,5 +1,6 @@
 package com.sinwoo.attendance.domain;
 
+import com.sinwoo.attendance.support.AttendanceStatusCd;
 import com.sinwoo.common.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -74,7 +75,7 @@ public class AttendanceRecord extends BaseEntity {
             LocalDate attndDt,
             OffsetDateTime chkinDtm
     ) {
-        return new AttendanceRecord(tenantId, coId, usrId, empId, attndDt, chkinDtm, null, "CHECKED_IN");
+        return new AttendanceRecord(tenantId, coId, usrId, empId, attndDt, chkinDtm, null, AttendanceStatusCd.CHECKED_IN);
     }
 
     public static AttendanceRecord createManual(
@@ -104,7 +105,7 @@ public class AttendanceRecord extends BaseEntity {
             chkinDtm = value;
         }
         if (chkoutDtm == null) {
-            attndStsCd = "CHECKED_IN";
+            attndStsCd = AttendanceStatusCd.CHECKED_IN;
         }
     }
 
@@ -113,7 +114,7 @@ public class AttendanceRecord extends BaseEntity {
             return;
         }
         chkoutDtm = value;
-        attndStsCd = "CHECKED_OUT";
+        attndStsCd = AttendanceStatusCd.CHECKED_OUT;
     }
 
     public void applyManualEntry(OffsetDateTime checkInValue, OffsetDateTime checkOutValue, String attndStsCd) {
@@ -123,9 +124,6 @@ public class AttendanceRecord extends BaseEntity {
     }
 
     private static String resolveManualStatus(OffsetDateTime checkInValue, OffsetDateTime checkOutValue, String attndStsCd) {
-        if (attndStsCd != null && !attndStsCd.isBlank()) {
-            return attndStsCd.trim().toUpperCase();
-        }
-        return checkOutValue != null ? "CHECKED_OUT" : "CHECKED_IN";
+        return AttendanceStatusCd.resolveManualStatus(checkInValue, checkOutValue, attndStsCd);
     }
 }

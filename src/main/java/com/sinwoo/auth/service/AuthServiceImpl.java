@@ -12,7 +12,9 @@ import com.sinwoo.auth.dto.CurrentUserResponse;
 import com.sinwoo.auth.repository.RoleRepository;
 import com.sinwoo.auth.repository.UserOauthIdentityRepository;
 import com.sinwoo.auth.repository.UserRoleRepository;
+import com.sinwoo.auth.support.AuthBizConst;
 import com.sinwoo.billing.support.BillingAccessPolicyService;
+import com.sinwoo.common.support.CommonBizConst;
 import com.sinwoo.common.security.AuthProperties;
 import com.sinwoo.common.security.AuthenticatedUser;
 import com.sinwoo.common.security.CredentialEncryptionService;
@@ -94,7 +96,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByTenantIdAndEmlIgnoreCase(tenant.getId(), normalizedEmail)
                 .orElseThrow(() -> authException(AuthErrorCode.AUTH_INVALID_CREDENTIALS));
 
-        if (!"ACTIVE".equalsIgnoreCase(user.getStsCd())) {
+        if (!CommonBizConst.STS_CD_ACTIVE.equalsIgnoreCase(user.getStsCd())) {
             throw authException(AuthErrorCode.AUTH_USER_INACTIVE);
         }
 
@@ -170,7 +172,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private AuthTokenResponse issueTokens(AuthenticatedUser authenticatedUser) {
-        return issueTokens(authenticatedUser, "SINWOO");
+        return issueTokens(authenticatedUser, AuthBizConst.AUTH_PROV_CD_SINWOO);
     }
 
     private AuthTokenResponse issueTokens(AuthenticatedUser authenticatedUser, String providerCd) {
@@ -231,8 +233,8 @@ public class AuthServiceImpl implements AuthService {
                 normalizeLocale(authProperties.defaultLoclCd()),
                 null,
                 normalizeAuthGroup(tenant.getTenantTpCd()),
-                "OAUTH",
-                "ACTIVE"
+                AuthBizConst.AUTH_PROV_CD_OAUTH,
+                CommonBizConst.STS_CD_ACTIVE
         );
         User savedUser = userRepository.save(user);
         Role defaultRole = resolveDefaultRole(tenant.getTenantTpCd());
@@ -241,7 +243,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private Role resolveDefaultRole(String tenantTpCd) {
-        String roleCd = "INTERNAL".equalsIgnoreCase(tenantTpCd)
+        String roleCd = AuthBizConst.TENANT_TP_CD_INTERNAL.equalsIgnoreCase(tenantTpCd)
                 ? authProperties.internalDefaultRoleCd()
                 : authProperties.customerDefaultRoleCd();
         return roleRepository.findByRoleCd(roleCd)
@@ -293,7 +295,7 @@ public class AuthServiceImpl implements AuthService {
                 .replaceAll("[^A-Za-z0-9._-]", "")
                 .toUpperCase(Locale.ROOT);
         if (base.isBlank()) {
-            base = "OAUTH";
+            base = AuthBizConst.LGN_ID_OAUTH_BASE;
         }
 
         String candidate = base;
@@ -329,7 +331,7 @@ public class AuthServiceImpl implements AuthService {
 
     private String normalizeLocale(String locale) {
         if (locale == null || locale.isBlank()) {
-            return "en";
+            return AuthBizConst.LOCL_CD_EN;
         }
         return locale.trim().toLowerCase(Locale.ROOT);
     }
@@ -343,21 +345,25 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private String normalizeAuthGroup(String tenantTpCd) {
-        return "INTERNAL".equalsIgnoreCase(tenantTpCd) ? "ADMIN" : "CUSTOMER";
+        return AuthBizConst.TENANT_TP_CD_INTERNAL.equalsIgnoreCase(tenantTpCd)
+                ? AuthBizConst.AUTH_GRP_CD_ADMIN
+                : AuthBizConst.AUTH_GRP_CD_CUSTOMER;
     }
 
     private String resolveTenantType(Long tenantId) {
         return tenantRepository.findById(tenantId)
                 .map(Tenant::getTenantTpCd)
-                .orElse("CUSTOMER");
+                .orElse(AuthBizConst.TENANT_TP_CD_CUSTOMER);
     }
 
     private String resolveEmailVerified(Map<String, Object> attributes) {
         Object value = attributes.get("email_verified");
         if (value instanceof Boolean bool) {
-            return bool ? "Y" : "N";
+            return bool ? CommonBizConst.YN_Y : CommonBizConst.YN_N;
         }
-        return value != null && "true".equalsIgnoreCase(String.valueOf(value)) ? "Y" : "N";
+        return value != null && "true".equalsIgnoreCase(String.valueOf(value))
+                ? CommonBizConst.YN_Y
+                : CommonBizConst.YN_N;
     }
 
     private String stringValue(Object value) {

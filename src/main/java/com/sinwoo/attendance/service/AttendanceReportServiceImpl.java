@@ -18,6 +18,8 @@ import com.sinwoo.attendance.dto.AttendanceWorkTimeFilterOptionsResponse;
 import com.sinwoo.attendance.dto.AttendanceWorkTimeHistoryListResponse;
 import com.sinwoo.attendance.dto.AttendanceWorkTimeHistoryQuery;
 import com.sinwoo.attendance.dto.AttendanceWorkTimeHistoryRowResponse;
+import com.sinwoo.attendance.support.AttendanceStatusCd;
+import com.sinwoo.code.support.CommonCodeGroupCd;
 import com.sinwoo.attendance.repository.AttendanceRecordRepository;
 import com.sinwoo.code.service.CommonCodeService;
 import com.sinwoo.common.security.AuthenticatedUser;
@@ -457,33 +459,11 @@ public class AttendanceReportServiceImpl implements AttendanceReportService {
     }
 
     private String resolveStatusName(String statusCd, Locale locale) {
-        return commonCodeService.resolveDisplayName("ATTND_FLAG", statusCd, fallbackStatusName(statusCd, locale));
-    }
-
-    private String fallbackStatusName(String statusCd, Locale locale) {
-        return switch (locale.getLanguage().toLowerCase(Locale.ROOT)) {
-            case "de" -> switch (statusCd) {
-                case "CHECKED_IN" -> "Eingecheckt";
-                case "CHECKED_OUT" -> "Ausgecheckt";
-                case "LEAVE" -> "Urlaub";
-                case "BUSINESS_TRIP" -> "Dienstreise";
-                default -> "Bereit";
-            };
-            case "ko" -> switch (statusCd) {
-                case "CHECKED_IN" -> "출근";
-                case "CHECKED_OUT" -> "퇴근";
-                case "LEAVE" -> "휴가";
-                case "BUSINESS_TRIP" -> "출장";
-                default -> "대기";
-            };
-            default -> switch (statusCd) {
-                case "CHECKED_IN" -> "Checked in";
-                case "CHECKED_OUT" -> "Checked out";
-                case "LEAVE" -> "Leave";
-                case "BUSINESS_TRIP" -> "Business trip";
-                default -> "Ready";
-            };
-        };
+        return commonCodeService.resolveDisplayName(
+                CommonCodeGroupCd.ATTND_FLAG,
+                statusCd,
+                AttendanceStatusCd.fallbackDisplayValue(statusCd)
+        );
     }
 
     private Integer calculateWorkMinuteCnt(AttendanceRecord record) {

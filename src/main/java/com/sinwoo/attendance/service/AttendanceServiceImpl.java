@@ -11,11 +11,16 @@ import com.sinwoo.attendance.dto.AttendanceHolidayFocusResponse;
 import com.sinwoo.attendance.dto.AttendanceManualEntryRequest;
 import com.sinwoo.attendance.dto.AttendanceMonthSummaryResponse;
 import com.sinwoo.attendance.dto.AttendanceTodayResponse;
+import com.sinwoo.attendance.dto.AttendanceWidgetPolicyResponse;
 import com.sinwoo.attendance.dto.AttendanceWidgetResponse;
 import com.sinwoo.attendance.repository.AttendanceRecordRepository;
 import com.sinwoo.attendance.repository.HolidayCacheRepository;
+import com.sinwoo.attendance.support.AttendanceProperties;
+import com.sinwoo.attendance.support.AttendanceStatusCd;
 import com.sinwoo.code.service.CommonCodeService;
+import com.sinwoo.code.support.CommonCodeGroupCd;
 import com.sinwoo.common.security.AuthenticatedUser;
+import com.sinwoo.common.support.CommonBizConst;
 import com.sinwoo.company.domain.Company;
 import com.sinwoo.company.repository.CompanyRepository;
 import com.sinwoo.employee.domain.Employee;
@@ -58,11 +63,6 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     private static final Logger log = LoggerFactory.getLogger(AttendanceServiceImpl.class);
 
-    private static final String HOLIDAY_API_URL = "https://date.nager.at/api/v3/PublicHolidays/%d/%s";
-    private static final String DEFAULT_COUNTRY_CD = "DE";
-    private static final String DEFAULT_REGION_CD = "ALL";
-    private static final String HOLIDAY_SOURCE = "NAGER";
-    private static final ZoneId BUSINESS_ZONE = ZoneId.of("Europe/Berlin");
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
     private static final DateTimeFormatter MONTH_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM");
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
@@ -76,6 +76,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     private final TenantRepository tenantRepository;
     private final CommonCodeService commonCodeService;
     private final ObjectMapper objectMapper;
+    private final AttendanceProperties attendanceProperties;
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     @Override
@@ -85,12 +86,13 @@ public class AttendanceServiceImpl implements AttendanceService {
             Locale locale
     ) {
         AuthenticatedUser user = requireUser(authenticatedUser);
-        YearMonth targetMonth = yearMonth == null ? YearMonth.now(BUSINESS_ZONE) : yearMonth;
+        ZoneId bizZoneId = attendanceProperties.bizZoneId();
+        YearMonth targetMonth = yearMonth == null ? YearMonth.now(bizZoneId) : yearMonth;
         LocalDate monthStart = targetMonth.atDay(1);
         LocalDate monthEnd = targetMonth.atEndOfMonth();
         LocalDate gridStart = monthStart.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate gridEnd = monthEnd.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-        LocalDate today = LocalDate.now(BUSINESS_ZONE);
+        LocalDate today = LocalDate.now(bizZoneId);
 
         HolidayContext holidayContext = resolveHolidayContext(user);
         ensureHolidayCache(targetMonth.getYear(), holidayContext.ctryCd());
@@ -127,7 +129,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                     isWeekend(cursor),
                     holiday != null,
                     holiday == null ? null : resolveHolidayName(holiday, locale),
-                    record == null ? "NONE" : record.getAttndStsCd(),
+                    record == null ? AttendanceStatusCd.NONE : record.getAttndStsCd(),
                     formatTime(record == null ? null : record.getChkinDtm()),
                     formatTime(record == null ? null : record.getChkoutDtm())
             ));
@@ -170,6 +172,16 @@ public class AttendanceServiceImpl implements AttendanceService {
         return new AttendanceWidgetResponse(
                 targetMonth.format(MONTH_FORMAT),
                 holidayContext.regionCd(),
+                new AttendanceWidgetPolicyResponse(
+                        attendanceProperties.bizTmznId(),
+                        attendanceProperties.dfltChkinTm(),
+                        attendanceProperties.dfltChkoutTm(),
+                        CommonCodeGroupCd.ATTND_FLAG,
+                        AttendanceStatusCd.CHECKED_IN,
+                        AttendanceStatusCd.CHECKED_OUT,
+                        AttendanceStatusCd.LEAVE,
+                        AttendanceStatusCd.BUSINESS_TRIP
+                ),
                 toTodayResponse(today, attendanceByDate.get(today), holidayByDate.get(today), locale),
                 summary,
                 holidayFocus,
@@ -181,8 +193,8 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Transactional
     public AttendanceTodayResponse checkIn(AuthenticatedUser authenticatedUser, Locale locale) {
         AuthenticatedUser user = requireUser(authenticatedUser);
-        LocalDate today = LocalDate.now(BUSINESS_ZONE);
-        OffsetDateTime now = OffsetDateTime.now(BUSINESS_ZONE);
+        LocalDate today = LocalDate.now(attendanceProperties.bizZoneId());
+        OffsetDateTime now = OffsetDateTime.now(attendanceProperties.bizZoneId());
         AttendanceContext attendanceContext = resolveAttendanceContext(user);
         AttendanceRecord attendanceRecord = attendanceRecordRepository
                 .findByTenantIdAndUsrIdAndAttndDt(user.tenantId(), user.usrId(), today)
@@ -208,8 +220,8 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Transactional
     public AttendanceTodayResponse checkOut(AuthenticatedUser authenticatedUser, Locale locale) {
         AuthenticatedUser user = requireUser(authenticatedUser);
-        LocalDate today = LocalDate.now(BUSINESS_ZONE);
-        OffsetDateTime now = OffsetDateTime.now(BUSINESS_ZONE);
+        LocalDate today = LocalDate.now(attendanceProperties.bizZoneId());
+        OffsetDateTime now = OffsetDateTime.now(attendanceProperties.bizZoneId());
         resolveAttendanceContext(user);
         AttendanceRecord attendanceRecord = attendanceRecordRepository
                 .findByTenantIdAndUsrIdAndAttndDt(user.tenantId(), user.usrId(), today)
@@ -238,7 +250,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         String attendanceStatus = normalizeAttendanceStatus(request.attndStsCd());
         Optional<AttendanceRecord> existingRecord = attendanceRecordRepository
                 .findByTenantIdAndUsrIdAndAttndDt(user.tenantId(), user.usrId(), attndDate);
-        boolean statusUsesNoTime = "LEAVE".equals(attendanceStatus) || "BUSINESS_TRIP".equals(attendanceStatus);
+        boolean statusUsesNoTime = AttendanceStatusCd.isNoTimeStatus(attendanceStatus);
         OffsetDateTime checkInValue = statusUsesNoTime
                 ? null
                 : mergeAttendanceTime(attndDate, request.chkinTm(), existingRecord.map(AttendanceRecord::getChkinDtm).orElse(null));
@@ -273,12 +285,6 @@ public class AttendanceServiceImpl implements AttendanceService {
         AttendanceRecord saved = attendanceRecordRepository.save(attendanceRecord);
         HolidayCache holiday = findHolidayForDate(resolveHolidayContext(user), attndDate);
         return toTodayResponse(attndDate, saved, holiday, locale);
-    }
-
-    private Long resolveEmployeeId(Long usrId) {
-        return employeeRepository.findByUsrId(usrId)
-                .map(Employee::getId)
-                .orElse(null);
     }
 
     private AuthenticatedUser requireUser(AuthenticatedUser authenticatedUser) {
@@ -333,18 +339,18 @@ public class AttendanceServiceImpl implements AttendanceService {
                 companyCode,
                 tenant.getTenantNm(),
                 null,
-                DEFAULT_COUNTRY_CD,
-                DEFAULT_REGION_CD,
+                attendanceProperties.dfltCtryCd(),
+                attendanceProperties.dfltRegionCd(),
                 null,
                 null,
-                "ACTIVE"
+                CommonBizConst.STS_CD_ACTIVE
         );
         return companyRepository.save(company).getId();
     }
 
     private LocalDate parseAttendanceDate(String value) {
         if (value == null || value.isBlank()) {
-            return LocalDate.now(BUSINESS_ZONE);
+            return LocalDate.now(attendanceProperties.bizZoneId());
         }
 
         try {
@@ -360,17 +366,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
         try {
             LocalTime localTime = LocalTime.parse(value, TIME_FORMAT);
-            return OffsetDateTime.of(attndDate, localTime, BUSINESS_ZONE.getRules().getOffset(attndDate.atTime(localTime)));
+            ZoneId bizZoneId = attendanceProperties.bizZoneId();
+            return OffsetDateTime.of(attndDate, localTime, bizZoneId.getRules().getOffset(attndDate.atTime(localTime)));
         } catch (Exception exception) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Time must follow HH:mm");
         }
-    }
-
-    private OffsetDateTime parseOptionalAttendanceTime(LocalDate attndDate, String value) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-        return parseAttendanceTime(attndDate, value, "Time must follow HH:mm");
     }
 
     private OffsetDateTime mergeAttendanceTime(LocalDate attndDate, String incomingValue, OffsetDateTime currentValue) {
@@ -381,14 +381,14 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     private String normalizeAttendanceStatus(String value) {
-        if (value == null || value.isBlank()) {
+        String normalized = AttendanceStatusCd.normalizeOrNull(value);
+        if (normalized == null) {
             return null;
         }
-        String normalized = value.trim().toUpperCase(Locale.ROOT);
-        return switch (normalized) {
-            case "CHECKED_IN", "CHECKED_OUT", "LEAVE", "BUSINESS_TRIP" -> normalized;
-            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Attendance status is invalid");
-        };
+        if (!AttendanceStatusCd.isSupported(normalized)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Attendance status is invalid");
+        }
+        return normalized;
     }
 
     private HolidayContext resolveHolidayContext(AuthenticatedUser authenticatedUser) {
@@ -421,21 +421,22 @@ public class AttendanceServiceImpl implements AttendanceService {
             }
         }
 
-        return new HolidayContext(DEFAULT_COUNTRY_CD, DEFAULT_REGION_CD);
+        return new HolidayContext(attendanceProperties.dfltCtryCd(), attendanceProperties.dfltRegionCd());
     }
 
     private List<String> resolveRegionScope(String regionCd) {
-        if (regionCd == null || regionCd.isBlank() || DEFAULT_REGION_CD.equalsIgnoreCase(regionCd)) {
-            return List.of(DEFAULT_REGION_CD);
+        if (regionCd == null || regionCd.isBlank() || attendanceProperties.dfltRegionCd().equalsIgnoreCase(regionCd)) {
+            return List.of(attendanceProperties.dfltRegionCd());
         }
-        return List.of(DEFAULT_REGION_CD, regionCd.toUpperCase(Locale.ROOT));
+        return List.of(attendanceProperties.dfltRegionCd(), regionCd.toUpperCase(Locale.ROOT));
     }
 
     private Map<LocalDate, HolidayCache> buildHolidayMap(List<HolidayCache> holidays) {
         Map<LocalDate, HolidayCache> holidayByDate = new LinkedHashMap<>();
         for (HolidayCache holiday : holidays) {
             HolidayCache current = holidayByDate.get(holiday.getHoliDt());
-            if (current == null || (DEFAULT_REGION_CD.equals(current.getRegionCd()) && !DEFAULT_REGION_CD.equals(holiday.getRegionCd()))) {
+            if (current == null || (attendanceProperties.dfltRegionCd().equals(current.getRegionCd())
+                    && !attendanceProperties.dfltRegionCd().equals(holiday.getRegionCd()))) {
                 holidayByDate.put(holiday.getHoliDt(), holiday);
             }
         }
@@ -448,10 +449,10 @@ public class AttendanceServiceImpl implements AttendanceService {
             HolidayCache holiday,
             Locale locale
     ) {
-        String statusCd = attendanceRecord == null ? "NONE" : attendanceRecord.getAttndStsCd();
+        String statusCd = attendanceRecord == null ? AttendanceStatusCd.NONE : attendanceRecord.getAttndStsCd();
         boolean checkedIn = attendanceRecord != null && attendanceRecord.getChkinDtm() != null;
         boolean checkedOut = attendanceRecord != null && attendanceRecord.getChkoutDtm() != null;
-        boolean onLeave = "LEAVE".equalsIgnoreCase(statusCd);
+        boolean onLeave = AttendanceStatusCd.isLeave(statusCd);
         return new AttendanceTodayResponse(
                 today.format(DATE_FORMAT),
                 statusCd,
@@ -475,38 +476,11 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     private String resolveStatusName(String statusCd, Locale locale) {
-        return commonCodeService.resolveDisplayName("ATTND_FLAG", statusCd, fallbackStatusName(statusCd, locale));
-    }
-
-    private String fallbackStatusName(String statusCd, Locale locale) {
-        String language = locale.getLanguage().toLowerCase(Locale.ROOT);
-        return switch (statusCd) {
-            case "CHECKED_IN" -> switch (language) {
-                case "de" -> "Eingecheckt";
-                case "ko" -> "출근 완료";
-                default -> "Checked in";
-            };
-            case "CHECKED_OUT" -> switch (language) {
-                case "de" -> "Ausgecheckt";
-                case "ko" -> "퇴근 완료";
-                default -> "Checked out";
-            };
-            case "LEAVE" -> switch (language) {
-                case "de" -> "Urlaub";
-                case "ko" -> "휴가";
-                default -> "Leave";
-            };
-            case "BUSINESS_TRIP" -> switch (language) {
-                case "de" -> "Dienstreise";
-                case "ko" -> "출장";
-                default -> "Business trip";
-            };
-            default -> switch (language) {
-                case "de" -> "Bereit";
-                case "ko" -> "대기";
-                default -> "Ready";
-            };
-        };
+        return commonCodeService.resolveDisplayName(
+                CommonCodeGroupCd.ATTND_FLAG,
+                statusCd,
+                AttendanceStatusCd.fallbackDisplayValue(statusCd)
+        );
     }
 
     private String formatDateTime(OffsetDateTime value) {
@@ -536,7 +510,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(String.format(HOLIDAY_API_URL, year, ctryCd)))
+                    .uri(URI.create(String.format(attendanceProperties.holiApiUrl(), year, ctryCd)))
                     .GET()
                     .build();
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -554,7 +528,7 @@ public class AttendanceServiceImpl implements AttendanceService {
             for (NagerHolidayResponse holiday : holidays) {
                 LocalDate holidayDate = LocalDate.parse(holiday.date());
                 if (holiday.counties() == null || holiday.counties().isEmpty()) {
-                    upsertHoliday(ctryCd, DEFAULT_REGION_CD, holidayDate, holiday);
+                    upsertHoliday(ctryCd, attendanceProperties.dfltRegionCd(), holidayDate, holiday);
                     continue;
                 }
                 for (String county : holiday.counties()) {
@@ -577,8 +551,8 @@ public class AttendanceServiceImpl implements AttendanceService {
             holidayCache.refresh(
                     safeHolidayName(holiday.localName(), holiday.name()),
                     safeHolidayName(holiday.name(), holiday.localName()),
-                    holiday.global() ? "Y" : "N",
-                    HOLIDAY_SOURCE
+                    holiday.global() ? CommonBizConst.YN_Y : CommonBizConst.YN_N,
+                    attendanceProperties.holiSource()
             );
             holidayCacheRepository.save(holidayCache);
             return;
@@ -590,8 +564,8 @@ public class AttendanceServiceImpl implements AttendanceService {
                 holidayDate,
                 safeHolidayName(holiday.localName(), holiday.name()),
                 safeHolidayName(holiday.name(), holiday.localName()),
-                holiday.global() ? "Y" : "N",
-                HOLIDAY_SOURCE
+                holiday.global() ? CommonBizConst.YN_Y : CommonBizConst.YN_N,
+                attendanceProperties.holiSource()
         ));
     }
 
@@ -607,21 +581,21 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     private String normalizeCountryCode(String value) {
         if (value == null || value.isBlank()) {
-            return DEFAULT_COUNTRY_CD;
+            return attendanceProperties.dfltCtryCd();
         }
         return value.trim().toUpperCase(Locale.ROOT);
     }
 
     private String normalizeRegionCode(String value) {
         if (value == null || value.isBlank()) {
-            return DEFAULT_REGION_CD;
+            return attendanceProperties.dfltRegionCd();
         }
         return value.trim().toUpperCase(Locale.ROOT);
     }
 
     private String normalizeCountyCode(String ctryCd, String county) {
         if (county == null || county.isBlank()) {
-            return DEFAULT_REGION_CD;
+            return attendanceProperties.dfltRegionCd();
         }
 
         String normalizedCounty = county.trim().toUpperCase(Locale.ROOT);

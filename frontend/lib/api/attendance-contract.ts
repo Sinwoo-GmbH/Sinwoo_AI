@@ -14,7 +14,7 @@ export interface AttendanceManualEntryRequest {
   attndDt: string;
   chkinTm?: string | null;
   chkoutTm?: string | null;
-  attndStsCd?: "CHECKED_IN" | "CHECKED_OUT" | "LEAVE" | "BUSINESS_TRIP";
+  attndStsCd?: string | null;
 }
 
 export interface AttendanceCalendarDayRes {
@@ -33,6 +33,16 @@ export interface AttendanceCalendarDayRes {
 export interface AttendanceWidgetRes {
   yearMonth: string;
   regionCd: string;
+  policy: {
+    bizTmznId: string;
+    dfltChkinTm: string;
+    dfltChkoutTm: string;
+    attndFlagGrpCd: string;
+    chkinStsCd: string;
+    chkoutStsCd: string;
+    leaveStsCd: string;
+    bizTripStsCd: string;
+  };
   today: AttendanceTodayRes;
   summary: {
     workedDayCnt: number;

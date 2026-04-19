@@ -6,8 +6,10 @@ import com.sinwoo.auth.repository.UserRoleRepository;
 import com.sinwoo.auth.support.AuthErrorCode;
 import com.sinwoo.billing.support.BillingAccessPolicyService;
 import com.sinwoo.common.security.AuthenticatedUser;
+import com.sinwoo.common.support.CommonBizConst;
 import com.sinwoo.common.web.ApiException;
 import com.sinwoo.code.service.CommonCodeService;
+import com.sinwoo.code.support.CommonCodeGroupCd;
 import com.sinwoo.menu.domain.Menu;
 import com.sinwoo.menu.domain.RoleMenuAuth;
 import com.sinwoo.menu.dto.CreateMenuRequest;
@@ -17,6 +19,7 @@ import com.sinwoo.menu.dto.MenuResponse;
 import com.sinwoo.menu.dto.MenuTreeResponse;
 import com.sinwoo.menu.repository.MenuRepository;
 import com.sinwoo.menu.repository.RoleMenuAuthRepository;
+import com.sinwoo.menu.support.MenuBizConst;
 import com.sinwoo.user.domain.User;
 import com.sinwoo.user.repository.UserRepository;
 import java.util.ArrayList;
@@ -72,7 +75,7 @@ public class MenuServiceImpl implements MenuService {
         );
 
         Menu savedMenu = menuRepository.save(menu);
-        commonCodeService.ensureCode("MNU_NM", savedMenu.getMnuNmCd(), savedMenu.getMnuNm());
+        commonCodeService.ensureCode(CommonCodeGroupCd.MNU_NM, savedMenu.getMnuNmCd(), savedMenu.getMnuNm());
         return toMenuResponse(savedMenu);
     }
 
@@ -127,7 +130,9 @@ public class MenuServiceImpl implements MenuService {
 
         String resolvedScope = mnuScopeCd;
         if (resolvedScope == null || resolvedScope.isBlank()) {
-            resolvedScope = "ADMIN".equalsIgnoreCase(authenticatedUser.authGrpCd()) ? "ADMIN" : "CUSTOMER";
+            resolvedScope = MenuBizConst.MNU_SCOPE_CD_ADMIN.equalsIgnoreCase(authenticatedUser.authGrpCd())
+                    ? MenuBizConst.MNU_SCOPE_CD_ADMIN
+                    : MenuBizConst.MNU_SCOPE_CD_CUSTOMER;
         }
 
         if (authenticatedUser.usrId() != null) {
@@ -223,7 +228,7 @@ public class MenuServiceImpl implements MenuService {
         Set<Long> visibleIds = roleMenuAuthRepository.findAllByRoleIdIn(
                         roleIds
                 ).stream()
-                .filter(auth -> "Y".equals(auth.getViewYn()))
+                .filter(auth -> CommonBizConst.YN_Y.equals(auth.getViewYn()))
                 .map(RoleMenuAuth::getMnuId)
                 .filter(menuId -> isBillingGateSatisfied(menuById.get(menuId), roles, tenantId))
                 .collect(LinkedHashSet::new, Set::add, Set::addAll);
@@ -275,7 +280,7 @@ public class MenuServiceImpl implements MenuService {
             return true;
         }
         String normalizedScope = normalizeScope(mnuScopeCd);
-        return normalizedScope.equals(menu.getMnuScopeCd()) || "COMMON".equals(menu.getMnuScopeCd());
+        return normalizedScope.equals(menu.getMnuScopeCd()) || MenuBizConst.MNU_SCOPE_CD_COMMON.equals(menu.getMnuScopeCd());
     }
 
     private String normalizeScope(String value) {
@@ -293,7 +298,7 @@ public class MenuServiceImpl implements MenuService {
         if (value == null || value.isBlank()) {
             return defaultValue;
         }
-        return "Y".equalsIgnoreCase(value.trim()) ? "Y" : "N";
+        return CommonBizConst.YN_Y.equalsIgnoreCase(value.trim()) ? CommonBizConst.YN_Y : CommonBizConst.YN_N;
     }
 
     private String blankToNull(String value) {
@@ -312,7 +317,7 @@ public class MenuServiceImpl implements MenuService {
             return true;
         }
 
-        if ("PAID_CUSTOMER_ADMIN".equals(menu.getBillGateCd())) {
+        if (MenuBizConst.BILL_GATE_CD_PAID_CUSTOMER_ADMIN.equals(menu.getBillGateCd())) {
             return hasCustomerAdminRole(roles) && billingAccessPolicyService.hasPaidAdminAccess(tenantId);
         }
 
@@ -321,9 +326,9 @@ public class MenuServiceImpl implements MenuService {
 
     private boolean hasCustomerAdminRole(List<Role> roles) {
         return roles.stream().anyMatch(role ->
-                "CUSTOMER".equalsIgnoreCase(role.getRoleD1Cd())
+                MenuBizConst.ROLE_D1_CD_CUSTOMER.equalsIgnoreCase(role.getRoleD1Cd())
                         && role.getRoleD2Cd() != null
-                        && !"USER".equalsIgnoreCase(role.getRoleD2Cd())
+                        && !MenuBizConst.ROLE_D2_CD_USER.equalsIgnoreCase(role.getRoleD2Cd())
         );
     }
 
@@ -337,7 +342,7 @@ public class MenuServiceImpl implements MenuService {
 
     private String resolveMenuName(Menu menu) {
         return firstNonBlank(
-                commonCodeService.resolveDisplayName("MNU_NM", menu.getMnuNmCd(), resolveBaseMenuName(menu)),
+                commonCodeService.resolveDisplayName(CommonCodeGroupCd.MNU_NM, menu.getMnuNmCd(), resolveBaseMenuName(menu)),
                 resolveBaseMenuName(menu),
                 menu.getMnuCd()
         );
