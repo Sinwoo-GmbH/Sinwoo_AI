@@ -41,37 +41,37 @@ export function WorkspaceSectionPanel({
   const hasHeader = eyebrow || title || description || actions;
 
   return (
-    <Card id={id} className={cn("border-white/90 bg-white/86 shadow-[0_14px_36px_rgba(148,163,184,0.08)]", className)}>
+    <Card id={id} className={cn("rounded-[4px] border-slate-300 bg-[#f8f9fb] shadow-none", className)}>
       {hasHeader ? (
         <CardHeader
           id={headerId}
-          className={cn("flex flex-col gap-3 border-b border-slate-200/70 px-5 py-4 sm:flex-row sm:items-start sm:justify-between", headerClassName)}
+          className={cn("flex flex-col gap-2 border-b border-slate-300 px-3 py-2 sm:flex-row sm:items-start sm:justify-between", headerClassName)}
         >
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             {eyebrow ? (
-              <CardDescription id={eyebrowId} className="text-[11px] uppercase tracking-[0.24em] text-slate-400">
+              <CardDescription id={eyebrowId} className="text-[9px] uppercase tracking-[0.12em] text-slate-400">
                 {eyebrow}
               </CardDescription>
             ) : null}
             {title ? (
-              <CardTitle id={titleId} className="font-brand text-[1.7rem] font-semibold text-slate-950">
+              <CardTitle id={titleId} className="text-[13px] font-semibold leading-4 text-slate-900">
                 {title}
               </CardTitle>
             ) : null}
             {description ? (
-              <CardDescription id={descriptionId} className="max-w-2xl text-sm leading-6 text-slate-500">
+              <CardDescription id={descriptionId} className="max-w-2xl text-[11px] leading-4 text-slate-500">
                 {description}
               </CardDescription>
             ) : null}
           </div>
           {actions ? (
-            <div id={actionsId} className="flex shrink-0 flex-wrap items-center gap-2">
+            <div id={actionsId} className="flex shrink-0 flex-wrap items-center gap-1.5">
               {actions}
             </div>
           ) : null}
         </CardHeader>
       ) : null}
-      <CardContent id={contentId} className={cn("px-5 py-5", hasHeader ? "pt-5" : "pt-5", contentClassName)}>
+      <CardContent id={contentId} className={cn("px-3 py-3", hasHeader ? "pt-3" : "pt-3", contentClassName)}>
         {children}
       </CardContent>
     </Card>

@@ -128,7 +128,7 @@ export function PlatformShell() {
   return (
     <main
       id="workspace-shell"
-      className="workspace-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(35,58,122,0.10),transparent_28%),linear-gradient(180deg,#F8FAFE_0%,#EDF2F8_100%)]"
+      className="workspace-shell min-h-screen bg-[#eef1f4]"
     >
       <div
         id="workspace-global-loading-bar"
@@ -136,7 +136,7 @@ export function PlatformShell() {
       >
         <div
           className={cn(
-            "h-full bg-[linear-gradient(90deg,#233a7a_0%,#4F72C8_100%)] transition-all duration-300",
+            "h-full bg-[#31588f] transition-all duration-300",
             loading ? "w-full opacity-100" : "w-0 opacity-0"
           )}
         />
@@ -144,7 +144,7 @@ export function PlatformShell() {
 
       <div
         id="workspace-shell-container"
-        className="mx-auto flex min-h-screen max-w-[1700px] flex-col px-4 pb-4 pt-2 lg:h-[100dvh] lg:min-h-0 lg:px-6 lg:pb-5 lg:pt-2"
+        className="mx-auto flex min-h-screen max-w-[1700px] flex-col px-2 pb-2 pt-1.5 lg:h-[100dvh] lg:min-h-0 lg:px-3 lg:pb-3 lg:pt-1.5"
       >
         <WorkspaceHeader
           locale={locale}
@@ -159,7 +159,7 @@ export function PlatformShell() {
           onLogout={handleLogout}
         />
 
-        <div id="workspace-desktop-layout" className="flex min-h-0 flex-1 gap-4">
+        <div id="workspace-desktop-layout" className="flex min-h-0 flex-1 gap-2">
           <WorkspaceSidebar
             activeTabId={tabs.activeTabId}
             expandedMenuIds={tabs.expandedMenuIds}
@@ -173,7 +173,7 @@ export function PlatformShell() {
 
           <section
             id="workspace-main-panel"
-            className="relative flex min-w-0 min-h-0 flex-1 flex-col rounded-[30px] border border-white/80 bg-white/78 shadow-sm backdrop-blur"
+            className="relative flex min-w-0 min-h-0 flex-1 flex-col rounded-[4px] border border-slate-300 bg-[#f8f9fb]"
           >
             <WorkspaceTabbar
               activeTabId={tabs.activeTabId}

@@ -21,28 +21,28 @@ export function WorkspacePrioritySection({
       titleId="workspace-priority-title"
       description={shellContent.focusDescription}
       descriptionId="workspace-priority-description"
-      contentClassName="space-y-3"
+      contentClassName="space-y-2"
     >
       {items.map((item, index) => (
         <div
           id={`workspace-highlight-card-${index + 1}`}
           key={`${item.title}-${index}`}
           className={cn(
-            "rounded-2xl border p-4",
+            "rounded-[3px] border px-3 py-2",
             item.emphasis === "warning"
-              ? "border-amber-200 bg-amber-50"
+              ? "border-amber-200 bg-[#faf6ed]"
               : item.emphasis === "success"
-                ? "border-emerald-200 bg-emerald-50"
-                : "border-slate-200 bg-slate-50"
+                ? "border-emerald-200 bg-[#eef8f1]"
+                : "border-slate-300 bg-white"
           )}
         >
           <div
             id={`workspace-highlight-title-${index + 1}`}
-            className="font-medium text-slate-950"
+            className="text-[11px] font-medium leading-4 text-slate-950"
           >
             {item.title}
           </div>
-          <div id={`workspace-highlight-meta-${index + 1}`} className="mt-1 text-sm text-slate-500">
+          <div id={`workspace-highlight-meta-${index + 1}`} className="mt-0.5 text-[10px] leading-4 text-slate-500">
             {item.meta}
           </div>
         </div>

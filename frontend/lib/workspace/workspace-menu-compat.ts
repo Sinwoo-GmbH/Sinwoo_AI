@@ -1,6 +1,6 @@
 export const MENU_ID_COMPAT_ALIASES: Record<string, string> = {
   "admin-overview": "MNU_ADMIN_DASH",
-  "client-dashboard": "MNU_CUSTOMER_MY_TIME",
+  "client-dashboard": "MNU_CUSTOMER_DASH",
   "tenant-control": "MNU_ADMIN_TENANT",
   "tenant-list": "MNU_ADMIN_TENANT_LIST",
   "tenant-settings": "MNU_ADMIN_TENANT_SETTINGS",
@@ -49,6 +49,7 @@ export const REVERSE_MENU_ID_COMPAT_ALIASES = Object.fromEntries(
 // Removed client-side runtime menus are redirected to the new simplified
 // top-level client pages so old persisted tabs still open a valid screen.
 export const CLIENT_MENU_RUNTIME_REDIRECTS: Record<string, string> = {
+  "client-dashboard": "MNU_CUSTOMER_DASH",
   workspace: "MNU_CUSTOMER_MY_TIME",
   documents: "MNU_CUSTOMER_MY_TIME",
   "ocr-inbox": "MNU_CUSTOMER_MY_TIME",
@@ -78,11 +79,12 @@ export const CLIENT_MENU_RUNTIME_REDIRECTS: Record<string, string> = {
   attendance: "MNU_CUSTOMER_MY_TIME",
   "my-time": "MNU_CUSTOMER_MY_TIME",
   "team-time": "MNU_CUSTOMER_TEAM_TIME",
-  leave: "MNU_CUSTOMER_MY_TIME",
+  leave: "MNU_CUSTOMER_LEAVE",
+  MNU_CUSTOMER_DASH: "MNU_CUSTOMER_DASH",
   MNU_CUSTOMER_ATTENDANCE: "MNU_CUSTOMER_MY_TIME",
   MNU_CUSTOMER_MY_TIME: "MNU_CUSTOMER_MY_TIME",
   MNU_CUSTOMER_TEAM_TIME: "MNU_CUSTOMER_TEAM_TIME",
-  MNU_CUSTOMER_LEAVE: "MNU_CUSTOMER_MY_TIME",
+  MNU_CUSTOMER_LEAVE: "MNU_CUSTOMER_LEAVE",
   MNU_CUSTOMER_REPORTS: "MNU_CUSTOMER_WORK_TIME",
   MNU_CUSTOMER_WORK_TIME: "MNU_CUSTOMER_WORK_TIME",
   MNU_CUSTOMER_WORK_TIME_HISTORY: "MNU_CUSTOMER_WORK_TIME",

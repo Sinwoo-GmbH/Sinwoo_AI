@@ -26,7 +26,7 @@ export function WorkspaceTabContextMenu({
   return (
     <div
       id="workspace-tab-context-menu"
-      className="absolute z-50 w-[164px] rounded-xl border border-slate-200 bg-[#F7FAFF] p-1.5 shadow-[0_16px_40px_rgba(15,23,42,0.16)]"
+      className="absolute z-50 w-[156px] rounded-[4px] border border-slate-300 bg-white p-1 shadow-[0_6px_14px_rgba(15,23,42,0.10)]"
       style={style}
       onClick={(event) => event.stopPropagation()}
     >
@@ -35,7 +35,7 @@ export function WorkspaceTabContextMenu({
         type="button"
         disabled={tabId === defaultTabId}
         onClick={() => onCloseTab(tabId)}
-        className="flex w-full items-center rounded-lg px-2.5 py-1.5 text-left text-[12px] text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-default disabled:text-slate-300 disabled:hover:bg-transparent"
+        className="flex w-full items-center rounded-[3px] px-2 py-1 text-left text-[11px] text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-default disabled:text-slate-300 disabled:hover:bg-transparent"
       >
         {labels.close}
       </button>
@@ -43,7 +43,7 @@ export function WorkspaceTabContextMenu({
         id="workspace-tab-context-close-others"
         type="button"
         onClick={() => onCloseOtherTabs(tabId)}
-        className="flex w-full items-center rounded-lg px-2.5 py-1.5 text-left text-[12px] text-slate-700 transition-colors hover:bg-slate-100"
+        className="flex w-full items-center rounded-[3px] px-2 py-1 text-left text-[11px] text-slate-700 transition-colors hover:bg-slate-100"
       >
         {labels.closeOther}
       </button>
@@ -51,7 +51,7 @@ export function WorkspaceTabContextMenu({
         id="workspace-tab-context-close-all"
         type="button"
         onClick={onCloseAllTabs}
-        className="flex w-full items-center rounded-lg px-2.5 py-1.5 text-left text-[12px] text-slate-700 transition-colors hover:bg-slate-100"
+        className="flex w-full items-center rounded-[3px] px-2 py-1 text-left text-[11px] text-slate-700 transition-colors hover:bg-slate-100"
       >
         {labels.closeAll}
       </button>

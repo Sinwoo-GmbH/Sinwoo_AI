@@ -69,6 +69,7 @@ export interface AttendanceWorkTimeFilterOptionRes {
   refId: number;
   refCd: string;
   refNm: string;
+  refSubNm?: string | null;
 }
 
 export interface AttendanceWorkTimeFilterOptionsRes {

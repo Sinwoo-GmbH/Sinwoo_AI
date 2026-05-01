@@ -128,9 +128,9 @@ export function LocaleCombobox({
       ref={menuRef}
       className={cn(
         menuStrategy === "fixed"
-          ? "fixed z-[9999] rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_18px_38px_rgba(15,23,42,0.16)]"
+          ? "fixed z-[9999] rounded-[4px] border border-slate-300 bg-white p-1 shadow-[0_6px_14px_rgba(15,23,42,0.10)]"
           : cn(
-              "absolute z-30 mt-2 min-w-[180px] rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_18px_38px_rgba(15,23,42,0.12)]",
+              "absolute z-30 mt-1 min-w-[180px] rounded-[4px] border border-slate-300 bg-white p-1 shadow-[0_6px_14px_rgba(15,23,42,0.08)]",
               align === "start"
                 ? "left-0"
                 : align === "center"
@@ -150,7 +150,7 @@ export function LocaleCombobox({
     >
       <div
         id={`${idPrefix}-locale-menu-label`}
-        className="px-2 pb-0.5 pt-0.5 text-[8px] font-semibold uppercase tracking-[0.16em] text-slate-400"
+        className="px-2 pb-0.5 pt-0.5 text-[8px] font-semibold uppercase tracking-[0.12em] text-slate-400"
       >
         {localeLabel}
       </div>
@@ -164,9 +164,9 @@ export function LocaleCombobox({
             setOpen(false);
           }}
           className={cn(
-            "flex w-full items-center rounded-lg px-2 py-1 text-left text-[12px] transition",
+            "flex w-full items-center rounded-[3px] px-2 py-1 text-left text-[11px] transition",
             item === value
-              ? "bg-[#233a7a] text-white"
+              ? "bg-[#31588f] text-white"
               : "text-slate-700 hover:bg-slate-100"
           )}
         >
@@ -188,7 +188,7 @@ export function LocaleCombobox({
         type="button"
         onClick={() => setOpen((current) => !current)}
         className={cn(
-          "inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-white/92 px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm backdrop-blur transition hover:border-slate-300 hover:bg-white",
+          "inline-flex items-center gap-1.5 rounded-[4px] border border-slate-300 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50",
           buttonClassName
         )}
       >
@@ -196,7 +196,7 @@ export function LocaleCombobox({
           {localeNames[value]}
         </span>
         <ChevronDown
-          className={cn("h-4 w-4 text-slate-400 transition-transform", open ? "rotate-180" : "")}
+          className={cn("h-3.5 w-3.5 text-slate-400 transition-transform", open ? "rotate-180" : "")}
         />
       </button>
       {menuContent

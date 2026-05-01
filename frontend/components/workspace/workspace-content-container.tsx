@@ -12,7 +12,7 @@ export function WorkspaceContentContainer({ id, className, children }: Workspace
   return (
     <div
       id={id}
-      className={cn("rounded-[22px] border border-slate-200/90 bg-white/90 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]", className)}
+      className={cn("rounded-[4px] border border-slate-300 bg-white p-2.5 shadow-none", className)}
     >
       {children}
     </div>

@@ -48,14 +48,14 @@ export function WorkspacePageHeader({
       <section
         id={id}
         className={cn(
-          "rounded-[16px] border border-slate-200/80 bg-white/72 px-3 py-2 shadow-[0_6px_14px_rgba(148,163,184,0.05)] backdrop-blur",
+          "rounded-[4px] border border-slate-300 bg-[#f8f9fb] px-3 py-2",
           className
         )}
       >
         <div className={cn("min-w-0", bodyClassName)}>
           <h2
             id={titleId}
-            className={cn("text-base font-semibold leading-5 text-slate-800", titleClassName)}
+            className={cn("text-[13px] font-semibold leading-4 text-slate-800", titleClassName)}
           >
             {title}
           </h2>
@@ -69,27 +69,27 @@ export function WorkspacePageHeader({
       id={id}
       className={cn(
         compact
-          ? "rounded-[22px] border border-slate-200/80 bg-white/82 px-4 py-3 shadow-[0_10px_22px_rgba(148,163,184,0.08)] backdrop-blur"
-          : "rounded-[28px] border border-white/90 bg-white/88 px-6 py-5 shadow-[0_14px_34px_rgba(148,163,184,0.10)] backdrop-blur",
+          ? "rounded-[4px] border border-slate-300 bg-[#f8f9fb] px-3 py-2.5"
+          : "rounded-[4px] border border-slate-300 bg-[#f8f9fb] px-4 py-3",
         className
       )}
     >
       <div
         className={cn(
           compact
-            ? "flex flex-col gap-2.5 lg:flex-row lg:items-start lg:justify-between"
-            : "flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between",
+            ? "flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between"
+            : "flex flex-col gap-2.5 lg:flex-row lg:items-start lg:justify-between",
           bodyClassName
         )}
       >
-        <div className={cn("min-w-0", compact ? "space-y-1.5" : "space-y-3")}>
+        <div className={cn("min-w-0", compact ? "space-y-1" : "space-y-1.5")}>
           {eyebrow ? (
             <p
               id={eyebrowId}
               className={cn(
                 compact
-                  ? "text-[10px] uppercase tracking-[0.24em] text-slate-400"
-                  : "text-xs uppercase tracking-[0.28em] text-slate-400",
+                  ? "text-[9px] uppercase tracking-[0.12em] text-slate-400"
+                  : "text-[9px] uppercase tracking-[0.12em] text-slate-400",
                 eyebrowClassName
               )}
             >
@@ -101,8 +101,8 @@ export function WorkspacePageHeader({
               id={titleId}
               className={cn(
                 compact
-                  ? "font-brand text-[1.55rem] font-semibold tracking-tight text-slate-950"
-                  : "font-brand text-3xl font-semibold tracking-tight text-slate-950",
+                  ? "text-[16px] font-semibold leading-5 tracking-tight text-slate-900"
+                  : "text-[18px] font-semibold leading-5 tracking-tight text-slate-900",
                 titleClassName
               )}
             >
@@ -113,8 +113,8 @@ export function WorkspacePageHeader({
                 id={descriptionId}
                 className={cn(
                   compact
-                    ? "max-w-2xl text-[12px] leading-5 text-slate-500"
-                    : "max-w-3xl text-sm leading-6 text-slate-500",
+                    ? "max-w-2xl text-[11px] leading-4 text-slate-500"
+                    : "max-w-3xl text-[11px] leading-4 text-slate-500",
                   descriptionClassName
                 )}
               >
@@ -128,7 +128,7 @@ export function WorkspacePageHeader({
             id={actionsId}
             className={cn(
               "flex flex-wrap items-center justify-start lg:justify-end",
-              compact ? "gap-1.5" : "gap-2"
+              compact ? "gap-1" : "gap-1.5"
             )}
           >
             {actions}
@@ -136,7 +136,7 @@ export function WorkspacePageHeader({
         ) : null}
       </div>
       {footer ? (
-        <div id={footerId} className={compact ? "mt-3" : "mt-5"}>
+        <div id={footerId} className={compact ? "mt-2" : "mt-3"}>
           {footer}
         </div>
       ) : null}

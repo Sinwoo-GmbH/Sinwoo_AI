@@ -31,7 +31,7 @@ export function WorkspaceHeroSection({
   view,
 }: WorkspaceHeroSectionProps) {
   return (
-    <div id="workspace-hero-grid" className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
+    <div id="workspace-hero-grid" className="grid gap-3 xl:grid-cols-[1.15fr_0.85fr]">
       <WorkspacePageHeader
         id="workspace-hero-card"
         eyebrow={view.eyebrow}
@@ -45,77 +45,77 @@ export function WorkspaceHeroSection({
           <>
             <div
               id="workspace-page-header-action-mode"
-              className="rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-left text-white"
+              className="min-w-[108px] rounded-[3px] border border-slate-300 bg-white px-2.5 py-1.5 text-left"
             >
-              <div className="text-[11px] uppercase tracking-[0.24em] text-slate-200">
+              <div className="text-[8px] uppercase tracking-[0.12em] text-slate-400">
                 {shellContent.modeLabel}
               </div>
-              <div className="mt-1 text-sm font-semibold">
+              <div className="mt-0.5 text-[11px] font-semibold text-slate-800">
                 {mode === "admin" ? shellContent.modeAdminValue : shellContent.modeClientValue}
               </div>
             </div>
             <div
               id="workspace-page-header-action-sidebar"
-              className="rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-left text-white"
+              className="min-w-[108px] rounded-[3px] border border-slate-300 bg-white px-2.5 py-1.5 text-left"
             >
-              <div className="text-[11px] uppercase tracking-[0.24em] text-slate-200">
+              <div className="text-[8px] uppercase tracking-[0.12em] text-slate-400">
                 {shellContent.sidebarLabel}
               </div>
-              <div className="mt-1 text-sm font-semibold">
+              <div className="mt-0.5 text-[11px] font-semibold text-slate-800">
                 {sidebarCollapsed ? shellContent.collapsed : shellContent.expanded}
               </div>
             </div>
             <div
               id="workspace-page-header-action-tabs"
-              className="rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-left text-white"
+              className="min-w-[88px] rounded-[3px] border border-slate-300 bg-white px-2.5 py-1.5 text-left"
             >
-              <div className="text-[11px] uppercase tracking-[0.24em] text-slate-200">
+              <div className="text-[8px] uppercase tracking-[0.12em] text-slate-400">
                 {shellContent.tabsLabel}
               </div>
-              <div className="mt-1 text-sm font-semibold">{desktopTabsCount}</div>
+              <div className="mt-0.5 text-[11px] font-semibold text-slate-800">{desktopTabsCount}</div>
             </div>
           </>
         }
         footerId="workspace-hero-stats"
         footer={
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-2 md:grid-cols-3">
             <div
               id="workspace-stat-mode"
-              className="rounded-2xl border border-white/15 bg-white/10 p-4"
+              className="rounded-[3px] border border-slate-300 bg-white px-3 py-2"
             >
-              <div className="text-xs uppercase tracking-[0.24em] text-slate-200">
+              <div className="text-[8px] uppercase tracking-[0.12em] text-slate-400">
                 {shellContent.modeLabel}
               </div>
-              <div className="mt-2 text-xl font-semibold">
+              <div className="mt-1 text-[14px] font-semibold leading-4 text-slate-900">
                 {mode === "admin" ? shellContent.modeAdminValue : shellContent.modeClientValue}
               </div>
             </div>
             <div
               id="workspace-stat-sidebar"
-              className="rounded-2xl border border-white/15 bg-white/10 p-4"
+              className="rounded-[3px] border border-slate-300 bg-white px-3 py-2"
             >
-              <div className="text-xs uppercase tracking-[0.24em] text-slate-200">
+              <div className="text-[8px] uppercase tracking-[0.12em] text-slate-400">
                 {shellContent.sidebarLabel}
               </div>
-              <div className="mt-2 text-xl font-semibold">
+              <div className="mt-1 text-[14px] font-semibold leading-4 text-slate-900">
                 {sidebarCollapsed ? shellContent.collapsed : shellContent.expanded}
               </div>
             </div>
             <div
               id="workspace-stat-tabs"
-              className="rounded-2xl border border-white/15 bg-white/10 p-4"
+              className="rounded-[3px] border border-slate-300 bg-white px-3 py-2"
             >
-              <div className="text-xs uppercase tracking-[0.24em] text-slate-200">
+              <div className="text-[8px] uppercase tracking-[0.12em] text-slate-400">
                 {shellContent.tabsLabel}
               </div>
-              <div className="mt-2 text-xl font-semibold">{desktopTabsCount}</div>
+              <div className="mt-1 text-[14px] font-semibold leading-4 text-slate-900">{desktopTabsCount}</div>
             </div>
           </div>
         }
-        className="border-white bg-gradient-to-br from-[#132C67] via-[#1F4FAE] to-[#4F72C8] text-white shadow-[0_24px_60px_rgba(35,58,122,0.28)]"
-        eyebrowClassName="text-slate-200"
-        titleClassName="text-4xl font-bold text-white"
-        descriptionClassName="text-base text-slate-100"
+        className="border-slate-300 bg-[#f8f9fb] text-slate-900"
+        eyebrowClassName="text-slate-400"
+        titleClassName="text-[18px] font-semibold leading-5 text-slate-900"
+        descriptionClassName="text-[11px] leading-4 text-slate-500"
       />
 
       {mode === "client" ? (
@@ -130,15 +130,15 @@ export function WorkspaceHeroSection({
           id="workspace-rules-card"
           eyebrow={shellContent.quickActions}
           eyebrowId="workspace-rules-eyebrow"
-          contentClassName="space-y-3 text-sm text-slate-600"
+          contentClassName="space-y-2 text-[11px] text-slate-600"
         >
-          <div id="workspace-rule-client-admin-switch" className="rounded-2xl bg-slate-50 p-4">
+          <div id="workspace-rule-client-admin-switch" className="rounded-[3px] border border-slate-300 bg-white px-3 py-2">
             {shellContent.ruleOne}
           </div>
-          <div id="workspace-rule-depth-menu" className="rounded-2xl bg-slate-50 p-4">
+          <div id="workspace-rule-depth-menu" className="rounded-[3px] border border-slate-300 bg-white px-3 py-2">
             {shellContent.ruleTwo}
           </div>
-          <div id="workspace-rule-active-workspace" className="rounded-2xl bg-slate-50 p-4">
+          <div id="workspace-rule-active-workspace" className="rounded-[3px] border border-slate-300 bg-white px-3 py-2">
             {shellContent.ruleThree}
           </div>
         </WorkspaceSectionPanel>

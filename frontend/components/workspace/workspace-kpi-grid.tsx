@@ -13,22 +13,22 @@ export function WorkspaceKpiGrid({ items }: WorkspaceKpiGridProps) {
         <div
           id={`workspace-kpi-card-${index + 1}`}
           key={`${item.label}-${index}`}
-          className="rounded-xl border border-slate-200/80 bg-slate-50/85 px-2.5 py-2 shadow-none"
+          className="rounded-[4px] border border-slate-300 bg-[#f8f9fb] px-2.5 py-2 shadow-none"
         >
           <div className="space-y-1">
             <div
               id={`workspace-kpi-label-${index + 1}`}
-              className="text-[10px] font-medium uppercase tracking-[0.14em] text-slate-500"
+              className="text-[9px] font-medium uppercase tracking-[0.1em] text-slate-500"
             >
               {item.label}
             </div>
             <div
               id={`workspace-kpi-value-${index + 1}`}
-              className="text-lg font-semibold leading-none text-slate-900"
+              className="text-[18px] font-semibold leading-none text-slate-900"
             >
               {item.value}
             </div>
-            <p id={`workspace-kpi-delta-${index + 1}`} className="text-[10px] leading-4 text-slate-500">
+            <p id={`workspace-kpi-delta-${index + 1}`} className="text-[9px] leading-4 text-slate-500">
               {item.delta}
             </p>
           </div>

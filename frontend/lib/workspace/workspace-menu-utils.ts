@@ -25,6 +25,14 @@ type ClientRuntimeChildDefinition = {
   alwaysShow?: boolean;
 };
 
+const CLIENT_RUNTIME_ROOT_MENUS: readonly ClientRuntimeChildDefinition[] = [
+  {
+    id: "MNU_CUSTOMER_DASH",
+    sourceIds: ["MNU_CUSTOMER_DASH", "client-dashboard"],
+    alwaysShow: true,
+  },
+] as const;
+
 type ClientRuntimeGroupDefinition = {
   id: string;
   childList: readonly ClientRuntimeChildDefinition[];
@@ -44,6 +52,11 @@ const CLIENT_RUNTIME_MENU_GROUPS: readonly ClientRuntimeGroupDefinition[] = [
         id: "MNU_CUSTOMER_TEAM_TIME",
         sourceIds: ["MNU_CUSTOMER_TEAM_TIME", "team-time"],
         requiresCustomerAdmin: true,
+        alwaysShow: true,
+      },
+      {
+        id: "MNU_CUSTOMER_LEAVE",
+        sourceIds: ["MNU_CUSTOMER_LEAVE", "leave"],
         alwaysShow: true,
       },
     ],
@@ -235,8 +248,11 @@ export function projectClientRuntimeMenus(
   roleCds: readonly string[] = []
 ): MenuNode[] {
   const customerAdminAccess = hasWorkspaceCustomerAdminAccess(roleCds);
+  const rootMenus = CLIENT_RUNTIME_ROOT_MENUS.map((menuDefinition) =>
+    buildClientRuntimeLeafNode(menuDefinition, menus, locale)
+  ).filter(Boolean) as MenuNode[];
 
-  return CLIENT_RUNTIME_MENU_GROUPS.map((groupDefinition) => {
+  const groupMenus = CLIENT_RUNTIME_MENU_GROUPS.map((groupDefinition) => {
     const sourceNode = findFirstMenuNodeByIds(menus, [groupDefinition.id]);
     if (groupDefinition.requiresCustomerAdmin && !customerAdminAccess && !sourceNode) {
       return null;
@@ -270,4 +286,6 @@ export function projectClientRuntimeMenus(
       children: childList,
     } satisfies MenuNode;
   }).filter(Boolean) as MenuNode[];
+
+  return [...rootMenus, ...groupMenus];
 }
