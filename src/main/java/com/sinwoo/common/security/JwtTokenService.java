@@ -23,7 +23,7 @@ public class JwtTokenService {
         this.secretKey = Keys.hmacShaKeyFor(hashSecret(securityProperties.jwtSecret()));
     }
 
-    public String issueAccessToken(AuthenticatedUser user) {
+    public String issueAccessToken(AuthenticatedUsr user) {
         Instant now = Instant.now();
         Instant expiresAt = now.plusSeconds(securityProperties.accessTokenTtlSeconds());
 
@@ -32,6 +32,7 @@ public class JwtTokenService {
                 .claim("typ", "ACCESS")
                 .claim("usrId", user.usrId())
                 .claim("tenantId", user.tenantId())
+                .claim("tenantCd", user.tenantCd())
                 .claim("coId", user.coId())
                 .claim("tenantTpCd", user.tenantTpCd())
                 .claim("lgnId", user.lgnId())
@@ -46,7 +47,7 @@ public class JwtTokenService {
                 .compact();
     }
 
-    public String issueRefreshToken(AuthenticatedUser user) {
+    public String issueRefreshToken(AuthenticatedUsr user) {
         Instant now = Instant.now();
         Instant expiresAt = now.plusSeconds(securityProperties.refreshTokenTtlSeconds());
 
@@ -62,7 +63,7 @@ public class JwtTokenService {
     }
 
     @SuppressWarnings("unchecked")
-    public AuthenticatedUser parseAccessToken(String token) {
+    public AuthenticatedUsr parseAccessToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
@@ -78,9 +79,10 @@ public class JwtTokenService {
                 ? list.stream().map(String::valueOf).toList()
                 : List.of();
 
-        return new AuthenticatedUser(
+        return new AuthenticatedUsr(
                 claims.get("usrId", Long.class),
                 claims.get("tenantId", Long.class),
+                claims.get("tenantCd", String.class),
                 claims.get("coId", Long.class),
                 claims.get("tenantTpCd", String.class),
                 claims.get("lgnId", String.class),

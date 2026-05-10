@@ -38,3 +38,6 @@ frontend/.turbo/
 frontend/out/
 
 /legacy/
+.codex/
+.external/
+backup/

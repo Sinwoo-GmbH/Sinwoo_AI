@@ -1,4 +1,4 @@
-export interface CreateTenantReq {
+export interface CreateTenantRequest {
   tenantCd: string;
   tenantNm: string;
   emlDomn?: string;
@@ -6,7 +6,7 @@ export interface CreateTenantReq {
   billFreeYn?: "Y" | "N";
 }
 
-export interface TenantRes {
+export interface TenantResponse {
   tenantId: number;
   tenantCd: string;
   tenantNm: string;
@@ -18,9 +18,9 @@ export interface TenantRes {
   updDtm: string;
 }
 
-export interface TenantListRes {
+export interface TenantListResponse {
   totCnt: number;
-  itemList: TenantRes[];
+  itemList: TenantResponse[];
 }
 
 export const TENANT_API_PATH = "/api/v1/tenants";

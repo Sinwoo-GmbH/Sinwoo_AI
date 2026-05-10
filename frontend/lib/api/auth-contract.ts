@@ -9,9 +9,10 @@ export type AuthProviderListResponse = {
   itemList: AuthProviderItem[];
 };
 
-export type CurrentUser = {
+export type CurrentUsr = {
   usrId: number;
   tenantId: number;
+  tenantCd: string;
   coId: number | null;
   tenantTpCd: string;
   lgnId: string;
@@ -30,15 +31,15 @@ export type AuthTokenResponse = {
   refreshTokenExpiresIn: number;
   tokenType: string;
   providerCd: string;
-  user: CurrentUser;
+  user: CurrentUsr;
 };
 
-export type CredentialLoginRequest = {
+export type CredLoginRequest = {
   eml: string;
   pwdEnc: string;
 };
 
-export type CredentialKeyResponse = {
+export type CredKeyResponse = {
   alg: string;
   keyFormat: string;
   publicKey: string;

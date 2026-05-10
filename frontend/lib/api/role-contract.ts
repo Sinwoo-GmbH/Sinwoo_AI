@@ -1,4 +1,4 @@
-export interface CreateRoleReq {
+export interface CreateRoleRequest {
   roleCd: string;
   roleNm: string;
   roleGrpCd?: string;
@@ -9,7 +9,7 @@ export interface CreateRoleReq {
   roleD3Cd?: string;
 }
 
-export interface RoleRes {
+export interface RoleResponse {
   roleId: number;
   roleCd: string;
   roleNm: string;
@@ -23,9 +23,9 @@ export interface RoleRes {
   updDtm: string;
 }
 
-export interface RoleListRes {
+export interface RoleListResponse {
   totCnt: number;
-  itemList: RoleRes[];
+  itemList: RoleResponse[];
 }
 
 export const ROLE_API_PATH = "/api/v1/roles";

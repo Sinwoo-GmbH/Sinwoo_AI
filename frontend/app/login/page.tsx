@@ -1,4 +1,4 @@
-import { LoginPageShell } from "@/components/auth/login-page-shell";
+import { LoginPageShell } from "@/features/auth/login-page-shell";
 import type { AuthProviderListResponse } from "@/lib/api/auth-contract";
 
 export const dynamic = "force-dynamic";

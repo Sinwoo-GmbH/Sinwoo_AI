@@ -1,0 +1,9 @@
+package com.sinwoo.platform.mnu.dto;
+
+import java.util.List;
+
+public record MnuListResponse(
+        long totCnt,
+        List<MnuResponse> itemList
+) {
+}

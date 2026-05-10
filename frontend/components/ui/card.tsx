@@ -23,14 +23,14 @@ const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HT
 );
 CardTitle.displayName = "CardTitle";
 
-const CardDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
+const CardDesc = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, ...props }, ref) => <p ref={ref} className={cn("text-[12px] text-muted-foreground", className)} {...props} />
 );
-CardDescription.displayName = "CardDescription";
+CardDesc.displayName = "CardDesc";
 
-const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+const CardCnt = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => <div ref={ref} className={cn("p-4 pt-0", className)} {...props} />
 );
-CardContent.displayName = "CardContent";
+CardCnt.displayName = "CardCnt";
 
-export { Card, CardContent, CardDescription, CardHeader, CardTitle };
+export { Card, CardCnt, CardDesc, CardHeader, CardTitle };

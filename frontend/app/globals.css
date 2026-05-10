@@ -62,7 +62,9 @@
   }
 
   .login-desktop-frame {
+    grid-template-columns: minmax(0, 1.08fr) minmax(380px, 430px);
     height: auto;
+    max-width: 1180px;
     min-height: 0;
   }
 
@@ -70,48 +72,100 @@
     overflow: visible;
   }
 
-  .workspace-shell {
+  .login-brand-logo {
+    display: block;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .login-brand-logo-mobile {
+    flex-basis: 106px;
+    max-width: 106px;
+    width: 106px;
+  }
+
+  .login-brand-logo-desktop {
+    flex-basis: 132px;
+    max-width: 132px;
+    width: 132px;
+  }
+
+  .login-brand-logo-image {
+    display: block;
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+    width: 100%;
+  }
+
+  .login-desktop-brand-row {
+    align-items: flex-start;
+    display: flex;
+    gap: 1.25rem;
+    min-width: 0;
+  }
+
+  .login-desktop-copy {
+    max-width: 560px;
+    min-width: 0;
+  }
+
+  .login-desktop-desc {
+    max-width: 520px;
+  }
+
+  .login-mobile-brand-row,
+  .login-mobile-copy {
+    min-width: 0;
+  }
+
+  .login-mobile-title,
+  .login-mobile-desc {
+    overflow-wrap: anywhere;
+  }
+
+  .wsp-shell {
     min-height: 100dvh;
   }
 
-  .workspace-tab-scroll {
+  .wsp-tab-scroll {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
 
-  .workspace-tab-scroll::-webkit-scrollbar {
+  .wsp-tab-scroll::-webkit-scrollbar {
     display: none;
   }
 
-  .workspace-scrollbar {
+  .wsp-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: rgba(35, 58, 122, 0.34) rgba(226, 232, 240, 0.55);
     scrollbar-gutter: stable;
   }
 
-  .workspace-scrollbar::-webkit-scrollbar {
+  .wsp-scrollbar::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
 
-  .workspace-scrollbar::-webkit-scrollbar-track {
+  .wsp-scrollbar::-webkit-scrollbar-track {
     background: rgba(226, 232, 240, 0.42);
     border-radius: 999px;
     margin: 6px 0;
   }
 
-  .workspace-scrollbar::-webkit-scrollbar-thumb {
+  .wsp-scrollbar::-webkit-scrollbar-thumb {
     background: linear-gradient(180deg, rgba(79, 114, 200, 0.78) 0%, rgba(35, 58, 122, 0.82) 100%);
     border: 2px solid rgba(248, 250, 254, 0.9);
     border-radius: 999px;
     min-height: 44px;
   }
 
-  .workspace-scrollbar::-webkit-scrollbar-thumb:hover {
+  .wsp-scrollbar::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(180deg, rgba(79, 114, 200, 0.92) 0%, rgba(24, 57, 126, 0.96) 100%);
   }
 
-  .workspace-scrollbar::-webkit-scrollbar-corner {
+  .wsp-scrollbar::-webkit-scrollbar-corner {
     background: transparent;
   }
 
@@ -135,9 +189,39 @@
       overflow: hidden;
     }
 
-    .workspace-shell {
+    .wsp-shell {
       height: 100dvh;
       overflow: hidden;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .login-brand-logo-mobile {
+      flex-basis: 96px;
+      max-width: 96px;
+      width: 96px;
+    }
+
+    .login-mobile-title {
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .login-mobile-desc {
+      font-size: 12px;
+      line-height: 1.6;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .login-mobile-brand-row {
+      flex-direction: column;
+    }
+
+    .login-brand-logo-mobile {
+      flex-basis: auto;
+      max-width: 112px;
+      width: 112px;
     }
   }
 }

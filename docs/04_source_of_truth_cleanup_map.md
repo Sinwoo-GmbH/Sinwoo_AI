@@ -75,7 +75,7 @@ Classification legend:
 | --- | --- | --- | --- | --- |
 | callback page labels | must be removed | currently English-skewed and outside the shared localization path | i18n file | align with login/auth i18n |
 
-### `frontend/lib/i18n/login-content.ts`
+### `frontend/lib/i18n/login-cnt.ts`
 
 | Structure | Classification | Why | Target source of truth | Cleanup note |
 | --- | --- | --- | --- | --- |
@@ -84,7 +84,7 @@ Classification legend:
 
 ## 3. Select / Combo Hardcoding
 
-### `frontend/lib/i18n/login-content.ts`
+### `frontend/lib/i18n/login-cnt.ts`
 
 | Structure | Classification | Why | Target source of truth | Cleanup note |
 | --- | --- | --- | --- | --- |
@@ -154,7 +154,7 @@ Classification legend:
 
 | Structure | Classification | Why | Target source of truth | Cleanup note |
 | --- | --- | --- | --- | --- |
-| `DEMO_USER_KEY` | must be removed | local storage key currently depends on a demo identity, not the actual authenticated user | backend API | replace with current user id/email from `sinwoo.currentUser` |
+| `DEMO_USER_KEY` | must be removed | local storage key currently depends on a demo identity, not the actual authenticated user | backend API | replace with current user id/email from `sinwoo.currentUsr` |
 
 ### `frontend/lib/checkpoint-data.ts`
 
@@ -175,7 +175,7 @@ Classification legend:
 
 3. Move workspace/report text to shared i18n
    - migrate `uiMessages`, `attendanceMessages`, `uiText`, `tabContextMenuLabels`
-   - keep `login-content.ts` as the reference pattern
+   - keep `login-cnt.ts` as the reference pattern
 
 4. Separate mock view content from runtime content
    - isolate `baseViewModels` into explicit development/demo scaffolding

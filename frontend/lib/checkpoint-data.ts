@@ -1,15 +1,15 @@
-import type { DepartmentListRes } from "@/lib/api/department-contract";
-import type { EmployeeListRes } from "@/lib/api/employee-contract";
-import type { SubscriptionPlanListRes } from "@/lib/api/billing-contract";
-import type { MenuListRes, MenuTreeRes } from "@/lib/api/menu-contract";
-import type { RoleListRes } from "@/lib/api/role-contract";
-import type { TenantListRes } from "@/lib/api/tenant-contract";
+import type { DeptListResponse } from "@/lib/api/dept-contract";
+import type { EmpListResponse } from "@/lib/api/emp-contract";
+import type { SubscrPlanListResponse } from "@/lib/api/bill-contract";
+import type { MnuListResponse, MnuTreeResponse } from "@/lib/api/mnu-contract";
+import type { RoleListResponse } from "@/lib/api/role-contract";
+import type { TenantListResponse } from "@/lib/api/tenant-contract";
 
 // Developer note:
 // Checkpoint data is a local inspection/dev preview helper only.
 // It must not be treated as runtime source-of-truth for workspace UI state.
 
-type CompanyRes = {
+type CoResponse = {
   coId: number;
   tenantId: number;
   coCd: string;
@@ -20,12 +20,12 @@ type CompanyRes = {
   updDtm: string;
 };
 
-type CompanyListRes = {
+type CoListResponse = {
   totCnt: number;
-  itemList: CompanyRes[];
+  itemList: CoResponse[];
 };
 
-type UserRes = {
+type UsrResponse = {
   usrId: number;
   tenantId: number;
   coId?: number | null;
@@ -42,30 +42,30 @@ type UserRes = {
   updDtm: string;
 };
 
-type UserListRes = {
+type UsrListResponse = {
   totCnt: number;
-  itemList: UserRes[];
+  itemList: UsrResponse[];
 };
 
-type HealthRes = {
+type HealthResponse = {
   status: string;
 };
 
 export type CheckpointData = {
   apiBaseUrl: string;
   connected: boolean;
-  health?: HealthRes;
+  health?: HealthResponse;
   error?: string;
-  tenants?: TenantListRes;
-  companies?: CompanyListRes;
-  departments?: DepartmentListRes;
-  employees?: EmployeeListRes;
-  users?: UserListRes;
-  roles?: RoleListRes;
-  adminMenus?: MenuListRes;
-  customerMenus?: MenuListRes;
-  userVisibleMenus?: MenuTreeRes;
-  plans?: SubscriptionPlanListRes;
+  tenants?: TenantListResponse;
+  cos?: CoListResponse;
+  depts?: DeptListResponse;
+  emps?: EmpListResponse;
+  usrs?: UsrListResponse;
+  roles?: RoleListResponse;
+  adminMnus?: MnuListResponse;
+  customerMnus?: MnuListResponse;
+  userVisibleMnus?: MnuTreeResponse;
+  plans?: SubscrPlanListResponse;
 };
 
 const API_BASE_URL = process.env.SINWOO_API_BASE_URL ?? "http://localhost:8080";
@@ -84,13 +84,13 @@ async function fetchJson<T>(path: string): Promise<T> {
 
 export async function getCheckpointData(): Promise<CheckpointData> {
   try {
-    const [health, tenants, roles, plans, adminMenus, customerMenus] = await Promise.all([
-      fetchJson<HealthRes>("/actuator/health"),
-      fetchJson<TenantListRes>("/api/v1/tenants"),
-      fetchJson<RoleListRes>("/api/v1/roles"),
-      fetchJson<SubscriptionPlanListRes>("/api/v1/subscription-plans"),
-      fetchJson<MenuListRes>("/api/v1/menus?mnuScopeCd=ADMIN"),
-      fetchJson<MenuListRes>("/api/v1/menus?mnuScopeCd=CUSTOMER"),
+    const [health, tenants, roles, plans, adminMnus, customerMnus] = await Promise.all([
+      fetchJson<HealthResponse>("/actuator/health"),
+      fetchJson<TenantListResponse>("/api/v1/tenants"),
+      fetchJson<RoleListResponse>("/api/v1/roles"),
+      fetchJson<SubscrPlanListResponse>("/api/v1/subscription-plans"),
+      fetchJson<MnuListResponse>("/api/v1/menus?mnuScopeCd=ADMIN"),
+      fetchJson<MnuListResponse>("/api/v1/menus?mnuScopeCd=CUSTOMER"),
     ]);
 
     const firstTenant = tenants.itemList[0];
@@ -102,30 +102,30 @@ export async function getCheckpointData(): Promise<CheckpointData> {
         tenants,
         roles,
         plans,
-        adminMenus,
-        customerMenus,
+        adminMnus,
+        customerMnus,
       };
     }
 
-    const companies = await fetchJson<CompanyListRes>(`/api/v1/companies?tenantId=${firstTenant.tenantId}`);
-    const firstCompany = companies.itemList[0];
+    const cos = await fetchJson<CoListResponse>(`/api/v1/companies?tenantId=${firstTenant.tenantId}`);
+    const firstCo = cos.itemList[0];
 
-    let departments: DepartmentListRes | undefined;
-    let employees: EmployeeListRes | undefined;
-    let users: UserListRes | undefined;
-    let userVisibleMenus: MenuTreeRes | undefined;
+    let depts: DeptListResponse | undefined;
+    let emps: EmpListResponse | undefined;
+    let usrs: UsrListResponse | undefined;
+    let userVisibleMnus: MnuTreeResponse | undefined;
 
-    if (firstCompany) {
-      [departments, employees, users] = await Promise.all([
-        fetchJson<DepartmentListRes>(`/api/v1/departments?tenantId=${firstTenant.tenantId}&coId=${firstCompany.coId}`),
-        fetchJson<EmployeeListRes>(`/api/v1/employees?tenantId=${firstTenant.tenantId}&coId=${firstCompany.coId}`),
-        fetchJson<UserListRes>(`/api/v1/users?tenantId=${firstTenant.tenantId}&coId=${firstCompany.coId}`),
+    if (firstCo) {
+      [depts, emps, usrs] = await Promise.all([
+        fetchJson<DeptListResponse>(`/api/v1/departments?tenantId=${firstTenant.tenantId}&coId=${firstCo.coId}`),
+        fetchJson<EmpListResponse>(`/api/v1/employees?tenantId=${firstTenant.tenantId}&coId=${firstCo.coId}`),
+        fetchJson<UsrListResponse>(`/api/v1/users?tenantId=${firstTenant.tenantId}&coId=${firstCo.coId}`),
       ]);
 
-      const firstUser = users.itemList[0];
-      if (firstUser) {
-        userVisibleMenus = await fetchJson<MenuTreeRes>(
-          `/api/v1/menus/visible-by-user?usrId=${firstUser.usrId}&mnuScopeCd=CUSTOMER`,
+      const firstUsr = usrs.itemList[0];
+      if (firstUsr) {
+        userVisibleMnus = await fetchJson<MnuTreeResponse>(
+          `/api/v1/menus/visible-by-login?tenantCd=${firstTenant.tenantCd}&lgnId=${firstUsr.lgnId}&mnuScopeCd=CUSTOMER`,
         );
       }
     }
@@ -135,14 +135,14 @@ export async function getCheckpointData(): Promise<CheckpointData> {
       connected: true,
       health,
       tenants,
-      companies,
-      departments,
-      employees,
-      users,
+      cos,
+      depts,
+      emps,
+      usrs,
       roles,
-      adminMenus,
-      customerMenus,
-      userVisibleMenus,
+      adminMnus,
+      customerMnus,
+      userVisibleMnus,
       plans,
     };
   } catch (error) {

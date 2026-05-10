@@ -31,7 +31,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
-            ObjectProvider<JwtAuthenticationFilter> jwtAuthenticationFilterProvider,
+            ObjectProvider<JwtAuthFilt> jwtAuthFiltProvider,
             ObjectProvider<ClientRegistrationRepository> clientRegistrationRepositoryProvider,
             ObjectProvider<AuthenticationSuccessHandler> authenticationSuccessHandlerProvider,
             ObjectProvider<AuthenticationFailureHandler> authenticationFailureHandlerProvider
@@ -67,8 +67,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/employees/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/menus/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/menus/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/role-menu-auths/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/role-menu-auths/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/role-mnu-auths/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/role-mnu-auths/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/subscription-plans/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/subscription-plans/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/subscriptions/**").permitAll()
@@ -89,9 +89,9 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable);
 
-        JwtAuthenticationFilter jwtAuthenticationFilter = jwtAuthenticationFilterProvider.getIfAvailable();
-        if (jwtAuthenticationFilter != null) {
-            http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        JwtAuthFilt jwtAuthFilt = jwtAuthFiltProvider.getIfAvailable();
+        if (jwtAuthFilt != null) {
+            http.addFilterBefore(jwtAuthFilt, UsernamePasswordAuthenticationFilter.class);
         }
 
         if (clientRegistrationRepositoryProvider.getIfAvailable() != null) {
