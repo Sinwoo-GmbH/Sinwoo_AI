@@ -9,6 +9,8 @@ import type {
   ApprovalStep,
   DeductionType,
   LeaveApplicantProfile,
+  LeaveOrganizationNode,
+  LeaveParticipant,
   LeaveRequestFormValue,
   LeaveType,
   LeaveUnit,
@@ -38,6 +40,11 @@ type LeaveRequestModalProps = {
   mode: LeaveRequestModalMode;
   applicant: LeaveApplicantProfile;
   availableDays: number;
+  organizations?: LeaveOrganizationNode[];
+  employees?: LeaveParticipant[];
+  leaveTypeOptions?: readonly LeaveType[];
+  deductionTypeOptions?: readonly DeductionType[];
+  leaveUnitOptions?: readonly LeaveUnit[];
   initialValue: LeaveRequestFormValue;
   onClose: () => void;
   onSave: (
@@ -140,6 +147,11 @@ export function LeaveRequestModal({
   mode,
   applicant,
   availableDays,
+  organizations = MOCK_LEAVE_ORGANIZATIONS,
+  employees = MOCK_LEAVE_EMPLOYEES,
+  leaveTypeOptions = LEAVE_TYPE_OPTIONS,
+  deductionTypeOptions = DEDUCTION_TYPE_OPTIONS,
+  leaveUnitOptions = LEAVE_UNIT_OPTIONS,
   initialValue,
   onClose,
   onSave,
@@ -327,7 +339,7 @@ export function LeaveRequestModal({
                       }
                       className={inputClassName}
                     >
-                      {LEAVE_TYPE_OPTIONS.map((option) => (
+                      {leaveTypeOptions.map((option) => (
                         <option key={option} value={option}>
                           {option}
                         </option>
@@ -339,7 +351,7 @@ export function LeaveRequestModal({
                     <ChoiceChipGroup<DeductionType>
                       label="Deduction Type"
                       value={formValue.deductionType}
-                      options={DEDUCTION_TYPE_OPTIONS}
+                      options={deductionTypeOptions}
                       disabled={readOnly}
                       onChange={(nextValue) => updateField("deductionType", nextValue)}
                     />
@@ -349,7 +361,7 @@ export function LeaveRequestModal({
                     <ChoiceChipGroup<LeaveUnit>
                       label="Leave Unit"
                       value={formValue.leaveUnit}
-                      options={LEAVE_UNIT_OPTIONS}
+                      options={leaveUnitOptions}
                       disabled={readOnly}
                       onChange={(nextValue) => updateField("leaveUnit", nextValue)}
                     />
@@ -411,6 +423,17 @@ export function LeaveRequestModal({
                         </div>
                       ) : null}
                     </div>
+                  </div>
+
+                  <div className="space-y-1 xl:col-span-12">
+                    <p className="text-[9px] leading-3 text-slate-500">Reason</p>
+                    <textarea
+                      value={formValue.reason}
+                      disabled={readOnly}
+                      rows={3}
+                      onChange={(event) => updateField("reason", event.target.value)}
+                      className={cn(inputClassName, "h-auto min-h-[58px] resize-y py-1.5")}
+                    />
                   </div>
                 </div>
               </SectionPanel>
@@ -476,8 +499,8 @@ export function LeaveRequestModal({
             ? `Select ${formatApprovalStepLabel(currentPickerStep?.order ?? 1)} Approvers`
             : "Select C.C."
         }
-        organizations={MOCK_LEAVE_ORGANIZATIONS}
-        employees={MOCK_LEAVE_EMPLOYEES}
+        organizations={organizations}
+        employees={employees}
         selectedUsers={
           pickerState?.kind === "cc"
             ? formValue.ccs

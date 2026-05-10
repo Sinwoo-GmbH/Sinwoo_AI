@@ -13,13 +13,15 @@ import {
 } from "@/components/features/attendance/request-leave/leave-status-badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, Eye, PencilLine, Slash } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Eye, PencilLine, Slash, XCircle } from "lucide-react";
 
 type LeaveRequestTableProps = {
   rows: LeaveRequestRecord[];
   onEdit: (record: LeaveRequestRecord) => void;
   onView: (record: LeaveRequestRecord) => void;
   onCancel: (record: LeaveRequestRecord) => void;
+  onApprove: (record: LeaveRequestRecord) => void;
+  onReject: (record: LeaveRequestRecord) => void;
   onOpen: (record: LeaveRequestRecord) => void;
 };
 
@@ -32,13 +34,58 @@ function LeaveRowActions({
   onEdit,
   onView,
   onCancel,
+  onApprove,
+  onReject,
 }: {
   record: LeaveRequestRecord;
   onEdit: (record: LeaveRequestRecord) => void;
   onView: (record: LeaveRequestRecord) => void;
   onCancel: (record: LeaveRequestRecord) => void;
+  onApprove: (record: LeaveRequestRecord) => void;
+  onReject: (record: LeaveRequestRecord) => void;
 }) {
-  if (record.status === "Draft") {
+  if (record.canApprove || record.canReject) {
+    return (
+      <div className="flex items-center gap-1">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => onView(record)}
+          className="h-5 rounded-[3px] border-slate-300 bg-white px-1.5 text-[9px] font-medium text-slate-700 hover:bg-slate-50"
+        >
+          <Eye className="mr-1 h-2 w-2" />
+          View
+        </Button>
+        {record.canApprove ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onApprove(record)}
+            className="h-5 rounded-[3px] border-emerald-300 bg-emerald-50 px-1.5 text-[9px] font-medium text-emerald-700 hover:bg-emerald-100"
+          >
+            <Check className="mr-1 h-2 w-2" />
+            Approve
+          </Button>
+        ) : null}
+        {record.canReject ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onReject(record)}
+            className="h-5 rounded-[3px] border-rose-300 bg-rose-50 px-1.5 text-[9px] font-medium text-rose-700 hover:bg-rose-100"
+          >
+            <XCircle className="mr-1 h-2 w-2" />
+            Reject
+          </Button>
+        ) : null}
+      </div>
+    );
+  }
+
+  if (record.canEdit || record.status === "Draft") {
     return (
       <Button
         type="button"
@@ -53,7 +100,7 @@ function LeaveRowActions({
     );
   }
 
-  if (record.status === "Requested") {
+  if (record.canCancel) {
     return (
       <div className="flex items-center gap-1">
         <Button
@@ -80,27 +127,18 @@ function LeaveRowActions({
     );
   }
 
-  if (
-    record.status === "Approved" ||
-    record.status === "Rejected" ||
-    record.status === "Cancelled" ||
-    record.status === "Admin Cancelled"
-  ) {
-    return (
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={() => onView(record)}
-        className="h-5 rounded-[3px] border-slate-300 bg-white px-1.5 text-[9px] font-medium text-slate-700 hover:bg-slate-50"
-      >
-        <Eye className="mr-1 h-2 w-2" />
-        View
-      </Button>
-    );
-  }
-
-  return <span className="text-[10px] text-slate-400">-</span>;
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      onClick={() => onView(record)}
+      className="h-5 rounded-[3px] border-slate-300 bg-white px-1.5 text-[9px] font-medium text-slate-700 hover:bg-slate-50"
+    >
+      <Eye className="mr-1 h-2 w-2" />
+      View
+    </Button>
+  );
 }
 
 export function LeaveRequestTable({
@@ -108,6 +146,8 @@ export function LeaveRequestTable({
   onEdit,
   onView,
   onCancel,
+  onApprove,
+  onReject,
   onOpen,
 }: LeaveRequestTableProps) {
   const [pageSize, setPageSize] = useState<PageSizeOption>(15);
@@ -210,6 +250,8 @@ export function LeaveRequestTable({
                       onEdit={onEdit}
                       onView={onView}
                       onCancel={onCancel}
+                      onApprove={onApprove}
+                      onReject={onReject}
                     />
                   </td>
                 </tr>

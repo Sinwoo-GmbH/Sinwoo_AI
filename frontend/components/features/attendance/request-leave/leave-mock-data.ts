@@ -9,7 +9,7 @@ export type LeaveStatus =
 export type ApproverStatus =
   | "No Approver"
   | "Waiting"
-  | "Approved by 1"
+  | `Approved by ${number}`
   | "Rejected";
 
 export type LeaveType =
@@ -59,8 +59,14 @@ export type LeaveRequestRecord = {
   status: LeaveStatus;
   createdAt: string;
   attachmentName: string | null;
+  reason?: string | null;
   approvalSteps: ApprovalStep[];
   ccs: LeaveParticipant[];
+  canEdit?: boolean | null;
+  canCancel?: boolean | null;
+  canApprove?: boolean | null;
+  canReject?: boolean | null;
+  myRoleCd?: string | null;
 };
 
 export type LeaveRequestFormValue = {
@@ -71,6 +77,7 @@ export type LeaveRequestFormValue = {
   startDate: string;
   endDate: string;
   attachmentName: string | null;
+  reason: string;
   approvalSteps: ApprovalStep[];
   ccs: LeaveParticipant[];
 };
@@ -625,6 +632,14 @@ export function formatLeaveDays(days: number) {
   return days.toFixed(1);
 }
 
+function todayIsoDate() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export function toDeductionTableLabel(deductionType: DeductionType) {
   return deductionType === "Deducted Leave" ? "Deducted" : "Non-deducted";
 }
@@ -635,9 +650,10 @@ export function createDefaultLeaveRequestFormValue(): LeaveRequestFormValue {
     leaveType: "Annual Leave",
     deductionType: "Deducted Leave",
     leaveUnit: "Full Day",
-    startDate: "2026-04-21",
-    endDate: "2026-04-21",
+    startDate: todayIsoDate(),
+    endDate: todayIsoDate(),
     attachmentName: null,
+    reason: "",
     approvalSteps: cloneApprovalSteps(DEFAULT_APPROVAL_STEPS),
     ccs: cloneParticipants(DEFAULT_CCS),
   };
@@ -654,6 +670,7 @@ export function toLeaveRequestFormValue(
     startDate: record.startDate,
     endDate: record.endDate,
     attachmentName: record.attachmentName,
+    reason: record.reason ?? "",
     approvalSteps: cloneApprovalSteps(record.approvalSteps),
     ccs: cloneParticipants(record.ccs),
   };
@@ -682,6 +699,7 @@ export function toLeaveRequestRecord(
     status: nextStatus,
     createdAt,
     attachmentName: value.attachmentName,
+    reason: value.reason,
     approvalSteps,
     ccs: cloneParticipants(value.ccs),
   };

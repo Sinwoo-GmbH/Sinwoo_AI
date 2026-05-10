@@ -13,6 +13,7 @@ import type {
   AttendanceWidgetRes,
 } from "@/lib/api/attendance-contract";
 import { ATTENDANCE_API_PATH } from "@/lib/api/attendance-contract";
+import { formatAttendanceTimeForDisplay } from "@/lib/attendance-time";
 import type { LoginLocale } from "@/lib/i18n/login-content";
 import { getWorkspaceAttendanceMessages } from "@/lib/i18n/workspace-content";
 import { cn } from "@/lib/utils";
@@ -419,63 +420,68 @@ export function AttendanceCalendarCard({
               ))}
             </div>
             <div id="workspace-attendance-calendar-grid" className="grid grid-cols-7 gap-1">
-              {widget?.dayList.map((day) => (
-                <div
-                  id={`workspace-attendance-day-${day.dt}`}
-                  key={day.dt}
-                  className={cn(
-                    "min-h-[38px] rounded-[12px] border px-1.5 py-1 text-left transition-colors",
-                    day.inMonthYn ? "border-slate-200 bg-white" : "border-transparent bg-slate-50/70 text-slate-300",
-                    day.todayYn ? "ring-1 ring-[#4F72C8]" : "",
-                    day.holidayYn ? "border-rose-200 bg-rose-50/70" : ""
-                  )}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className={cn("text-xs font-semibold", day.todayYn ? "text-[#18397E]" : "text-slate-700")}>
-                      {day.dayNo}
-                    </span>
-                    {day.holidayYn ? <span className="h-1.5 w-1.5 rounded-full bg-rose-500" /> : null}
+              {widget?.dayList.map((day) => {
+                const checkInTime = formatAttendanceTimeForDisplay(day.chkinTm);
+                const checkOutTime = formatAttendanceTimeForDisplay(day.chkoutTm);
+
+                return (
+                  <div
+                    id={`workspace-attendance-day-${day.dt}`}
+                    key={day.dt}
+                    className={cn(
+                      "min-h-[38px] rounded-[12px] border px-1.5 py-1 text-left transition-colors",
+                      day.inMonthYn ? "border-slate-200 bg-white" : "border-transparent bg-slate-50/70 text-slate-300",
+                      day.todayYn ? "ring-1 ring-[#4F72C8]" : "",
+                      day.holidayYn ? "border-rose-200 bg-rose-50/70" : ""
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className={cn("text-xs font-semibold", day.todayYn ? "text-[#18397E]" : "text-slate-700")}>
+                        {day.dayNo}
+                      </span>
+                      {day.holidayYn ? <span className="h-1.5 w-1.5 rounded-full bg-rose-500" /> : null}
+                    </div>
+
+                    <div className="mt-1 space-y-0.5">
+                      {checkInTime ? (
+                        <div className="flex items-center gap-1 text-[10px] font-medium text-[#18397E]">
+                          {attendanceDot("bg-blue-500")}
+                          <span>{checkInTime}</span>
+                        </div>
+                      ) : null}
+
+                      {checkOutTime ? (
+                        <div className="flex items-center gap-1 text-[10px] font-medium text-slate-700">
+                          {attendanceDot("bg-rose-500")}
+                          <span>{checkOutTime}</span>
+                        </div>
+                      ) : null}
+
+                      {isStatusDay(day, leaveStsCd) ? (
+                        <div
+                          id={`workspace-attendance-leave-${day.dt}`}
+                          className="inline-flex rounded-lg bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700"
+                        >
+                          {leaveChipLabel}
+                        </div>
+                      ) : null}
+
+                      {isStatusDay(day, bizTripStsCd) ? (
+                        <div
+                          id={`workspace-attendance-trip-${day.dt}`}
+                          className="inline-flex rounded-lg bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700"
+                        >
+                          {bizTripChipLabel}
+                        </div>
+                      ) : null}
+
+                      {!checkInTime && !isStatusDay(day, leaveStsCd) && day.holidayYn && day.holidayNm ? (
+                        <div className="line-clamp-2 text-[10px] leading-4 text-rose-600">{day.holidayNm}</div>
+                      ) : null}
+                    </div>
                   </div>
-
-                  <div className="mt-1 space-y-0.5">
-                    {day.chkinTm ? (
-                      <div className="flex items-center gap-1 text-[10px] font-medium text-[#18397E]">
-                        {attendanceDot("bg-blue-500")}
-                        <span>{day.chkinTm}</span>
-                      </div>
-                    ) : null}
-
-                    {day.chkoutTm ? (
-                      <div className="flex items-center gap-1 text-[10px] font-medium text-slate-700">
-                        {attendanceDot("bg-rose-500")}
-                        <span>{day.chkoutTm}</span>
-                      </div>
-                    ) : null}
-
-                    {isStatusDay(day, leaveStsCd) ? (
-                      <div
-                        id={`workspace-attendance-leave-${day.dt}`}
-                        className="inline-flex rounded-lg bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700"
-                      >
-                        {leaveChipLabel}
-                      </div>
-                    ) : null}
-
-                    {isStatusDay(day, bizTripStsCd) ? (
-                      <div
-                        id={`workspace-attendance-trip-${day.dt}`}
-                        className="inline-flex rounded-lg bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700"
-                      >
-                        {bizTripChipLabel}
-                      </div>
-                    ) : null}
-
-                    {!day.chkinTm && !isStatusDay(day, leaveStsCd) && day.holidayYn && day.holidayNm ? (
-                      <div className="line-clamp-2 text-[10px] leading-4 text-rose-600">{day.holidayNm}</div>
-                    ) : null}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

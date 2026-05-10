@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -9,6 +11,7 @@ type LeaveConfirmDialogProps = {
   description: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  children?: ReactNode;
   onConfirm: () => void;
   onClose: () => void;
 };
@@ -19,6 +22,7 @@ export function LeaveConfirmDialog({
   description,
   confirmLabel = "Confirm",
   cancelLabel = "Close",
+  children,
   onConfirm,
   onClose,
 }: LeaveConfirmDialogProps) {
@@ -36,8 +40,9 @@ export function LeaveConfirmDialog({
             {title}
           </CardTitle>
         </CardHeader>
-        <CardContent className="px-3 py-2.5">
+        <CardContent className="space-y-2 px-3 py-2.5">
           <p className="text-[10px] leading-4 text-slate-600">{description}</p>
+          {children}
         </CardContent>
         <div className="flex items-center justify-end gap-1.5 border-t border-slate-300 px-3 py-2">
           <Button

@@ -247,6 +247,10 @@ export function projectClientRuntimeMenus(
   locale: LoginLocale,
   roleCds: readonly string[] = []
 ): MenuNode[] {
+  if (menus.length) {
+    return menus;
+  }
+
   const customerAdminAccess = hasWorkspaceCustomerAdminAccess(roleCds);
   const rootMenus = CLIENT_RUNTIME_ROOT_MENUS.map((menuDefinition) =>
     buildClientRuntimeLeafNode(menuDefinition, menus, locale)

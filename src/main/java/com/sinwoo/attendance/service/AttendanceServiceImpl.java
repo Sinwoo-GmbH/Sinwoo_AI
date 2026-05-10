@@ -484,11 +484,15 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     private String formatDateTime(OffsetDateTime value) {
-        return value == null ? null : value.format(DATETIME_FORMAT);
+        return value == null
+                ? null
+                : value.atZoneSameInstant(attendanceProperties.bizZoneId()).format(DATETIME_FORMAT);
     }
 
     private String formatTime(OffsetDateTime value) {
-        return value == null ? null : value.toLocalTime().format(TIME_FORMAT);
+        return value == null
+                ? null
+                : value.atZoneSameInstant(attendanceProperties.bizZoneId()).toLocalTime().format(TIME_FORMAT);
     }
 
     private HolidayCache findHolidayForDate(HolidayContext holidayContext, LocalDate date) {
