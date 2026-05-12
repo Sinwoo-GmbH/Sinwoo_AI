@@ -1,4 +1,4 @@
-package com.sinwoo.platform.emp.dto;
+package com.sinwoo.platform.employee.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,8 +16,6 @@ public record CreateEmpRequest(
         Long usrId,
 
         Long deptId,
-
-        Long workLocId,
 
         Long mgrEmpId,
 

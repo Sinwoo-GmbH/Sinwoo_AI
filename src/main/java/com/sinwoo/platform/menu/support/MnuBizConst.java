@@ -1,4 +1,4 @@
-package com.sinwoo.platform.mnu.support;
+package com.sinwoo.platform.menu.support;
 
 public final class MnuBizConst {
 

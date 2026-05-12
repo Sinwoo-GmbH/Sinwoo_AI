@@ -1,5 +1,8 @@
 package com.sinwoo.platform.code.service;
 
+import static com.sinwoo.common.util.StringNormalizer.blankToNull;
+import static com.sinwoo.common.util.StringNormalizer.normalizeYn;
+
 import com.sinwoo.platform.code.domain.CdGroup;
 import com.sinwoo.platform.code.domain.CommonCd;
 import com.sinwoo.platform.code.dto.CdGroupListResponse;
@@ -224,23 +227,12 @@ public class CommonCdServiceImpl implements CommonCdService {
         return value == null || value.isBlank() ? fallback : value.trim();
     }
 
-    private String normalizeYn(String value, String defaultValue) {
-        if (value == null || value.isBlank()) {
-            return defaultValue;
-        }
-        return "Y".equalsIgnoreCase(value.trim()) ? "Y" : "N";
-    }
-
     private Integer normalizeOrder(Integer value) {
         return value == null ? 0 : value;
     }
 
     private Integer normalizeOrder(Integer value, Integer defaultValue) {
         return value == null ? defaultValue : value;
-    }
-
-    private String blankToNull(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
     }
 
     private String blankToNullPreserve(String incomingValue, String currentValue) {

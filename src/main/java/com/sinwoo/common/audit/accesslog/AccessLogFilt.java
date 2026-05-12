@@ -2,6 +2,7 @@ package com.sinwoo.common.audit.accesslog;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sinwoo.common.security.tenant.TenantCtx;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -87,7 +88,10 @@ public class AccessLogFilt extends OncePerRequestFilter {
     ) {
         OffsetDateTime now = OffsetDateTime.now();
         String usrKey = resolveUsrKey();
-        String tenantKey = blankToNull(request.getHeader("X-Tenant-Id"));
+        String tenantKey = TenantCtx.getTenantCd()
+                .filter(cd -> !cd.isBlank())
+                .or(() -> TenantCtx.getTenantId().map(String::valueOf))
+                .orElse(null);
         String errorMsg = failure == null ? null : truncate(failure.getMessage());
 
         return new AccessLogEntry(
@@ -116,10 +120,11 @@ public class AccessLogFilt extends OncePerRequestFilter {
 
     private String resolveUsrKey() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getName() == null || authentication.getName().isBlank()) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof com.sinwoo.common.security.AuthenticatedUsr usr)) {
             return "ANON";
         }
-        return authentication.getName();
+        String key = usr.resolveKey();
+        return key == null ? "ANON" : key;
     }
 
     private String resolveClientIp(HttpServletRequest request) {
@@ -171,10 +176,6 @@ public class AccessLogFilt extends OncePerRequestFilter {
             return actor;
         }
         return actor.substring(0, MAX_AUDIT_ACTOR_LENGTH);
-    }
-
-    private String blankToNull(String value) {
-        return value == null || value.isBlank() ? null : value;
     }
 
     private String truncate(String value) {

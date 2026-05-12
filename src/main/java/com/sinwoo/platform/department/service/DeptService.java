@@ -1,9 +1,9 @@
-package com.sinwoo.platform.dept.service;
+package com.sinwoo.platform.department.service;
 
-import com.sinwoo.platform.dept.dto.CreateDeptRequest;
-import com.sinwoo.platform.dept.dto.DeptListResponse;
-import com.sinwoo.platform.dept.dto.DeptResponse;
-import com.sinwoo.platform.dept.dto.DeptTreeResponse;
+import com.sinwoo.platform.department.dto.CreateDeptRequest;
+import com.sinwoo.platform.department.dto.DeptListResponse;
+import com.sinwoo.platform.department.dto.DeptResponse;
+import com.sinwoo.platform.department.dto.DeptTreeResponse;
 
 public interface DeptService {
 

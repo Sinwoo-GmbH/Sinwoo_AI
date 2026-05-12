@@ -1,10 +1,10 @@
-package com.sinwoo.platform.dept.controller;
+package com.sinwoo.platform.department.controller;
 
-import com.sinwoo.platform.dept.dto.CreateDeptRequest;
-import com.sinwoo.platform.dept.dto.DeptListResponse;
-import com.sinwoo.platform.dept.dto.DeptResponse;
-import com.sinwoo.platform.dept.dto.DeptTreeResponse;
-import com.sinwoo.platform.dept.service.DeptService;
+import com.sinwoo.platform.department.dto.CreateDeptRequest;
+import com.sinwoo.platform.department.dto.DeptListResponse;
+import com.sinwoo.platform.department.dto.DeptResponse;
+import com.sinwoo.platform.department.dto.DeptTreeResponse;
+import com.sinwoo.platform.department.service.DeptService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

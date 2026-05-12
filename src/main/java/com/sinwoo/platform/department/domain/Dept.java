@@ -1,4 +1,4 @@
-package com.sinwoo.platform.dept.domain;
+package com.sinwoo.platform.department.domain;
 
 import com.sinwoo.common.util.BaseEntity;
 import jakarta.persistence.Column;

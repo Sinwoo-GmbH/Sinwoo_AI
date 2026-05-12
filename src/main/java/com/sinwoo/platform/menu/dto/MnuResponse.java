@@ -1,6 +1,6 @@
-package com.sinwoo.platform.mnu.dto;
+package com.sinwoo.platform.menu.dto;
 
-import com.sinwoo.platform.mnu.domain.Mnu;
+import com.sinwoo.platform.menu.domain.Mnu;
 import java.time.OffsetDateTime;
 
 public record MnuResponse(

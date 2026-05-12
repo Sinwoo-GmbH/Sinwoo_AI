@@ -1,5 +1,7 @@
 package com.sinwoo.platform.billing.service;
 
+import static com.sinwoo.common.util.StringNormalizer.normalizeYn;
+
 import com.sinwoo.platform.billing.domain.SubscrPlan;
 import com.sinwoo.platform.billing.dto.CreateSubscrPlanRequest;
 import com.sinwoo.platform.billing.dto.SubscrPlanListResponse;
@@ -52,10 +54,4 @@ public class SubscrPlanServiceImpl implements SubscrPlanService {
         return new SubscrPlanListResponse(items.size(), items);
     }
 
-    private String normalizeYn(String value, String defaultValue) {
-        if (value == null || value.isBlank()) {
-            return defaultValue;
-        }
-        return "Y".equalsIgnoreCase(value.trim()) ? "Y" : "N";
-    }
 }

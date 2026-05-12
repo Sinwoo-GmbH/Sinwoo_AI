@@ -9,7 +9,10 @@ import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @Configuration
-@EnableJpaAuditing(dateTimeProviderRef = "auditingDateTimeProvider")
+@EnableJpaAuditing(
+        dateTimeProviderRef = "auditingDateTimeProvider",
+        auditorAwareRef = "auditorProvider"
+)
 public class JpaConfig {
 
     @Bean

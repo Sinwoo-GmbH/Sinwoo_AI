@@ -1,4 +1,4 @@
-package com.sinwoo.platform.dept.dto;
+package com.sinwoo.platform.department.dto;
 
 import java.util.List;
 

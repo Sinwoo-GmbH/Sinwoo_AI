@@ -1,6 +1,6 @@
-package com.sinwoo.platform.mnu.repository;
+package com.sinwoo.platform.menu.repository;
 
-import com.sinwoo.platform.mnu.domain.RoleMnuAuth;
+import com.sinwoo.platform.menu.domain.RoleMnuAuth;
 import java.util.Collection;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;

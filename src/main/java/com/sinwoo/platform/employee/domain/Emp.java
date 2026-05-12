@@ -1,4 +1,4 @@
-package com.sinwoo.platform.emp.domain;
+package com.sinwoo.platform.employee.domain;
 
 import com.sinwoo.common.util.BaseEntity;
 import jakarta.persistence.Column;
@@ -34,9 +34,6 @@ public class Emp extends BaseEntity {
     @Column(name = "DEPT_ID")
     private Long deptId;
 
-    @Column(name = "WORK_LOC_ID")
-    private Long workLocId;
-
     @Column(name = "MGR_EMP_ID")
     private Long mgrEmpId;
 
@@ -66,7 +63,6 @@ public class Emp extends BaseEntity {
             Long coId,
             Long usrId,
             Long deptId,
-            Long workLocId,
             Long mgrEmpId,
             String empNo,
             String empNm,
@@ -80,7 +76,6 @@ public class Emp extends BaseEntity {
         this.coId = coId;
         this.usrId = usrId;
         this.deptId = deptId;
-        this.workLocId = workLocId;
         this.mgrEmpId = mgrEmpId;
         this.empNo = empNo;
         this.empNm = empNm;
@@ -96,7 +91,6 @@ public class Emp extends BaseEntity {
             Long coId,
             Long usrId,
             Long deptId,
-            Long workLocId,
             Long mgrEmpId,
             String empNo,
             String empNm,
@@ -106,6 +100,6 @@ public class Emp extends BaseEntity {
             LocalDate retrDt,
             String stsCd
     ) {
-        return new Emp(tenantId, coId, usrId, deptId, workLocId, mgrEmpId, empNo, empNm, teamRoleCd, jobTtlNm, hireDt, retrDt, stsCd);
+        return new Emp(tenantId, coId, usrId, deptId, mgrEmpId, empNo, empNm, teamRoleCd, jobTtlNm, hireDt, retrDt, stsCd);
     }
 }

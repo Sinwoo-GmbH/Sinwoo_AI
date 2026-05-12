@@ -44,9 +44,9 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
       </div>
 
       <div className="login-shell-inner relative mx-auto flex max-w-7xl flex-col box-border px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
-        <div className="flex justify-end pb-3 lg:absolute lg:right-8 lg:top-6 lg:z-20 lg:pb-0">
+        <div className="flex justify-end pb-3 lg:hidden">
           <LocaleCombobox
-            idPrefix="login"
+            idPrefix="login-mobile"
             value={locale}
             localeLabel={msgs.localeLabel}
             localeNames={msgs.localeNames}
@@ -95,7 +95,18 @@ export function LoginPageShell({ backendBaseUrl, providers }: Props) {
           </div>
 
           <div className="hidden w-full min-w-0 lg:flex lg:flex-1 lg:items-center">
-            <div className="login-desktop-frame grid w-full overflow-hidden rounded-[32px] border border-slate-200/80 bg-white/80 shadow-[0_28px_60px_rgba(15,23,42,0.10)] backdrop-blur">
+            <div className="login-desktop-frame relative grid w-full overflow-hidden rounded-[32px] border border-slate-200/80 bg-white/80 shadow-[0_28px_60px_rgba(15,23,42,0.10)] backdrop-blur">
+              <div className="login-desktop-locale-switcher">
+                <LocaleCombobox
+                  idPrefix="login-desktop"
+                  value={locale}
+                  localeLabel={msgs.localeLabel}
+                  localeNames={msgs.localeNames}
+                  onChange={setLocale}
+                  buttonClassName="min-w-[166px] justify-between rounded-xl border-slate-300 bg-white/90 px-3.5 py-2 text-[12px] font-medium shadow-sm"
+                  mnuClassName="min-w-[186px]"
+                />
+              </div>
               <div className="relative flex h-full min-w-0 flex-col justify-center overflow-hidden bg-[linear-gradient(180deg,rgba(244,248,253,0.95)_0%,rgba(234,240,247,0.92)_100%)] px-10 py-10">
                 <div className="absolute inset-y-10 right-0 w-px bg-[linear-gradient(180deg,rgba(35,58,122,0)_0%,rgba(35,58,122,0.18)_20%,rgba(35,58,122,0.18)_80%,rgba(35,58,122,0)_100%)]" />
 

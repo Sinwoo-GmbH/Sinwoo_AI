@@ -1,7 +1,7 @@
-package com.sinwoo.platform.mnu.service;
+package com.sinwoo.platform.menu.service;
 
-import com.sinwoo.platform.mnu.dto.RoleMnuAuthListResponse;
-import com.sinwoo.platform.mnu.dto.UpsertRoleMnuAuthRequest;
+import com.sinwoo.platform.menu.dto.RoleMnuAuthListResponse;
+import com.sinwoo.platform.menu.dto.UpsertRoleMnuAuthRequest;
 
 public interface RoleMnuAuthService {
 

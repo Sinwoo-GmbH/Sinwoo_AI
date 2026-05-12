@@ -1,9 +1,9 @@
-package com.sinwoo.platform.emp.controller;
+package com.sinwoo.platform.employee.controller;
 
-import com.sinwoo.platform.emp.dto.CreateEmpRequest;
-import com.sinwoo.platform.emp.dto.EmpListResponse;
-import com.sinwoo.platform.emp.dto.EmpResponse;
-import com.sinwoo.platform.emp.service.EmpService;
+import com.sinwoo.platform.employee.dto.CreateEmpRequest;
+import com.sinwoo.platform.employee.dto.EmpListResponse;
+import com.sinwoo.platform.employee.dto.EmpResponse;
+import com.sinwoo.platform.employee.service.EmpService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

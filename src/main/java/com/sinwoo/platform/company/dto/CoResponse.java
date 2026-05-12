@@ -9,10 +9,6 @@ public record CoResponse(
         String coCd,
         String coNm,
         String regNo,
-        String hqCtryCd,
-        String hqRegionCd,
-        String hqCityNm,
-        String hqAddr1,
         String stsCd,
         OffsetDateTime crtDtm,
         OffsetDateTime updDtm
@@ -24,10 +20,6 @@ public record CoResponse(
                 company.getCoCd(),
                 company.getCoNm(),
                 company.getRegNo(),
-                company.getHqCtryCd(),
-                company.getHqRegionCd(),
-                company.getHqCityNm(),
-                company.getHqAddr1(),
                 company.getStsCd(),
                 company.getCreatedAt(),
                 company.getUpdatedAt()

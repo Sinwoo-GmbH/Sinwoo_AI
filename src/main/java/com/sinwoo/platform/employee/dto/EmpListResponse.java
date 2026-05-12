@@ -1,4 +1,4 @@
-package com.sinwoo.platform.emp.dto;
+package com.sinwoo.platform.employee.dto;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.sinwoo.platform.mnu.dto;
+package com.sinwoo.platform.menu.dto;
 
 public record RoleMnuAuthResponse(
         String roleCd,

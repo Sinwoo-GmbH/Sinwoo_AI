@@ -15,7 +15,7 @@ import type {
   CredLoginRequest,
 } from "@/lib/api/auth-contract";
 import { getLoginMsgs, type LoginLocale } from "@/lib/i18n/login-cnt";
-import { encryptCredentialPassword } from "@/lib/auth/security/cred-encryption";
+import { encryptCredentialPassword } from "@/lib/auth/cred-encryption";
 import { cn } from "@/lib/utils";
 
 type Props = {

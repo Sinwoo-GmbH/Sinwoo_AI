@@ -1,4 +1,7 @@
-package com.sinwoo.platform.mnu.service;
+package com.sinwoo.platform.menu.service;
+
+import static com.sinwoo.common.util.StringNormalizer.blankToNull;
+import static com.sinwoo.common.util.StringNormalizer.normalizeYn;
 
 import com.sinwoo.platform.auth.domain.Role;
 import com.sinwoo.platform.auth.repository.RoleRepository;
@@ -10,16 +13,16 @@ import com.sinwoo.common.util.CommonBizConst;
 import com.sinwoo.common.exception.ApiException;
 import com.sinwoo.platform.code.service.CommonCdService;
 import com.sinwoo.platform.code.support.CommonCdGroupCd;
-import com.sinwoo.platform.mnu.domain.Mnu;
-import com.sinwoo.platform.mnu.domain.RoleMnuAuth;
-import com.sinwoo.platform.mnu.dto.CreateMnuRequest;
-import com.sinwoo.platform.mnu.dto.MnuListResponse;
-import com.sinwoo.platform.mnu.dto.MnuNodeResponse;
-import com.sinwoo.platform.mnu.dto.MnuResponse;
-import com.sinwoo.platform.mnu.dto.MnuTreeResponse;
-import com.sinwoo.platform.mnu.repository.MnuRepository;
-import com.sinwoo.platform.mnu.repository.RoleMnuAuthRepository;
-import com.sinwoo.platform.mnu.support.MnuBizConst;
+import com.sinwoo.platform.menu.domain.Mnu;
+import com.sinwoo.platform.menu.domain.RoleMnuAuth;
+import com.sinwoo.platform.menu.dto.CreateMnuRequest;
+import com.sinwoo.platform.menu.dto.MnuListResponse;
+import com.sinwoo.platform.menu.dto.MnuNodeResponse;
+import com.sinwoo.platform.menu.dto.MnuResponse;
+import com.sinwoo.platform.menu.dto.MnuTreeResponse;
+import com.sinwoo.platform.menu.repository.MnuRepository;
+import com.sinwoo.platform.menu.repository.RoleMnuAuthRepository;
+import com.sinwoo.platform.menu.support.MnuBizConst;
 import com.sinwoo.platform.tenant.domain.Tenant;
 import com.sinwoo.platform.tenant.repository.TenantRepository;
 import com.sinwoo.platform.user.domain.Usr;
@@ -317,17 +320,6 @@ public class MnuServiceImpl implements MnuService {
             return defaultValue;
         }
         return value.trim().toUpperCase();
-    }
-
-    private String normalizeYn(String value, String defaultValue) {
-        if (value == null || value.isBlank()) {
-            return defaultValue;
-        }
-        return CommonBizConst.YN_Y.equalsIgnoreCase(value.trim()) ? CommonBizConst.YN_Y : CommonBizConst.YN_N;
-    }
-
-    private String blankToNull(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
     }
 
     private String normalizeGateCd(String value) {

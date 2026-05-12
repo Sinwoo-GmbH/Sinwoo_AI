@@ -1,5 +1,6 @@
 package com.sinwoo.common.security;
 
+import com.sinwoo.common.security.tenant.TenantCtxFilt;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,6 +33,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             ObjectProvider<JwtAuthFilt> jwtAuthFiltProvider,
+            ObjectProvider<TenantCtxFilt> tenantCtxFiltProvider,
             ObjectProvider<ClientRegistrationRepository> clientRegistrationRepositoryProvider,
             ObjectProvider<AuthenticationSuccessHandler> authenticationSuccessHandlerProvider,
             ObjectProvider<AuthenticationFailureHandler> authenticationFailureHandlerProvider
@@ -41,11 +43,15 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
+                        // Infra / health
                         .requestMatchers(
                                 "/actuator/health",
                                 "/actuator/info",
                                 "/error",
-                                "/api/v1/system/ping",
+                                "/api/v1/system/ping"
+                        ).permitAll()
+                        // Auth endpoints (login, OAuth flow)
+                        .requestMatchers(
                                 "/api/v1/auth/credential-key",
                                 "/api/v1/auth/oauth/providers",
                                 "/api/v1/auth/oauth/authorize/**",
@@ -53,37 +59,12 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/login/oauth2/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/tenants").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/tenants").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/companies").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/companies").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/roles").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/roles").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/users").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/departments/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/departments/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/employees/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/employees/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/menus/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/menus/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/role-mnu-auths/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/role-mnu-auths/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/subscription-plans/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/subscription-plans/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/subscriptions/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/subscriptions/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/payment-transactions/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/payment-transactions/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/code-groups/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/code-groups/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/code-groups/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/codes/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/codes/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/codes/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/auth/oauth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/oauth/**").permitAll()
+                        // Tenant signup (public registration entry point)
+                        .requestMatchers(HttpMethod.POST, "/api/v1/tenants").permitAll()
+                        // Everything else requires authentication
                         .anyRequest().authenticated()
                 )
                 .httpBasic(AbstractHttpConfigurer::disable)
@@ -92,6 +73,10 @@ public class SecurityConfig {
         JwtAuthFilt jwtAuthFilt = jwtAuthFiltProvider.getIfAvailable();
         if (jwtAuthFilt != null) {
             http.addFilterBefore(jwtAuthFilt, UsernamePasswordAuthenticationFilter.class);
+            TenantCtxFilt tenantCtxFilt = tenantCtxFiltProvider.getIfAvailable();
+            if (tenantCtxFilt != null) {
+                http.addFilterAfter(tenantCtxFilt, JwtAuthFilt.class);
+            }
         }
 
         if (clientRegistrationRepositoryProvider.getIfAvailable() != null) {
@@ -127,24 +112,17 @@ public class SecurityConfig {
         if (authProperties.frontendBaseUrl() != null && !authProperties.frontendBaseUrl().isBlank()) {
             origins.add(authProperties.frontendBaseUrl().trim());
         }
-        origins.addAll(defaultLocalOrigins());
+        if (authProperties.allowedOrigins() != null) {
+            for (String origin : authProperties.allowedOrigins()) {
+                if (origin != null && !origin.isBlank()) {
+                    origins.add(origin.trim());
+                }
+            }
+        }
         configuration.setAllowedOrigins(new ArrayList<>(origins));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
-
-    private List<String> defaultLocalOrigins() {
-        return List.of(
-                "http://localhost:3000",
-                "http://127.0.0.1:3000",
-                "http://localhost:3001",
-                "http://127.0.0.1:3001",
-                "http://localhost:3002",
-                "http://127.0.0.1:3002",
-                "http://localhost:3003",
-                "http://127.0.0.1:3003"
-        );
     }
 }

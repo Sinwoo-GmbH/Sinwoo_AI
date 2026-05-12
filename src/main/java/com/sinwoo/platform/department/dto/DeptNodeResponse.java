@@ -1,6 +1,6 @@
-package com.sinwoo.platform.dept.dto;
+package com.sinwoo.platform.department.dto;
 
-import com.sinwoo.platform.dept.domain.Dept;
+import com.sinwoo.platform.department.domain.Dept;
 import java.util.ArrayList;
 import java.util.List;
 

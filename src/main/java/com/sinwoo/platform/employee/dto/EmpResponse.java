@@ -1,6 +1,6 @@
-package com.sinwoo.platform.emp.dto;
+package com.sinwoo.platform.employee.dto;
 
-import com.sinwoo.platform.emp.domain.Emp;
+import com.sinwoo.platform.employee.domain.Emp;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
@@ -10,7 +10,6 @@ public record EmpResponse(
         Long coId,
         Long usrId,
         Long deptId,
-        Long workLocId,
         Long mgrEmpId,
         String empNo,
         String empNm,
@@ -29,7 +28,6 @@ public record EmpResponse(
                 emp.getCoId(),
                 emp.getUsrId(),
                 emp.getDeptId(),
-                emp.getWorkLocId(),
                 emp.getMgrEmpId(),
                 emp.getEmpNo(),
                 emp.getEmpNm(),

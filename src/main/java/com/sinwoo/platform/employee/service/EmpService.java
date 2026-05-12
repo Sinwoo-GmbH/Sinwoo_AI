@@ -1,8 +1,8 @@
-package com.sinwoo.platform.emp.service;
+package com.sinwoo.platform.employee.service;
 
-import com.sinwoo.platform.emp.dto.CreateEmpRequest;
-import com.sinwoo.platform.emp.dto.EmpListResponse;
-import com.sinwoo.platform.emp.dto.EmpResponse;
+import com.sinwoo.platform.employee.dto.CreateEmpRequest;
+import com.sinwoo.platform.employee.dto.EmpListResponse;
+import com.sinwoo.platform.employee.dto.EmpResponse;
 
 public interface EmpService {
 

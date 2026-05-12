@@ -161,16 +161,7 @@ public class GlobalApiExceptionHandler {
         if (authentication == null || !(authentication.getPrincipal() instanceof AuthenticatedUsr authenticatedUsr)) {
             return null;
         }
-        if (authenticatedUsr.lgnId() != null && !authenticatedUsr.lgnId().isBlank()) {
-            return authenticatedUsr.lgnId();
-        }
-        if (authenticatedUsr.eml() != null && !authenticatedUsr.eml().isBlank()) {
-            return authenticatedUsr.eml();
-        }
-        if (authenticatedUsr.usrId() != null) {
-            return "USR%04d".formatted(authenticatedUsr.usrId());
-        }
-        return null;
+        return authenticatedUsr.resolveKey();
     }
 
     private String valueOrDash(Object value) {

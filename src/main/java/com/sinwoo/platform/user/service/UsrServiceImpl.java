@@ -1,11 +1,14 @@
 package com.sinwoo.platform.user.service;
 
+import static com.sinwoo.common.util.StringNormalizer.blankToNull;
+import static com.sinwoo.common.util.StringNormalizer.blankToNullUpper;
+import static com.sinwoo.common.util.StringNormalizer.defaultIfBlankUpper;
+
 import com.sinwoo.platform.auth.domain.Role;
 import com.sinwoo.platform.auth.domain.UsrRole;
 import com.sinwoo.platform.auth.repository.RoleRepository;
 import com.sinwoo.platform.auth.repository.UsrRoleRepository;
-import com.sinwoo.platform.company.repository.CoRepository;
-import com.sinwoo.platform.tenant.repository.TenantRepository;
+import com.sinwoo.platform.support.PlatformRefValidator;
 import com.sinwoo.platform.user.domain.Usr;
 import com.sinwoo.platform.user.dto.CreateUsrRequest;
 import com.sinwoo.platform.user.dto.UsrListResponse;
@@ -27,17 +30,16 @@ import org.springframework.web.server.ResponseStatusException;
 public class UsrServiceImpl implements UsrService {
 
     private final UsrRepository usrRepository;
-    private final TenantRepository tenantRepository;
-    private final CoRepository coRepository;
     private final RoleRepository roleRepository;
     private final UsrRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PlatformRefValidator refValidator;
 
     @Override
     @Transactional
     public UsrResponse createUsr(CreateUsrRequest request) {
-        validateTenant(request.tenantId());
-        validateCo(request.tenantId(), request.coId());
+        refValidator.requireTenantExists(request.tenantId());
+        refValidator.requireOptionalCoInTenant(request.tenantId(), request.coId());
 
         String normalizedLgnId = request.lgnId().trim().toUpperCase();
         String normalizedEml = request.eml().trim().toLowerCase();
@@ -63,7 +65,7 @@ public class UsrServiceImpl implements UsrService {
                 blankToNull(request.telNo()),
                 blankToNullUpper(request.authGrpCd()),
                 blankToNullUpper(request.authLvlCd()),
-                normalizeStatus(request.stsCd())
+                defaultIfBlankUpper(request.stsCd(), "ACTIVE")
         );
 
         Usr savedUsr = usrRepository.save(user);
@@ -77,8 +79,8 @@ public class UsrServiceImpl implements UsrService {
 
     @Override
     public UsrListResponse getUsrs(Long tenantId, Long coId) {
-        validateTenant(tenantId);
-        validateCo(tenantId, coId);
+        refValidator.requireTenantExists(tenantId);
+        refValidator.requireOptionalCoInTenant(tenantId, coId);
 
         List<Usr> usrs = coId == null
                 ? usrRepository.findAllByTenantIdOrderByCreatedAtDescIdDesc(tenantId)
@@ -99,21 +101,6 @@ public class UsrServiceImpl implements UsrService {
                 .toList();
 
         return new UsrListResponse(items.size(), items);
-    }
-
-    private void validateTenant(Long tenantId) {
-        if (tenantId == null || !tenantRepository.existsById(tenantId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tenant not found");
-        }
-    }
-
-    private void validateCo(Long tenantId, Long coId) {
-        if (coId == null) {
-            return;
-        }
-        if (coRepository.findByIdAndTenantId(coId, tenantId).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Co not found in tenant");
-        }
     }
 
     private List<Role> resolveRoles(List<String> roleCds) {
@@ -137,18 +124,4 @@ public class UsrServiceImpl implements UsrService {
         return roles;
     }
 
-    private String normalizeStatus(String value) {
-        if (value == null || value.isBlank()) {
-            return "ACTIVE";
-        }
-        return value.trim().toUpperCase();
-    }
-
-    private String blankToNull(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
-    }
-
-    private String blankToNullUpper(String value) {
-        return value == null || value.isBlank() ? null : value.trim().toUpperCase();
-    }
 }

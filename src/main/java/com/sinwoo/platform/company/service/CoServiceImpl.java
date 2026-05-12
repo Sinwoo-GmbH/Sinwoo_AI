@@ -1,11 +1,15 @@
 package com.sinwoo.platform.company.service;
 
+import static com.sinwoo.common.util.StringNormalizer.blankToNull;
+import static com.sinwoo.common.util.StringNormalizer.defaultIfBlankUpper;
+import static com.sinwoo.common.util.StringNormalizer.trimAndUpper;
+
 import com.sinwoo.platform.company.domain.Co;
 import com.sinwoo.platform.company.dto.CoListResponse;
 import com.sinwoo.platform.company.dto.CoResponse;
 import com.sinwoo.platform.company.dto.CreateCoRequest;
 import com.sinwoo.platform.company.repository.CoRepository;
-import com.sinwoo.platform.tenant.repository.TenantRepository;
+import com.sinwoo.platform.support.PlatformRefValidator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,14 +23,14 @@ import org.springframework.web.server.ResponseStatusException;
 public class CoServiceImpl implements CoService {
 
     private final CoRepository coRepository;
-    private final TenantRepository tenantRepository;
+    private final PlatformRefValidator refValidator;
 
     @Override
     @Transactional
     public CoResponse createCo(CreateCoRequest request) {
-        validateTenant(request.tenantId());
-        String normalizedCoCd = normalizeCd(request.coCd());
-        String normalizedStsCd = normalizeStatus(request.stsCd());
+        refValidator.requireTenantExists(request.tenantId());
+        String normalizedCoCd = trimAndUpper(request.coCd());
+        String normalizedStsCd = defaultIfBlankUpper(request.stsCd(), "ACTIVE");
 
         if (coRepository.existsByTenantIdAndCoCdIgnoreCase(request.tenantId(), normalizedCoCd)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Co code already exists in tenant");
@@ -37,10 +41,6 @@ public class CoServiceImpl implements CoService {
                 normalizedCoCd,
                 request.coNm().trim(),
                 blankToNull(request.regNo()),
-                normalizeCountryCd(request.hqCtryCd()),
-                normalizeRegionCd(request.hqRegionCd()),
-                blankToNull(request.hqCityNm()),
-                blankToNull(request.hqAddr1()),
                 normalizedStsCd
         );
 
@@ -49,47 +49,12 @@ public class CoServiceImpl implements CoService {
 
     @Override
     public CoListResponse getCos(Long tenantId) {
-        validateTenant(tenantId);
+        refValidator.requireTenantExists(tenantId);
 
         List<CoResponse> items = coRepository.findAllByTenantIdOrderByCreatedAtDescIdDesc(tenantId).stream()
                 .map(CoResponse::from)
                 .toList();
 
         return new CoListResponse(items.size(), items);
-    }
-
-    private void validateTenant(Long tenantId) {
-        if (tenantId == null || !tenantRepository.existsById(tenantId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tenant not found");
-        }
-    }
-
-    private String normalizeCd(String value) {
-        return value.trim().toUpperCase();
-    }
-
-    private String normalizeStatus(String value) {
-        if (value == null || value.isBlank()) {
-            return "ACTIVE";
-        }
-        return value.trim().toUpperCase();
-    }
-
-    private String normalizeCountryCd(String value) {
-        if (value == null || value.isBlank()) {
-            return "DE";
-        }
-        return value.trim().toUpperCase();
-    }
-
-    private String normalizeRegionCd(String value) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-        return value.trim().toUpperCase();
-    }
-
-    private String blankToNull(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
     }
 }

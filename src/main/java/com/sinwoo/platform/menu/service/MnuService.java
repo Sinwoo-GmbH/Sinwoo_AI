@@ -1,10 +1,10 @@
-package com.sinwoo.platform.mnu.service;
+package com.sinwoo.platform.menu.service;
 
 import com.sinwoo.common.security.AuthenticatedUsr;
-import com.sinwoo.platform.mnu.dto.CreateMnuRequest;
-import com.sinwoo.platform.mnu.dto.MnuListResponse;
-import com.sinwoo.platform.mnu.dto.MnuResponse;
-import com.sinwoo.platform.mnu.dto.MnuTreeResponse;
+import com.sinwoo.platform.menu.dto.CreateMnuRequest;
+import com.sinwoo.platform.menu.dto.MnuListResponse;
+import com.sinwoo.platform.menu.dto.MnuResponse;
+import com.sinwoo.platform.menu.dto.MnuTreeResponse;
 import java.util.List;
 
 public interface MnuService {

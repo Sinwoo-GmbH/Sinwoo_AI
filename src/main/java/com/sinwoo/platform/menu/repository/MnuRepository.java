@@ -1,6 +1,6 @@
-package com.sinwoo.platform.mnu.repository;
+package com.sinwoo.platform.menu.repository;
 
-import com.sinwoo.platform.mnu.domain.Mnu;
+import com.sinwoo.platform.menu.domain.Mnu;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

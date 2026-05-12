@@ -1,16 +1,17 @@
-package com.sinwoo.platform.emp.service;
+package com.sinwoo.platform.employee.service;
 
-import com.sinwoo.platform.company.repository.CoRepository;
-import com.sinwoo.platform.dept.repository.DeptRepository;
-import com.sinwoo.platform.emp.domain.Emp;
-import com.sinwoo.platform.emp.dto.CreateEmpRequest;
-import com.sinwoo.platform.emp.dto.EmpListResponse;
-import com.sinwoo.platform.emp.dto.EmpResponse;
-import com.sinwoo.platform.emp.repository.EmpRepository;
-import com.sinwoo.platform.tenant.repository.TenantRepository;
+import static com.sinwoo.common.util.StringNormalizer.blankToNull;
+import static com.sinwoo.common.util.StringNormalizer.defaultIfBlankUpper;
+
+import com.sinwoo.platform.department.repository.DeptRepository;
+import com.sinwoo.platform.employee.domain.Emp;
+import com.sinwoo.platform.employee.dto.CreateEmpRequest;
+import com.sinwoo.platform.employee.dto.EmpListResponse;
+import com.sinwoo.platform.employee.dto.EmpResponse;
+import com.sinwoo.platform.employee.repository.EmpRepository;
+import com.sinwoo.platform.support.PlatformRefValidator;
 import com.sinwoo.platform.user.domain.Usr;
 import com.sinwoo.platform.user.repository.UsrRepository;
-import com.sinwoo.platform.worklocation.repository.WorkLocRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,19 +25,16 @@ import org.springframework.web.server.ResponseStatusException;
 public class EmpServiceImpl implements EmpService {
 
     private final EmpRepository empRepository;
-    private final TenantRepository tenantRepository;
-    private final CoRepository coRepository;
     private final DeptRepository deptRepository;
     private final UsrRepository usrRepository;
-    private final WorkLocRepository workLocRepository;
+    private final PlatformRefValidator refValidator;
 
     @Override
     @Transactional
     public EmpResponse createEmp(CreateEmpRequest request) {
-        validateTenant(request.tenantId());
-        validateCo(request.tenantId(), request.coId());
+        refValidator.requireTenantExists(request.tenantId());
+        refValidator.requireCoInTenant(request.tenantId(), request.coId());
         validateDept(request.tenantId(), request.coId(), request.deptId());
-        validateWorkLoc(request.tenantId(), request.coId(), request.workLocId());
         validateManager(request.tenantId(), request.coId(), request.mgrEmpId());
         validateUsr(request.tenantId(), request.coId(), request.usrId());
 
@@ -54,7 +52,6 @@ public class EmpServiceImpl implements EmpService {
                 request.coId(),
                 request.usrId(),
                 request.deptId(),
-                request.workLocId(),
                 request.mgrEmpId(),
                 normalizedEmpNo,
                 request.empNm().trim(),
@@ -62,7 +59,7 @@ public class EmpServiceImpl implements EmpService {
                 blankToNull(request.jobTtlNm()),
                 request.hireDt(),
                 request.retrDt(),
-                normalizeStatus(request.stsCd())
+                defaultIfBlankUpper(request.stsCd(), "ACTIVE")
         );
 
         return EmpResponse.from(empRepository.save(emp));
@@ -70,8 +67,8 @@ public class EmpServiceImpl implements EmpService {
 
     @Override
     public EmpListResponse getEmps(Long tenantId, Long coId, Long deptId) {
-        validateTenant(tenantId);
-        validateCo(tenantId, coId);
+        refValidator.requireTenantExists(tenantId);
+        refValidator.requireCoInTenant(tenantId, coId);
         validateDept(tenantId, coId, deptId);
 
         List<EmpResponse> items = (deptId == null
@@ -84,33 +81,12 @@ public class EmpServiceImpl implements EmpService {
         return new EmpListResponse(items.size(), items);
     }
 
-    private void validateTenant(Long tenantId) {
-        if (tenantId == null || !tenantRepository.existsById(tenantId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tenant not found");
-        }
-    }
-
-    private void validateCo(Long tenantId, Long coId) {
-        if (coId == null || coRepository.findByIdAndTenantId(coId, tenantId).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Co not found in tenant");
-        }
-    }
-
     private void validateDept(Long tenantId, Long coId, Long deptId) {
         if (deptId == null) {
             return;
         }
         if (deptRepository.findByIdAndTenantIdAndCoId(deptId, tenantId, coId).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dept not found in company");
-        }
-    }
-
-    private void validateWorkLoc(Long tenantId, Long coId, Long workLocId) {
-        if (workLocId == null) {
-            return;
-        }
-        if (workLocRepository.findByIdAndTenantIdAndCoId(workLocId, tenantId, coId).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Work location not found in company");
         }
     }
 
@@ -149,16 +125,5 @@ public class EmpServiceImpl implements EmpService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported team role");
         }
         return normalized;
-    }
-
-    private String normalizeStatus(String value) {
-        if (value == null || value.isBlank()) {
-            return "ACTIVE";
-        }
-        return value.trim().toUpperCase();
-    }
-
-    private String blankToNull(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
     }
 }

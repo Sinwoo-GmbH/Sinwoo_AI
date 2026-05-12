@@ -1,5 +1,9 @@
 package com.sinwoo.platform.billing.service;
 
+import static com.sinwoo.common.util.StringNormalizer.blankToNull;
+import static com.sinwoo.common.util.StringNormalizer.blankToNullUpper;
+import static com.sinwoo.common.util.StringNormalizer.defaultIfBlankUpper;
+
 import com.sinwoo.platform.billing.domain.PayTxn;
 import com.sinwoo.platform.billing.domain.Subscr;
 import com.sinwoo.platform.billing.dto.CreatePayTxnRequest;
@@ -43,7 +47,7 @@ public class PayTxnServiceImpl implements PayTxnService {
                 tenant.getId(),
                 subscr.getId(),
                 request.payTpCd().trim().toUpperCase(),
-                normalizeStatus(request.payStsCd()),
+                defaultIfBlankUpper(request.payStsCd(), "READY"),
                 request.payAmt() == null ? BigDecimal.ZERO : request.payAmt(),
                 request.currCd().trim().toUpperCase(),
                 blankToNullUpper(request.pgCd()),
@@ -68,18 +72,4 @@ public class PayTxnServiceImpl implements PayTxnService {
         return new PayTxnListResponse(items.size(), items);
     }
 
-    private String normalizeStatus(String value) {
-        if (value == null || value.isBlank()) {
-            return "READY";
-        }
-        return value.trim().toUpperCase();
-    }
-
-    private String blankToNull(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
-    }
-
-    private String blankToNullUpper(String value) {
-        return value == null || value.isBlank() ? null : value.trim().toUpperCase();
-    }
 }

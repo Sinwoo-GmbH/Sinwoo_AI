@@ -1,6 +1,6 @@
-package com.sinwoo.platform.dept.repository;
+package com.sinwoo.platform.department.repository;
 
-import com.sinwoo.platform.dept.domain.Dept;
+import com.sinwoo.platform.department.domain.Dept;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

@@ -1,15 +1,17 @@
-package com.sinwoo.platform.mnu.service;
+package com.sinwoo.platform.menu.service;
+
+import static com.sinwoo.common.util.StringNormalizer.normalizeYn;
 
 import com.sinwoo.platform.auth.domain.Role;
 import com.sinwoo.platform.auth.repository.RoleRepository;
-import com.sinwoo.platform.mnu.domain.Mnu;
-import com.sinwoo.platform.mnu.domain.RoleMnuAuth;
-import com.sinwoo.platform.mnu.dto.RoleMnuAuthListResponse;
-import com.sinwoo.platform.mnu.dto.RoleMnuAuthResponse;
-import com.sinwoo.platform.mnu.dto.RoleMnuGrantRequest;
-import com.sinwoo.platform.mnu.dto.UpsertRoleMnuAuthRequest;
-import com.sinwoo.platform.mnu.repository.MnuRepository;
-import com.sinwoo.platform.mnu.repository.RoleMnuAuthRepository;
+import com.sinwoo.platform.menu.domain.Mnu;
+import com.sinwoo.platform.menu.domain.RoleMnuAuth;
+import com.sinwoo.platform.menu.dto.RoleMnuAuthListResponse;
+import com.sinwoo.platform.menu.dto.RoleMnuAuthResponse;
+import com.sinwoo.platform.menu.dto.RoleMnuGrantRequest;
+import com.sinwoo.platform.menu.dto.UpsertRoleMnuAuthRequest;
+import com.sinwoo.platform.menu.repository.MnuRepository;
+import com.sinwoo.platform.menu.repository.RoleMnuAuthRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -84,10 +86,4 @@ public class RoleMnuAuthServiceImpl implements RoleMnuAuthService {
         return new RoleMnuAuthListResponse(items.size(), items);
     }
 
-    private String normalizeYn(String value, String defaultValue) {
-        if (value == null || value.isBlank()) {
-            return defaultValue;
-        }
-        return "Y".equalsIgnoreCase(value.trim()) ? "Y" : "N";
-    }
 }

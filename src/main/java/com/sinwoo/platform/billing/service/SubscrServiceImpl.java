@@ -1,5 +1,8 @@
 package com.sinwoo.platform.billing.service;
 
+import static com.sinwoo.common.util.StringNormalizer.defaultIfBlankUpper;
+import static com.sinwoo.common.util.StringNormalizer.normalizeYn;
+
 import com.sinwoo.platform.billing.domain.Subscr;
 import com.sinwoo.platform.billing.domain.SubscrPlan;
 import com.sinwoo.platform.billing.dto.CreateSubscrRequest;
@@ -45,7 +48,7 @@ public class SubscrServiceImpl implements SubscrService {
         Subscr subscr = Subscr.create(
                 tenant.getId(),
                 plan.getId(),
-                normalizeStatus(request.subsStsCd()),
+                defaultIfBlankUpper(request.subsStsCd(), "ACTIVE"),
                 resolvedBillFreeYn,
                 "Y".equals(resolvedBillFreeYn) ? "N" : normalizeYn(request.autoPayYn(), "Y"),
                 request.strDt() == null ? LocalDate.now() : request.strDt(),
@@ -86,17 +89,4 @@ public class SubscrServiceImpl implements SubscrService {
         return normalizeYn(requestValue, "N");
     }
 
-    private String normalizeStatus(String value) {
-        if (value == null || value.isBlank()) {
-            return "ACTIVE";
-        }
-        return value.trim().toUpperCase();
-    }
-
-    private String normalizeYn(String value, String defaultValue) {
-        if (value == null || value.isBlank()) {
-            return defaultValue;
-        }
-        return "Y".equalsIgnoreCase(value.trim()) ? "Y" : "N";
-    }
 }

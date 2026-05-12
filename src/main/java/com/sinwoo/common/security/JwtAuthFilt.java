@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,7 +18,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 @ConditionalOnBean(JwtTokenService.class)
+@Slf4j
 public class JwtAuthFilt extends OncePerRequestFilter {
+
+    private static final String MDC_USR_KEY = "usr";
 
     private final JwtTokenService jwtTokenService;
 
@@ -31,11 +36,12 @@ public class JwtAuthFilt extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
         String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+        AuthenticatedUsr authenticatedUsr = null;
 
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String token = authorization.substring(7);
             try {
-                AuthenticatedUsr authenticatedUsr = jwtTokenService.parseAccessToken(token);
+                authenticatedUsr = jwtTokenService.parseAccessToken(token);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         authenticatedUsr,
                         token,
@@ -44,11 +50,21 @@ public class JwtAuthFilt extends OncePerRequestFilter {
                                 .collect(Collectors.toList())
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            } catch (RuntimeException ignored) {
+            } catch (RuntimeException ex) {
+                log.debug("JWT authentication failed: {}", ex.getMessage());
                 SecurityContextHolder.clearContext();
+                authenticatedUsr = null;
             }
         }
 
-        filterChain.doFilter(request, response);
+        String mdcUsr = authenticatedUsr == null ? null : authenticatedUsr.resolveKey();
+        try {
+            if (mdcUsr != null) {
+                MDC.put(MDC_USR_KEY, mdcUsr);
+            }
+            filterChain.doFilter(request, response);
+        } finally {
+            MDC.remove(MDC_USR_KEY);
+        }
     }
 }

@@ -72,6 +72,13 @@
     overflow: visible;
   }
 
+  .login-desktop-locale-switcher {
+    position: absolute;
+    top: 5px;
+    right: 43px;
+    z-index: 20;
+  }
+
   .login-brand-logo {
     display: block;
     flex-shrink: 0;

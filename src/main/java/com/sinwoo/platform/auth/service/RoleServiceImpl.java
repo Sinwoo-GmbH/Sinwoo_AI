@@ -1,5 +1,7 @@
 package com.sinwoo.platform.auth.service;
 
+import static com.sinwoo.common.util.StringNormalizer.blankToNullUpper;
+
 import com.sinwoo.platform.auth.domain.Role;
 import com.sinwoo.platform.auth.dto.CreateRoleRequest;
 import com.sinwoo.platform.auth.dto.RoleListResponse;
@@ -62,9 +64,5 @@ public class RoleServiceImpl implements RoleService {
                 ).stream()
                 .map(RoleResponse::from)
                 .toList();
-    }
-
-    private String blankToNullUpper(String value) {
-        return value == null || value.isBlank() ? null : value.trim().toUpperCase();
     }
 }

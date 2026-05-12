@@ -1,6 +1,6 @@
-package com.sinwoo.platform.emp.repository;
+package com.sinwoo.platform.employee.repository;
 
-import com.sinwoo.platform.emp.domain.Emp;
+import com.sinwoo.platform.employee.domain.Emp;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

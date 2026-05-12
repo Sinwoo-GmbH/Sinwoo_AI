@@ -1,8 +1,8 @@
-package com.sinwoo.platform.mnu.controller;
+package com.sinwoo.platform.menu.controller;
 
-import com.sinwoo.platform.mnu.dto.RoleMnuAuthListResponse;
-import com.sinwoo.platform.mnu.dto.UpsertRoleMnuAuthRequest;
-import com.sinwoo.platform.mnu.service.RoleMnuAuthService;
+import com.sinwoo.platform.menu.dto.RoleMnuAuthListResponse;
+import com.sinwoo.platform.menu.dto.UpsertRoleMnuAuthRequest;
+import com.sinwoo.platform.menu.service.RoleMnuAuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

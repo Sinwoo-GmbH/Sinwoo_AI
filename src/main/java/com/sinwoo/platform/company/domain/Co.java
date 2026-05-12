@@ -32,18 +32,6 @@ public class Co extends BaseEntity {
     @Column(name = "REG_NO", length = 100)
     private String regNo;
 
-    @Column(name = "HQ_CTRY_CD", length = 10)
-    private String hqCtryCd;
-
-    @Column(name = "HQ_REGION_CD", length = 20)
-    private String hqRegionCd;
-
-    @Column(name = "HQ_CITY_NM", length = 255)
-    private String hqCityNm;
-
-    @Column(name = "HQ_ADDR_1", length = 255)
-    private String hqAddr1;
-
     @Column(name = "STS_CD", nullable = false, length = 20)
     private String stsCd;
 
@@ -52,20 +40,12 @@ public class Co extends BaseEntity {
             String coCd,
             String coNm,
             String regNo,
-            String hqCtryCd,
-            String hqRegionCd,
-            String hqCityNm,
-            String hqAddr1,
             String stsCd
     ) {
         this.tenantId = tenantId;
         this.coCd = coCd;
         this.coNm = coNm;
         this.regNo = regNo;
-        this.hqCtryCd = hqCtryCd;
-        this.hqRegionCd = hqRegionCd;
-        this.hqCityNm = hqCityNm;
-        this.hqAddr1 = hqAddr1;
         this.stsCd = stsCd;
     }
 
@@ -74,12 +54,8 @@ public class Co extends BaseEntity {
             String coCd,
             String coNm,
             String regNo,
-            String hqCtryCd,
-            String hqRegionCd,
-            String hqCityNm,
-            String hqAddr1,
             String stsCd
     ) {
-        return new Co(tenantId, coCd, coNm, regNo, hqCtryCd, hqRegionCd, hqCityNm, hqAddr1, stsCd);
+        return new Co(tenantId, coCd, coNm, regNo, stsCd);
     }
 }

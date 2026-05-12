@@ -1,14 +1,16 @@
-package com.sinwoo.platform.dept.service;
+package com.sinwoo.platform.department.service;
 
-import com.sinwoo.platform.company.repository.CoRepository;
-import com.sinwoo.platform.dept.domain.Dept;
-import com.sinwoo.platform.dept.dto.CreateDeptRequest;
-import com.sinwoo.platform.dept.dto.DeptListResponse;
-import com.sinwoo.platform.dept.dto.DeptNodeResponse;
-import com.sinwoo.platform.dept.dto.DeptResponse;
-import com.sinwoo.platform.dept.dto.DeptTreeResponse;
-import com.sinwoo.platform.dept.repository.DeptRepository;
-import com.sinwoo.platform.tenant.repository.TenantRepository;
+import static com.sinwoo.common.util.StringNormalizer.defaultIfBlankUpper;
+import static com.sinwoo.common.util.StringNormalizer.trimAndUpper;
+
+import com.sinwoo.platform.department.domain.Dept;
+import com.sinwoo.platform.department.dto.CreateDeptRequest;
+import com.sinwoo.platform.department.dto.DeptListResponse;
+import com.sinwoo.platform.department.dto.DeptNodeResponse;
+import com.sinwoo.platform.department.dto.DeptResponse;
+import com.sinwoo.platform.department.dto.DeptTreeResponse;
+import com.sinwoo.platform.department.repository.DeptRepository;
+import com.sinwoo.platform.support.PlatformRefValidator;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,17 +27,16 @@ import org.springframework.web.server.ResponseStatusException;
 public class DeptServiceImpl implements DeptService {
 
     private final DeptRepository deptRepository;
-    private final TenantRepository tenantRepository;
-    private final CoRepository coRepository;
+    private final PlatformRefValidator refValidator;
 
     @Override
     @Transactional
     public DeptResponse createDept(CreateDeptRequest request) {
-        validateTenant(request.tenantId());
-        validateCo(request.tenantId(), request.coId());
+        refValidator.requireTenantExists(request.tenantId());
+        refValidator.requireCoInTenant(request.tenantId(), request.coId());
 
         Dept parentDept = resolveParentDept(request.tenantId(), request.coId(), request.upDeptId());
-        String normalizedDeptCd = normalizeCd(request.deptCd());
+        String normalizedDeptCd = trimAndUpper(request.deptCd());
         if (deptRepository.existsByTenantIdAndCoIdAndDeptCdIgnoreCase(request.tenantId(), request.coId(), normalizedDeptCd)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Dept code already exists in company");
         }
@@ -47,7 +48,7 @@ public class DeptServiceImpl implements DeptService {
                 request.deptNm().trim(),
                 request.upDeptId(),
                 parentDept == null ? 1 : parentDept.getDeptLvlNo() + 1,
-                normalizeStatus(request.stsCd())
+                defaultIfBlankUpper(request.stsCd(), "ACTIVE")
         );
 
         return DeptResponse.from(deptRepository.save(dept));
@@ -55,8 +56,8 @@ public class DeptServiceImpl implements DeptService {
 
     @Override
     public DeptListResponse getDepts(Long tenantId, Long coId) {
-        validateTenant(tenantId);
-        validateCo(tenantId, coId);
+        refValidator.requireTenantExists(tenantId);
+        refValidator.requireCoInTenant(tenantId, coId);
 
         List<DeptResponse> items = deptRepository.findAllByTenantIdAndCoIdOrderByDeptLvlNoAscDeptNmAscIdAsc(tenantId, coId).stream()
                 .map(DeptResponse::from)
@@ -67,8 +68,8 @@ public class DeptServiceImpl implements DeptService {
 
     @Override
     public DeptTreeResponse getDeptTree(Long tenantId, Long coId) {
-        validateTenant(tenantId);
-        validateCo(tenantId, coId);
+        refValidator.requireTenantExists(tenantId);
+        refValidator.requireCoInTenant(tenantId, coId);
 
         List<Dept> depts = deptRepository.findAllByTenantIdAndCoIdOrderByDeptLvlNoAscDeptNmAscIdAsc(tenantId, coId);
         Map<Long, DeptNodeResponse> nodeById = new LinkedHashMap<>();
@@ -87,34 +88,11 @@ public class DeptServiceImpl implements DeptService {
         return new DeptTreeResponse(roots.size(), roots);
     }
 
-    private void validateTenant(Long tenantId) {
-        if (tenantId == null || !tenantRepository.existsById(tenantId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tenant not found");
-        }
-    }
-
-    private void validateCo(Long tenantId, Long coId) {
-        if (coId == null || coRepository.findByIdAndTenantId(coId, tenantId).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Co not found in tenant");
-        }
-    }
-
     private Dept resolveParentDept(Long tenantId, Long coId, Long upDeptId) {
         if (upDeptId == null) {
             return null;
         }
         return deptRepository.findByIdAndTenantIdAndCoId(upDeptId, tenantId, coId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Parent dept not found in company"));
-    }
-
-    private String normalizeCd(String value) {
-        return value.trim().toUpperCase();
-    }
-
-    private String normalizeStatus(String value) {
-        if (value == null || value.isBlank()) {
-            return "ACTIVE";
-        }
-        return value.trim().toUpperCase();
     }
 }

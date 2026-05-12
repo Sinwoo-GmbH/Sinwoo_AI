@@ -1,4 +1,4 @@
-package com.sinwoo.platform.mnu.dto;
+package com.sinwoo.platform.menu.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

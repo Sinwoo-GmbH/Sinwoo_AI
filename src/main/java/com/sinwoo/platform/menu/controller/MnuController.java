@@ -1,13 +1,13 @@
-package com.sinwoo.platform.mnu.controller;
+package com.sinwoo.platform.menu.controller;
 
 import com.sinwoo.platform.auth.support.AuthErrorCd;
 import com.sinwoo.common.security.AuthenticatedUsr;
 import com.sinwoo.common.exception.ApiException;
-import com.sinwoo.platform.mnu.dto.CreateMnuRequest;
-import com.sinwoo.platform.mnu.dto.MnuListResponse;
-import com.sinwoo.platform.mnu.dto.MnuResponse;
-import com.sinwoo.platform.mnu.dto.MnuTreeResponse;
-import com.sinwoo.platform.mnu.service.MnuService;
+import com.sinwoo.platform.menu.dto.CreateMnuRequest;
+import com.sinwoo.platform.menu.dto.MnuListResponse;
+import com.sinwoo.platform.menu.dto.MnuResponse;
+import com.sinwoo.platform.menu.dto.MnuTreeResponse;
+import com.sinwoo.platform.menu.service.MnuService;
 import jakarta.validation.Valid;
 import java.util.Locale;
 import java.util.List;

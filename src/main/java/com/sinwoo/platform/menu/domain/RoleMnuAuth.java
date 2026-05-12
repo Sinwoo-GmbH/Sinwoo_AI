@@ -1,4 +1,4 @@
-package com.sinwoo.platform.mnu.domain;
+package com.sinwoo.platform.menu.domain;
 
 import com.sinwoo.common.util.BaseEntity;
 import jakarta.persistence.Column;
