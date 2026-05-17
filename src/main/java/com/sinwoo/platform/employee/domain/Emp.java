@@ -46,8 +46,23 @@ public class Emp extends BaseEntity {
     @Column(name = "TEAM_ROLE_CD", nullable = false, length = 20)
     private String teamRoleCd;
 
-    @Column(name = "JOB_TTL_NM", length = 255)
-    private String jobTtlNm;
+    @Column(name = "JOB_TTL_CD", length = 20)
+    private String jobTtlCd;
+
+    @Column(name = "EML", length = 255)
+    private String eml;
+
+    @Column(name = "EXP_ACC_CD")
+    private Integer expAccCd;
+
+    @Column(name = "SEX_CD", columnDefinition = "CHAR(1)")
+    private String sexCd;
+
+    @Column(name = "TEL_NO", length = 20)
+    private String telNo;
+
+    @Column(name = "BIRTH_DT")
+    private LocalDate birthDt;
 
     @Column(name = "HIRE_DT")
     private LocalDate hireDt;
@@ -67,7 +82,7 @@ public class Emp extends BaseEntity {
             String empNo,
             String empNm,
             String teamRoleCd,
-            String jobTtlNm,
+            String jobTtlCd,
             LocalDate hireDt,
             LocalDate retrDt,
             String stsCd
@@ -80,7 +95,7 @@ public class Emp extends BaseEntity {
         this.empNo = empNo;
         this.empNm = empNm;
         this.teamRoleCd = teamRoleCd;
-        this.jobTtlNm = jobTtlNm;
+        this.jobTtlCd = jobTtlCd;
         this.hireDt = hireDt;
         this.retrDt = retrDt;
         this.stsCd = stsCd;
@@ -95,11 +110,11 @@ public class Emp extends BaseEntity {
             String empNo,
             String empNm,
             String teamRoleCd,
-            String jobTtlNm,
+            String jobTtlCd,
             LocalDate hireDt,
             LocalDate retrDt,
             String stsCd
     ) {
-        return new Emp(tenantId, coId, usrId, deptId, mgrEmpId, empNo, empNm, teamRoleCd, jobTtlNm, hireDt, retrDt, stsCd);
+        return new Emp(tenantId, coId, usrId, deptId, mgrEmpId, empNo, empNm, teamRoleCd, jobTtlCd, hireDt, retrDt, stsCd);
     }
 }

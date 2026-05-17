@@ -6,14 +6,18 @@ import type {
 } from "@/features/requests/leave/leave-mock-data";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import type { LoginLocale } from "@/lib/i18n/login-cnt";
+import { approverStatusLabel, leaveStatusLabel } from "@/lib/i18n/leave-cnt";
 
 type LeaveStatusBadgeProps = {
   status: LeaveStatus;
+  locale: LoginLocale;
   className?: string;
 };
 
 type LeaveApproverStatusBadgeProps = {
   status: ApproverStatus;
+  locale: LoginLocale;
   className?: string;
 };
 
@@ -39,7 +43,7 @@ function approverStatusTone(status: ApproverStatus) {
   return approverStatusToneMap[status as Exclude<ApproverStatus, `Approved by ${number}`>];
 }
 
-export function LeaveStatusBadge({ status, className }: LeaveStatusBadgeProps) {
+export function LeaveStatusBadge({ status, locale, className }: LeaveStatusBadgeProps) {
   return (
     <Badge
       className={cn(
@@ -48,13 +52,14 @@ export function LeaveStatusBadge({ status, className }: LeaveStatusBadgeProps) {
         className
       )}
     >
-      {status}
+      {leaveStatusLabel(locale, status)}
     </Badge>
   );
 }
 
 export function LeaveApproverStatusBadge({
   status,
+  locale,
   className,
 }: LeaveApproverStatusBadgeProps) {
   return (
@@ -65,7 +70,7 @@ export function LeaveApproverStatusBadge({
         className
       )}
     >
-      {status}
+      {approverStatusLabel(locale, status)}
     </Badge>
   );
 }

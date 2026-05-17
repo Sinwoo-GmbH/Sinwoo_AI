@@ -86,7 +86,17 @@ export function useWspShellState(): WspShellState {
     const actorKey = buildWspStorageActorKey(currentUsr);
     const clientState = readPersistedWspState("client", actorKey);
     const adminState = readPersistedWspState("admin", actorKey);
-    const preferredMode = adminState?.mode ?? clientState?.mode ?? "client";
+    // 마지막 활성 모드 = 두 상태 중 lastActiveAt 큰 쪽. 둘 다 없으면 "client" (고객 대시보드 기본).
+    const clientStamp = clientState?.lastActiveAt ?? 0;
+    const adminStamp = adminState?.lastActiveAt ?? 0;
+    let preferredMode: WspMode;
+    if (!clientState && !adminState) {
+      preferredMode = "client";
+    } else if (adminStamp > clientStamp) {
+      preferredMode = "admin";
+    } else {
+      preferredMode = clientState ? "client" : "admin";
+    }
     const persistedState = preferredMode === "admin" ? adminState : clientState;
 
     if (!token) {

@@ -31,7 +31,7 @@ public class BillAccessPolicyService {
             return false;
         }
 
-        if ("INTERNAL".equalsIgnoreCase(tenant.getTenantTpCd()) || "Y".equalsIgnoreCase(tenant.getBillFreeYn())) {
+        if ("INTL".equalsIgnoreCase(tenant.getTenantTpCd()) || "Y".equalsIgnoreCase(tenant.getBillFreeYn())) {
             return true;
         }
 

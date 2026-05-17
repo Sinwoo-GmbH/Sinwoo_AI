@@ -5,6 +5,8 @@ spring:
     default: local
   jackson:
     time-zone: UTC
+    serialization:
+      write-dates-as-timestamps: false
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
@@ -57,8 +59,8 @@ app:
   auth:
     frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:3000}
     oauth-callback-path: /auth/callback
-    customer-default-role-cd: ROLE_CUSTOMER_USER_MEMBER
-    internal-default-role-cd: ROLE_PLATFORM_ADMIN
+    customer-default-role-cd: USR
+    internal-default-role-cd: PADM
     default-locl-cd: en
   attendance:
     biz-tmzn-id: Europe/Berlin

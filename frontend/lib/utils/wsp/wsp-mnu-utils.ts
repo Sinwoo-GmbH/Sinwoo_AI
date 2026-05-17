@@ -12,10 +12,11 @@ import {
 } from "@/lib/utils/wsp/wsp-mnu-compat";
 import type { MnuNodeResponse } from "@/lib/api/mnu-contract";
 
+// "Admin" 메뉴 활성화 가능한 역할 — V19에서 단순화된 ROLE_CD 기준
+// (PADM=Platform Admin, CADM=Customer Admin)
 const CUSTOMER_ADMIN_ROLE_IDS = [
-  "ROLE_CUSTOMER_ADMIN_MEMBER",
-  "ROLE_CUSTOMER_ADMIN_LEADER",
-  "ROLE_PLATFORM_SUPER_ADMIN",
+  "CADM",
+  "PADM",
 ] as const;
 
 type ClientRuntimeChildDefinition = {
@@ -168,11 +169,21 @@ export function resolveWspTabTitle(
 ) {
   if (tabId === profileTabId) return profileTabTitle;
 
+  // 1순위: 백엔드 API에서 받은 메뉴 트리에서 조회
   const resolvedTitle = findMnuTitleFromNodes(mnus, tabId);
   if (resolvedTitle) {
     return resolvedTitle;
   }
 
+  // 2순위: 이미 탭이 보유한 제목 유지 (깜빡임 방지)
+  //   - API 응답 전 임시 상태에서 옛 풀네임 fallback 구조가
+  //     상위/옛 메뉴명을 잘못 표시하던 회귀 차단
+  //   - 호출 측이 정확한 제목을 캐싱해두면 그대로 사용
+  if (fallbackTitle && fallbackTitle !== tabId) {
+    return fallbackTitle;
+  }
+
+  // 3순위: 콜드 부팅 (탭 제목 없음) — 하드코딩 fallback 구조 시도
   const fallbackMnuId = resolveFallbackMnuId(tabId);
   const fallbackMnuTitle = findMnuTitle(mode, fallbackMnuId, locale);
   if (fallbackMnuTitle !== fallbackMnuId) {

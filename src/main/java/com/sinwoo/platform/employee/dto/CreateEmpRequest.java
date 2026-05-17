@@ -31,8 +31,8 @@ public record CreateEmpRequest(
         @Size(max = 20)
         String teamRoleCd,
 
-        @Size(max = 255)
-        String jobTtlNm,
+        @Size(max = 20)
+        String jobTtlCd,
 
         LocalDate hireDt,
 

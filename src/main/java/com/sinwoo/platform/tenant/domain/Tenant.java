@@ -49,7 +49,7 @@ public class Tenant extends BaseEntity {
     }
 
     public static Tenant create(String tenantCd, String tenantNm, TenantStatus tenantStatus) {
-        return new Tenant(tenantCd, tenantNm, null, "CUSTOMER", "N", tenantStatus);
+        return new Tenant(tenantCd, tenantNm, null, "CST", "N", tenantStatus);
     }
 
     public static Tenant create(

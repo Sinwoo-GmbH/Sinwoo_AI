@@ -51,6 +51,7 @@ export interface LeaveReqResponse {
   ccs: LeavePartResponse[];
   canEdit?: boolean | null;
   canCancel?: boolean | null;
+  canDelete?: boolean | null;
   canApprove?: boolean | null;
   canReject?: boolean | null;
   myRoleCd?: string | null;

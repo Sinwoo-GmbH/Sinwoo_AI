@@ -10,10 +10,12 @@ spring:
     compose:
       enabled: false
   jpa:
-    show-sql: false
+    show-sql: true
     properties:
       hibernate:
-        format_sql: false
+        format_sql: true
+        use_sql_comments: true
+        highlight_sql: true
 
 app:
   auth:
@@ -35,5 +37,11 @@ logging:
     org.springframework.security: debug
     org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: debug
     org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: debug
+    # ── SQL 로깅 (local 프로파일 한정) ──
+    org.hibernate.SQL: debug                              # 실행되는 SQL 출력
+    org.hibernate.orm.jdbc.bind: trace                    # 바인딩 파라미터 값 출력 (Hibernate 6+)
+    org.hibernate.orm.jdbc.extract: trace                 # SELECT 결과 추출 값 출력
+    org.hibernate.stat: debug                             # 통계
+    org.hibernate.SQL_SLOW: info                          # 느린 쿼리
   pattern:
     console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] [reqId:%X{reqId:-NO-REQ}] [tenant:%X{tenant:-NONE}] [usr:%X{usr:-ANON}] %logger{36} - %msg%n%wEx"

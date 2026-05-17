@@ -120,10 +120,10 @@ type MnuPresentationMetadata = Pick<MnuNode, "icon" | "closable">;
 const fallbackWspModeSeeds: WspModeSeed[] = [
   {
     mode: "client",
-    defaultTabId: "MNU_CUSTOMER_DASH",
+    defaultTabId: "DASH",
     mnus: [
       {
-        id: "MNU_CUSTOMER_DASH",
+        id: "DASH",
       },
       {
         id: "MNU_CUSTOMER_TEAM",
@@ -201,9 +201,9 @@ const fallbackWspModeSeeds: WspModeSeed[] = [
   },
   {
     mode: "admin",
-    defaultTabId: "admin-overview",
+    defaultTabId: "ADSH",
     mnus: [
-      { id: "admin-overview" },
+      { id: "ADSH" },
       {
         id: "tenant-control",
         children: [
@@ -265,6 +265,29 @@ const fallbackWspModeSeeds: WspModeSeed[] = [
 ];
 
 const fallbackMnuPresentationMetadata: Record<string, MnuPresentationMetadata> = {
+  // V23 단축 CD — Dashboard는 닫기 불가
+  DASH: { icon: "grid", closable: false },
+  ADSH: { icon: "grid", closable: false },
+  WT: { icon: "clock" },
+  MYWT: { icon: "user-clock" },
+  TMWT: { icon: "usrs" },
+  RQST: { icon: "clipboard-list" },
+  RQLV: { icon: "calendar-days" },
+  RQTR: { icon: "plane" },
+  RQEX: { icon: "receipt-text" },
+  RQIN: { icon: "mail-check" },
+  CLMS: { icon: "inbox" },
+  CMEX: { icon: "receipt-text" },
+  CMTR: { icon: "plane" },
+  CMIN: { icon: "mail-check" },
+  RPRT: { icon: "bar-chart-3" },
+  RPWT: { icon: "clock" },
+  RPEX: { icon: "trending-up" },
+  FNC: { icon: "wallet" },
+  ADMIN: { icon: "shield" },
+  LVPL: { icon: "settings" },
+  LVGR: { icon: "list" },
+  COHL: { icon: "calendar" },
   "client-dashboard": { icon: "grid" },
   MNU_CUSTOMER_DASH: { icon: "grid" },
   MNU_CUSTOMER_TEAM: { icon: "usrs" },
@@ -337,6 +360,34 @@ const fallbackMnuPresentationMetadata: Record<string, MnuPresentationMetadata> =
 };
 
 const fallbackMnuTitleTranslations: Partial<Record<string, Partial<Record<LoginLocale, string>>>> = {
+  // V23 단축 CD 번역 — API 응답 전 임시 표시용 (코드값 노출 방지)
+  DASH:  { en: "Dashboard",          de: "Dashboard",          ko: "대시보드" },
+  ADSH:  { en: "Admin Dashboard",    de: "Admin-Dashboard",    ko: "관리자 대시보드" },
+  WT:    { en: "Working Time",       de: "Arbeitszeit",        ko: "근무시간" },
+  MYWT:  { en: "My Working Time",    de: "Meine Arbeitszeit",  ko: "내 근무시간" },
+  TMWT:  { en: "Team Working Time",  de: "Team-Arbeitszeit",   ko: "팀 근무시간" },
+  RQST:  { en: "Request",            de: "Anträge",            ko: "신청" },
+  RQLV:  { en: "Leave",              de: "Urlaub",             ko: "휴가 신청" },
+  RQTR:  { en: "Business Trip",      de: "Geschäftsreise",     ko: "출장 신청" },
+  RQEX:  { en: "Expense",            de: "Spesen",             ko: "경비 신청" },
+  RQIN:  { en: "Inbox",              de: "Eingang",            ko: "결재함" },
+  CLMS:  { en: "My Claims",          de: "Meine Anträge",      ko: "내 신청 내역" },
+  CMEX:  { en: "Expense",            de: "Spesen",             ko: "경비 내역" },
+  CMTR:  { en: "Business Trip",      de: "Geschäftsreise",     ko: "출장 내역" },
+  CMIN:  { en: "Inbox",              de: "Eingang",            ko: "결재 진행 내역" },
+  RPRT:  { en: "Reports",            de: "Berichte",           ko: "리포트" },
+  RPWT:  { en: "Work Time",          de: "Arbeitszeit",        ko: "근무시간 리포트" },
+  RPEX:  { en: "Monthly Expenses",   de: "Monatliche Spesen",  ko: "월별 경비 리포트" },
+  FNC:   { en: "Finance",            de: "Finanzen",           ko: "재무" },
+  ADMIN: { en: "Admin",               de: "Verwaltung",         ko: "관리자" },
+  LVPL:  { en: "Leave Policy",       de: "Urlaubsregelung",    ko: "휴가 정책" },
+  LVGR:  { en: "Leave Grants",       de: "Urlaubsvergabe",     ko: "휴가 부여" },
+  COHL:  { en: "Company Holidays",   de: "Betriebsferien",     ko: "회사 휴일" },
+  // ADMIN scope 단축
+  TNT:   { en: "Tenant Management",        de: "Mandantenverwaltung",       ko: "테넌트 관리" },
+  AUTH:  { en: "Authorization Management", de: "Berechtigungsverwaltung",   ko: "권한 관리" },
+  BILL:  { en: "Billing Management",       de: "Abrechnungsverwaltung",     ko: "결제 관리" },
+  MENU:  { en: "Menu Management",          de: "Menüverwaltung",            ko: "메뉴 관리" },
   "client-dashboard": { en: "Dashboard", de: "Dashboard", ko: "대시보드" },
   MNU_CUSTOMER_DASH: { en: "Dashboard", de: "Dashboard", ko: "대시보드" },
   MNU_CUSTOMER_TEAM: { en: "Team", de: "Team", ko: "팀" },

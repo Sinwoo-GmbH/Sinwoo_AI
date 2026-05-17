@@ -56,7 +56,7 @@ public class EmpServiceImpl implements EmpService {
                 normalizedEmpNo,
                 request.empNm().trim(),
                 normalizeTeamRole(request.teamRoleCd()),
-                blankToNull(request.jobTtlNm()),
+                blankToNull(request.jobTtlCd()),
                 request.hireDt(),
                 request.retrDt(),
                 defaultIfBlankUpper(request.stsCd(), "ACTIVE")

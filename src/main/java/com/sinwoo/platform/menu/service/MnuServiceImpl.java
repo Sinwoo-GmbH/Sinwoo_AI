@@ -334,11 +334,23 @@ public class MnuServiceImpl implements MnuService {
             return true;
         }
 
+        // Platform Admin은 모든 BILL_GATE 통과 (시스템 최상위 권한)
+        if (hasPlatformAdminRole(roles)) {
+            return true;
+        }
+
         if (MnuBizConst.BILL_GATE_CD_PAID_CUSTOMER_ADMIN.equals(mnu.getBillGateCd())) {
             return hasCustomerAdminRole(roles) && billAccessPolicyService.hasPaidAdminAccess(tenantId);
         }
 
         return true;
+    }
+
+    private boolean hasPlatformAdminRole(List<Role> roles) {
+        return roles.stream().anyMatch(role ->
+                "PLT".equalsIgnoreCase(role.getRoleD1Cd())
+                        || "PADM".equalsIgnoreCase(role.getRoleCd())
+        );
     }
 
     private boolean hasCustomerAdminRole(List<Role> roles) {

@@ -11,6 +11,10 @@ export type WspAttndMsgs = {
   manualCheckOut: string;
   manualSaveIn: string;
   manualSaveOut: string;
+  save: string;
+  today: string;
+  errEndBeforeStr: string;
+  errSaveFailed: string;
 };
 
 export type WspWorkTimeHistMsgs = {
@@ -84,6 +88,10 @@ const wspAttndMsgs: Record<LoginLocale, WspAttndMsgs> = {
     manualCheckOut: "Check-out",
     manualSaveIn: "Save in",
     manualSaveOut: "Save out",
+    save: "Save",
+    today: "Today",
+    errEndBeforeStr: "Check-out time must be after check-in time.",
+    errSaveFailed: "Failed to save. Please try again.",
   },
   de: {
     eyebrow: "arbeitszeit",
@@ -96,6 +104,10 @@ const wspAttndMsgs: Record<LoginLocale, WspAttndMsgs> = {
     manualCheckOut: "Ende",
     manualSaveIn: "Start speichern",
     manualSaveOut: "Ende speichern",
+    save: "Speichern",
+    today: "Heute",
+    errEndBeforeStr: "Die Endzeit muss nach der Startzeit liegen.",
+    errSaveFailed: "Speichern fehlgeschlagen. Bitte erneut versuchen.",
   },
   ko: {
     eyebrow: "출퇴근 기록",
@@ -108,6 +120,10 @@ const wspAttndMsgs: Record<LoginLocale, WspAttndMsgs> = {
     manualCheckOut: "퇴근",
     manualSaveIn: "출근 저장",
     manualSaveOut: "퇴근 저장",
+    save: "저장",
+    today: "오늘",
+    errEndBeforeStr: "퇴근 시간은 출근 시간 이후여야 합니다.",
+    errSaveFailed: "저장에 실패했습니다. 다시 시도해 주세요.",
   },
 };
 
@@ -343,4 +359,86 @@ export function getWspAdminAreaMsgs(
   locale: LoginLocale
 ): WspAdminAreaMsgs {
   return wspAdminAreaMsgs[locale];
+}
+
+/* ── Company Holiday Admin ─────────────────────────────── */
+
+export type WspCoHolMsgs = {
+  title: string;
+  add: string;
+  edit: string;
+  del: string;
+  confirmDel: string;
+  name: string;
+  strDt: string;
+  endDt: string;
+  annual: string;
+  annualY: string;
+  annualN: string;
+  applyYr: string;
+  save: string;
+  cancel: string;
+  noData: string;
+  created: string;
+};
+
+const wspCoHolMsgs: Record<LoginLocale, WspCoHolMsgs> = {
+  en: {
+    title: "Company Holidays",
+    add: "Add Holiday",
+    edit: "Edit Holiday",
+    del: "Delete",
+    confirmDel: "Are you sure you want to delete this holiday?",
+    name: "Holiday name",
+    strDt: "Start date",
+    endDt: "End date",
+    annual: "Annual",
+    annualY: "Yes (every year)",
+    annualN: "No (specific year)",
+    applyYr: "Apply year",
+    save: "Save",
+    cancel: "Cancel",
+    noData: "No company holidays registered.",
+    created: "Created",
+  },
+  de: {
+    title: "Firmenfeiertage",
+    add: "Feiertag hinzufügen",
+    edit: "Feiertag bearbeiten",
+    del: "Löschen",
+    confirmDel: "Möchten Sie diesen Feiertag wirklich löschen?",
+    name: "Feiertagsname",
+    strDt: "Startdatum",
+    endDt: "Enddatum",
+    annual: "Jährlich",
+    annualY: "Ja (jedes Jahr)",
+    annualN: "Nein (bestimmtes Jahr)",
+    applyYr: "Geltungsjahr",
+    save: "Speichern",
+    cancel: "Abbrechen",
+    noData: "Keine Firmenfeiertage registriert.",
+    created: "Erstellt",
+  },
+  ko: {
+    title: "회사 휴일 관리",
+    add: "휴일 추가",
+    edit: "휴일 수정",
+    del: "삭제",
+    confirmDel: "이 휴일을 삭제하시겠습니까?",
+    name: "휴일명",
+    strDt: "시작일",
+    endDt: "종료일",
+    annual: "매년 반복",
+    annualY: "예 (매년)",
+    annualN: "아니오 (특정 연도)",
+    applyYr: "적용 연도",
+    save: "저장",
+    cancel: "취소",
+    noData: "등록된 회사 휴일이 없습니다.",
+    created: "등록일",
+  },
+};
+
+export function getWspCoHolMsgs(locale: LoginLocale): WspCoHolMsgs {
+  return wspCoHolMsgs[locale];
 }

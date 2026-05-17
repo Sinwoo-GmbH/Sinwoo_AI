@@ -7,10 +7,13 @@ import type {
   LeaveFiltValue,
 } from "@/features/requests/leave/leave-mock-data";
 import { Button } from "@/components/ui/button";
+import type { LoginLocale } from "@/lib/i18n/login-cnt";
+import { getLeavePageMsgs, leaveStatusLabel } from "@/lib/i18n/leave-cnt";
 import { Search } from "lucide-react";
 
 type LeaveFiltBarProps = {
   value: LeaveFiltValue;
+  locale: LoginLocale;
   statusOpts: readonly LeaveFiltStatus[];
   onChange: (next: LeaveFiltValue) => void;
   onSearch: () => void;
@@ -37,11 +40,14 @@ function FilterField({
 
 export function LeaveFiltBar({
   value,
+  locale,
   statusOpts,
   onChange,
   onSearch,
   onCreate,
 }: LeaveFiltBarProps) {
+  const L = getLeavePageMsgs(locale);
+
   return (
     <div className="flex flex-col gap-1.5 xl:flex-row xl:items-end xl:justify-between">
       <Button
@@ -50,12 +56,12 @@ export function LeaveFiltBar({
         onClick={onCreate}
         className="h-6 shrink-0 rounded-[3px] bg-[#2f5b96] px-2 text-[9px] font-medium text-white hover:bg-[#274d7e]"
       >
-        Create
+        {L.btnCreate}
       </Button>
 
       <div className="flex flex-col gap-1.5 xl:ml-auto xl:flex-row xl:items-end xl:justify-end">
         <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-[160px_160px_140px]">
-          <FilterField label="Start Date From">
+          <FilterField label={L.filtFrom}>
             <input
               type="date"
               value={value.startDateFrom}
@@ -65,7 +71,7 @@ export function LeaveFiltBar({
               className={fieldClassName}
             />
           </FilterField>
-          <FilterField label="Start Date To">
+          <FilterField label={L.filtTo}>
             <input
               type="date"
               value={value.startDateTo}
@@ -75,7 +81,7 @@ export function LeaveFiltBar({
               className={fieldClassName}
             />
           </FilterField>
-          <FilterField label="Status">
+          <FilterField label={L.filtStatus}>
             <select
               value={value.status}
               onChange={(event) =>
@@ -88,7 +94,7 @@ export function LeaveFiltBar({
             >
               {statusOpts.map((status) => (
                 <option key={status} value={status}>
-                  {status}
+                  {leaveStatusLabel(locale, status)}
                 </option>
               ))}
             </select>
@@ -103,7 +109,7 @@ export function LeaveFiltBar({
           className="h-6 shrink-0 rounded-[3px] border-slate-300 bg-white px-2 text-[9px] font-medium text-slate-700 hover:bg-slate-50"
         >
           <Search className="mr-1 h-2.5 w-2.5" />
-          Search
+          {L.btnSearch}
         </Button>
       </div>
     </div>

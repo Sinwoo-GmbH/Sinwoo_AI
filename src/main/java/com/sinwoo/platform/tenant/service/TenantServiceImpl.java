@@ -62,7 +62,7 @@ public class TenantServiceImpl implements TenantService {
 
     private String normalizeTenantType(String tenantTpCd) {
         if (tenantTpCd == null || tenantTpCd.isBlank()) {
-            return "CUSTOMER";
+            return "CST";
         }
         return tenantTpCd.trim().toUpperCase();
     }
@@ -79,7 +79,7 @@ public class TenantServiceImpl implements TenantService {
     }
 
     private String normalizeBillFreeYn(String tenantTpCd, String billFreeYn) {
-        if ("INTERNAL".equals(tenantTpCd)) {
+        if ("INTL".equals(tenantTpCd)) {
             return "Y";
         }
         if (billFreeYn == null || billFreeYn.isBlank()) {

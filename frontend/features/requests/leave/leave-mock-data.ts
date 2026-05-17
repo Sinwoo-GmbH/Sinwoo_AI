@@ -64,6 +64,7 @@ export type LeaveReqRec = {
   ccs: LeavePart[];
   canEdit?: boolean | null;
   canCancel?: boolean | null;
+  canDelete?: boolean | null;
   canApprove?: boolean | null;
   canReject?: boolean | null;
   myRoleCd?: string | null;
@@ -596,32 +597,88 @@ export const DEFAULT_LEAVE_FILT_VALUE: LeaveFiltValue = {
   status: "All",
 };
 
+/**
+ * 휴가유형 → 차감유형 자동 매핑.
+ * 연차(Annual Leave / AN)만 차감, 나머지는 비차감.
+ */
+export function autoDeductionType(leaveType: LeaveType | string): DeductionType {
+  if (leaveType === "Annual Leave" || leaveType === "AN") {
+    return "Deducted Leave";
+  }
+  return "Non-deducted Leave";
+}
+
+/**
+ * 휴가유형별 허용되는 휴가 단위 목록.
+ * 오전/오후 반차는 연차(Annual Leave / "AN")일 때만 선택 가능.
+ * leaveType, leaveUnit 모두 짧은 CD("AN","FD","AM","PM")와 풀네임 양쪽 표기 인식.
+ */
+const FULL_DAY_ALIASES = new Set<string>(["Full Day", "FD"]);
+const HALF_DAY_ALIASES = new Set<string>(["Half Day AM", "AM", "Half Day PM", "PM"]);
+
+export function allowedLeaveUnits<T extends string = LeaveUnit>(
+  leaveType: LeaveType | string,
+  availableOpts?: readonly T[]
+): readonly T[] {
+  const isAnnual = leaveType === "Annual Leave" || leaveType === "AN";
+  const allowed: Set<string> = isAnnual
+    ? new Set<string>([...FULL_DAY_ALIASES, ...HALF_DAY_ALIASES])
+    : FULL_DAY_ALIASES;
+
+  if (availableOpts && availableOpts.length > 0) {
+    return availableOpts.filter((o) => allowed.has(o as string));
+  }
+  return (isAnnual
+    ? (["Full Day", "Half Day AM", "Half Day PM"] as readonly string[])
+    : (["Full Day"] as readonly string[])) as readonly T[];
+}
+
+/**
+ * 영업일 기준 휴가일수 계산 (주말 토/일 제외).
+ * 공휴일은 서버 /calculate 엔드포인트에서 최종 검증.
+ */
 export function calculateLeaveDays(
   startDate: string,
   endDate: string,
-  leaveUnit: LeaveUnit
+  leaveUnit: LeaveUnit | string
 ) {
   if (!startDate || !endDate) {
     return 0;
   }
 
-  if (leaveUnit !== "Full Day") {
+  // 풀네임("Full Day")과 짧은 CD("FD") 양쪽 인식
+  const isFullDay = leaveUnit === "Full Day" || (leaveUnit as string) === "FD";
+  if (!isFullDay) {
     return 0.5;
   }
 
   const start = new Date(`${startDate}T00:00:00`);
   const end = new Date(`${endDate}T00:00:00`);
-  const diffMs = Math.max(end.getTime() - start.getTime(), 0);
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1;
-  return Number(diffDays.toFixed(1));
+
+  if (end < start) return 0;
+
+  let businessDays = 0;
+  const cursor = new Date(start);
+  while (cursor <= end) {
+    const dow = cursor.getDay(); // 0=Sun, 6=Sat
+    if (dow !== 0 && dow !== 6) {
+      businessDays++;
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return businessDays;
 }
 
 export function calculateAfterRequest(
   availableDays: number,
-  deductionType: DeductionType,
+  deductionType: DeductionType | string,
   days: number
 ) {
-  if (deductionType !== "Deducted Leave") {
+  // "Deducted Leave"(풀네임) 또는 "DD"(짧은 CD) 모두 차감 인식
+  const dt = deductionType as string;
+  const isDeducted = dt === "Deducted Leave" || dt === "DD";
+  if (!isDeducted) {
     return availableDays;
   }
 

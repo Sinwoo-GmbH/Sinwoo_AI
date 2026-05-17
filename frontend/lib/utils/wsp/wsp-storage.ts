@@ -6,6 +6,8 @@ export type PersistedWspShellState = {
   sidebarCollapsed: boolean;
   openTabs: TabItem[];
   activeTabId: string;
+  /** 마지막 저장 시각 (epoch ms). 모드 간 마지막 활성 판정용. */
+  lastActiveAt?: number;
 };
 
 const STORAGE_NAMESPACE = "sinwoo.wsp.shell.v1";
@@ -53,5 +55,21 @@ export function writePersistedWspState(
   mode: WspMode,
   state: PersistedWspShellState
 ) {
-  window.localStorage.setItem(buildWspStorageKey(actorKey, mode), JSON.stringify(state));
+  const stamped: PersistedWspShellState = { ...state, lastActiveAt: Date.now() };
+  window.localStorage.setItem(buildWspStorageKey(actorKey, mode), JSON.stringify(stamped));
+}
+
+/**
+ * 로그인 직후 호출 — 이전에 저장된 모든 wsp shell 상태(모드/탭/사이드바)를 제거.
+ * 그 결과 첫 진입 시 useWspShellState가 fallback "client" 모드로 시작.
+ */
+export function clearAllPersistedWspState() {
+  const keysToRemove: string[] = [];
+  for (let i = 0; i < window.localStorage.length; i++) {
+    const key = window.localStorage.key(i);
+    if (key && key.startsWith(`${STORAGE_NAMESPACE}:`)) {
+      keysToRemove.push(key);
+    }
+  }
+  keysToRemove.forEach((k) => window.localStorage.removeItem(k));
 }

@@ -31,12 +31,15 @@ import { LeaveReqModal } from "@/features/requests/leave/leave-req-modal";
 import { LeaveReqTable } from "@/features/requests/leave/leave-req-table";
 import {
   LEAVE_API_PATH,
+  type LeaveCalcResponse,
   type LeaveCtxResponse,
   type LeaveListResponse,
   type LeaveReqResponse,
   type LeaveSaveRequest,
 } from "@/lib/api/leave-contract";
 import type { LoginLocale } from "@/lib/i18n/login-cnt";
+import { getLeavePageMsgs, leaveTypeLabel } from "@/lib/i18n/leave-cnt";
+import { toast } from "@/components/ui/toast";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 
@@ -52,11 +55,13 @@ type LeaveDialogState =
       open: false;
       mode: "create";
       value: LeaveReqFormValue;
+      canDelete: boolean;
     }
   | {
       open: true;
       mode: "create" | "edit" | "view";
       value: LeaveReqFormValue;
+      canDelete: boolean;
     };
 
 type ApiErrorBody = {
@@ -105,6 +110,16 @@ function toNumber(value: number | string | null | undefined) {
   return 0;
 }
 
+const STATUS_CD_ALIAS: Record<string, LeaveStatus> = {
+  DRF: "Draft",
+  REQ: "Requested",
+  WAT: "Requested",
+  APR: "Approved",
+  REJ: "Rejected",
+  CAN: "Cancelled",
+  ACN: "Admin Cancelled",
+};
+
 function normalizeStatus(status: string): LeaveStatus {
   const allowed: readonly LeaveStatus[] = [
     "Draft",
@@ -114,7 +129,10 @@ function normalizeStatus(status: string): LeaveStatus {
     "Cancelled",
     "Admin Cancelled",
   ];
-  return allowed.includes(status as LeaveStatus) ? (status as LeaveStatus) : "Draft";
+  if (allowed.includes(status as LeaveStatus)) return status as LeaveStatus;
+  const aliased = STATUS_CD_ALIAS[status];
+  if (aliased) return aliased;
+  return "Draft";
 }
 
 function normalizeFiltStatus(status: string): LeaveFiltStatus {
@@ -156,6 +174,7 @@ function toLeaveReqRec(response: LeaveReqResponse): LeaveReqRec {
     ccs: (response.ccs ?? []).map(toPart),
     canEdit: response.canEdit,
     canCancel: response.canCancel,
+    canDelete: response.canDelete,
     canApprove: response.canApprove,
     canReject: response.canReject,
     myRoleCd: response.myRoleCd,
@@ -218,9 +237,11 @@ async function parseError(response: Response) {
 
 export function LeaveReqPage({
   accessToken,
+  locale,
   onLoadingChange,
   onUnauthorized,
 }: LeaveReqPageProps) {
+  const L = getLeavePageMsgs(locale);
   const [context, setContext] = useState<LeaveCtxResponse | null>(null);
   const [requests, setRequests] = useState<LeaveReqRec[]>([]);
   const [draftFilts, setDraftFilts] = useState(DEFAULT_LEAVE_FILT_VALUE);
@@ -229,11 +250,13 @@ export function LeaveReqPage({
     open: false,
     mode: "create",
     value: createBlankLeaveReqFormValue(),
+    canDelete: false,
   });
   const [cancelTarget, setCancelTarget] = useState<LeaveReqRec | null>(null);
   const [approveTarget, setApproveTarget] = useState<LeaveReqRec | null>(null);
   const [rejectTarget, setRejectTarget] = useState<LeaveReqRec | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<LeaveReqRec | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -333,6 +356,7 @@ export function LeaveReqPage({
   };
   const availableDays = toNumber(context?.balance.availableDays);
   const afterRequestDays = toNumber(context?.balance.afterRequestDays);
+  const previousYearDays = toNumber(context?.balance.previousYearDays);
   const leaveTypeOpts = toTypedOpts<LeaveType>(context?.leaveTypeOpts, LEAVE_TYPE_OPTS);
   const deductionTypeOpts = toTypedOpts<DeductionType>(
     context?.deductionTypeOpts,
@@ -340,7 +364,9 @@ export function LeaveReqPage({
   );
   const leaveUnitOpts = toTypedOpts<LeaveUnit>(context?.leaveUnitOpts, LEAVE_UNIT_OPTS);
   const statusOpts = toTypedOpts<LeaveFiltStatus>(
-    context?.statusOpts?.map(normalizeFiltStatus),
+    context?.statusOpts
+      ? Array.from(new Set(context.statusOpts.map(normalizeFiltStatus)))
+      : undefined,
     LEAVE_STATUS_OPTS
   );
   const organizations = (context?.organizations ?? []) as LeaveOrgNode[];
@@ -353,6 +379,7 @@ export function LeaveReqPage({
       open: false,
       mode: "create",
       value: createBlankLeaveReqFormValue(),
+      canDelete: false,
     });
   };
 
@@ -361,6 +388,7 @@ export function LeaveReqPage({
       open: true,
       mode: "create",
       value: createBlankLeaveReqFormValue(),
+      canDelete: false,
     });
   };
 
@@ -369,6 +397,7 @@ export function LeaveReqPage({
       open: true,
       mode: "edit",
       value: toLeaveReqFormValue(rec),
+      canDelete: !!rec.canDelete,
     });
   };
 
@@ -377,6 +406,7 @@ export function LeaveReqPage({
       open: true,
       mode: "view",
       value: toLeaveReqFormValue(rec),
+      canDelete: !!rec.canDelete,
     });
   };
 
@@ -400,7 +430,7 @@ export function LeaveReqPage({
   ) => {
     try {
       const body = JSON.stringify(toSaveRequest(nextValue, nextStatus));
-      await runWithLoading(() =>
+      const saved = await runWithLoading(() =>
         requestJson<LeaveReqResponse>(
           nextValue.id ? `${LEAVE_API_PATH}/${nextValue.id}` : LEAVE_API_PATH,
           {
@@ -409,8 +439,22 @@ export function LeaveReqPage({
           }
         )
       );
-      closeDialog();
-      await refreshAfterMutation();
+
+      if (nextStatus === "Draft") {
+        // 임시저장: 모달 유지 + toast 알림. 저장된 id 등 최신 값으로 모달 폼 동기화
+        const savedRec = toLeaveReqRec(saved);
+        setDialogState({
+          open: true,
+          mode: "edit",
+          value: toLeaveReqFormValue(savedRec),
+          canDelete: !!savedRec.canDelete,
+        });
+        toast.success(L.toastDraftSaved);
+        await refreshAfterMutation();
+      } else {
+        closeDialog();
+        await refreshAfterMutation();
+      }
     } catch (error) {
       setErrorMsg(error instanceof Error ? error.message : "Failed to save leave request.");
     }
@@ -424,7 +468,7 @@ export function LeaveReqPage({
     try {
       await runWithLoading(() =>
         requestJson<LeaveReqResponse>(`${LEAVE_API_PATH}/${cancelTarget.id}/cancel`, {
-          method: "PATCH",
+          method: "POST",
         })
       );
       setCancelTarget(null);
@@ -472,6 +516,53 @@ export function LeaveReqPage({
     }
   };
 
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    try {
+      await runWithLoading(() =>
+        requestJson<void>(`${LEAVE_API_PATH}/${deleteTarget.id}`, {
+          method: "DELETE",
+        })
+      );
+      setDeleteTarget(null);
+      await refreshAfterMutation();
+    } catch (error) {
+      setErrorMsg(error instanceof Error ? error.message : "Failed to delete leave request.");
+    }
+  };
+
+  const handleCalculate = useCallback(
+    async (params: {
+      leaveId: string | null;
+      leaveType: string;
+      deductionType: string;
+      leaveUnit: string;
+      startDate: string;
+      endDate: string;
+    }): Promise<LeaveCalcResponse | null> => {
+      try {
+        return await requestJson<LeaveCalcResponse>(
+          `${LEAVE_API_PATH}/calculate`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              leaveId: params.leaveId,
+              leaveType: params.leaveType,
+              deductionType: params.deductionType,
+              leaveUnit: params.leaveUnit,
+              startDate: params.startDate,
+              endDate: params.endDate,
+            }),
+          }
+        );
+      } catch {
+        return null;
+      }
+    },
+    [requestJson]
+  );
+
   return (
     <div className="mx-auto flex h-full min-h-0 max-w-[1440px] flex-col">
       <section
@@ -484,19 +575,21 @@ export function LeaveReqPage({
               id="wsp-request-leave-title"
               className="text-[13px] font-semibold leading-4 text-slate-900"
             >
-              Request Leave
+              {L.pageTitle}
             </h2>
             <p
               id="wsp-request-leave-desc"
               className="text-[9px] leading-3 text-slate-500"
             >
-              Create and review leave requests
+              {L.pageDesc}
             </p>
           </div>
 
           <LeaveBalSum
             availableDays={availableDays}
             afterRequestDays={afterRequestDays}
+            previousYearDays={previousYearDays}
+            locale={locale}
           />
         </div>
 
@@ -509,6 +602,7 @@ export function LeaveReqPage({
         <div className="mt-1 border-t border-slate-200 pt-1">
           <LeaveFiltBar
             value={draftFilts}
+            locale={locale}
             statusOpts={statusOpts}
             onChange={setDraftFilts}
             onSearch={() => setActiveFilts(draftFilts)}
@@ -519,9 +613,11 @@ export function LeaveReqPage({
         <div className="mt-1 min-h-0 flex-1">
           <LeaveReqTable
             rows={filteredRequests}
+            locale={locale}
             onEdit={openEditDialog}
             onView={openViewDialog}
             onCancel={setCancelTarget}
+            onDelete={setDeleteTarget}
             onApprove={setApproveTarget}
             onReject={(rec) => {
               setRejectReason("");
@@ -535,6 +631,7 @@ export function LeaveReqPage({
       <LeaveReqModal
         open={dialogState.open}
         mode={dialogState.mode}
+        locale={locale}
         applicant={applicant}
         availableDays={availableDays}
         organizations={organizations}
@@ -543,48 +640,63 @@ export function LeaveReqPage({
         deductionTypeOpts={deductionTypeOpts}
         leaveUnitOpts={leaveUnitOpts}
         initialValue={dialogState.value}
+        canDelete={dialogState.canDelete}
         onClose={closeDialog}
         onSave={handleSave}
+        onCalculate={handleCalculate}
+        onDelete={async (leaveId) => {
+          try {
+            await runWithLoading(() =>
+              requestJson<void>(`${LEAVE_API_PATH}/${leaveId}`, {
+                method: "DELETE",
+              })
+            );
+            closeDialog();
+            await refreshAfterMutation();
+          } catch (error) {
+            setErrorMsg(error instanceof Error ? error.message : "Failed to delete leave request.");
+          }
+        }}
       />
 
       <LeaveConfirmDialog
         open={cancelTarget !== null}
-        title="Cancel Leave Request"
+        title={L.confirmCancelTitle}
         desc={
           cancelTarget
-            ? `Cancel ${cancelTarget.leaveType} request for ${cancelTarget.startDate}${cancelTarget.endDate !== cancelTarget.startDate ? ` to ${cancelTarget.endDate}` : ""}?`
+            ? `${leaveTypeLabel(locale, cancelTarget.leaveType)} — ${cancelTarget.startDate}${cancelTarget.endDate !== cancelTarget.startDate ? ` ~ ${cancelTarget.endDate}` : ""}`
             : ""
         }
-        confirmLabel="Cancel Request"
-        cancelLabel="Close"
+        confirmLabel={L.confirmCancelBtn}
+        cancelLabel={L.confirmCloseBtn}
         onClose={() => setCancelTarget(null)}
         onConfirm={handleConfirmCancelRequest}
       />
 
       <LeaveConfirmDialog
         open={approveTarget !== null}
-        title="Approve Leave Request"
+        title={L.confirmApproveTitle}
         desc={
           approveTarget
-            ? `Approve ${approveTarget.leaveType} request for ${formatLeaveDays(approveTarget.days)} day(s)?`
+            ? `${leaveTypeLabel(locale, approveTarget.leaveType)} — ${formatLeaveDays(approveTarget.days)} ${L.thDays}`
             : ""
         }
-        confirmLabel="Approve"
-        cancelLabel="Close"
+        confirmLabel={L.confirmApproveBtn}
+        cancelLabel={L.confirmCloseBtn}
         onClose={() => setApproveTarget(null)}
         onConfirm={handleConfirmApprove}
       />
 
       <LeaveConfirmDialog
         open={rejectTarget !== null}
-        title="Reject Leave Request"
+        title={L.confirmRejectTitle}
         desc={
           rejectTarget
-            ? `Reject ${rejectTarget.leaveType} request for ${formatLeaveDays(rejectTarget.days)} day(s)?`
+            ? `${leaveTypeLabel(locale, rejectTarget.leaveType)} — ${formatLeaveDays(rejectTarget.days)} ${L.thDays}`
             : ""
         }
-        confirmLabel="Reject"
-        cancelLabel="Close"
+        confirmLabel={L.confirmRejectBtn}
+        cancelLabel={L.confirmCloseBtn}
         onClose={() => {
           setRejectTarget(null);
           setRejectReason("");
@@ -596,9 +708,19 @@ export function LeaveReqPage({
           rows={3}
           onChange={(event) => setRejectReason(event.target.value)}
           className="min-h-[58px] w-full resize-y rounded-[3px] border border-slate-300 bg-white px-2 py-1.5 text-[10px] leading-4 text-slate-700 outline-none transition focus:border-[#7E9BD8] focus:ring-1 focus:ring-[#BCD0F5]"
-          placeholder="Reject reason"
+          placeholder={L.rejectReasonPlaceholder}
         />
       </LeaveConfirmDialog>
+
+      <LeaveConfirmDialog
+        open={deleteTarget !== null}
+        title={L.confirmDeleteTitle}
+        desc={L.confirmDeleteDesc}
+        confirmLabel={L.confirmDeleteBtn}
+        cancelLabel={L.confirmCloseBtn}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
 
       {busy ? (
         <div className="pointer-events-none fixed bottom-3 right-3 z-[95] rounded-[3px] border border-slate-300 bg-white px-2 py-1 text-[10px] text-slate-600 shadow-sm">

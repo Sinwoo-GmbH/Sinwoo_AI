@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.time.LocalTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,8 +33,23 @@ public class Co extends BaseEntity {
     @Column(name = "REG_NO", length = 100)
     private String regNo;
 
+    @Column(name = "EXP_ACC_CD")
+    private Integer expAccCd;
+
+    @Column(name = "COUNTRY", length = 5)
+    private String country;
+
+    @Column(name = "ADDRESS", length = 500)
+    private String address;
+
     @Column(name = "STS_CD", nullable = false, length = 20)
     private String stsCd;
+
+    @Column(name = "LUNCH_STR_TM")
+    private LocalTime lunchStrTm;
+
+    @Column(name = "LUNCH_END_TM")
+    private LocalTime lunchEndTm;
 
     private Co(
             Long tenantId,
@@ -57,5 +73,10 @@ public class Co extends BaseEntity {
             String stsCd
     ) {
         return new Co(tenantId, coCd, coNm, regNo, stsCd);
+    }
+
+    public void updateLunchTime(LocalTime lunchStrTm, LocalTime lunchEndTm) {
+        this.lunchStrTm = lunchStrTm;
+        this.lunchEndTm = lunchEndTm;
     }
 }

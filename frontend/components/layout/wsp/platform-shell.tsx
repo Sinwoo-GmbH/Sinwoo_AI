@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo } from "react";
 
 import { WspBody } from "@/components/layout/wsp/wsp-body";
 import { WspHdr } from "@/components/layout/wsp/wsp-hdr";
+import { ToastContainer } from "@/components/ui/toast";
 import { WspSidebar } from "@/components/layout/wsp/wsp-sidebar";
 import { WspTabCtxMnu } from "@/components/layout/wsp/wsp-tab-ctx-mnu";
 import { WspTabbar } from "@/components/layout/wsp/wsp-tabbar";
@@ -217,6 +218,7 @@ export function PlatformShell() {
           </section>
         </div>
       </div>
+      <ToastContainer />
     </main>
   );
 }

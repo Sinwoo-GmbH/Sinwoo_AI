@@ -62,6 +62,6 @@ public class CoController {
     }
 
     private boolean isPlatformSuperAdmin(AuthenticatedUsr authenticatedUsr) {
-        return authenticatedUsr.roleCds() != null && authenticatedUsr.roleCds().contains("ROLE_PLATFORM_SUPER_ADMIN");
+        return authenticatedUsr.roleCds() != null && authenticatedUsr.roleCds().contains("PADM");
     }
 }

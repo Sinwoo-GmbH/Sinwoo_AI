@@ -1,6 +1,7 @@
 "use client";
 
 import { AdminAreaPage } from "@/features/admin/admin-area-page";
+import { CoHolPage } from "@/features/admin/co-hol/co-hol-page";
 import { MyWorkTimePage } from "@/features/attendance/my-work-time/my-work-time-page";
 import { LeaveReqPage } from "@/features/requests/leave/leave-req-page";
 import { TeamWorkTimePage } from "@/features/attendance/team-work-time/team-work-time-page";
@@ -11,6 +12,7 @@ import { WspHeroSect } from "@/components/layout/wsp/wsp-hero-sect";
 import { WspKpiGrid } from "@/components/layout/wsp/wsp-kpi-grid";
 import { WspPageHdr } from "@/components/layout/wsp/wsp-page-hdr";
 import { WspPrioritySect } from "@/components/layout/wsp/wsp-priority-sect";
+import { UnderConstruction } from "@/components/ui/under-construction";
 import type { LoginLocale } from "@/lib/i18n/login-cnt";
 import type { WspShellCnt } from "@/lib/i18n/wsp-shell-cnt";
 import type { ViewModel, WspMode } from "@/lib/utils/wsp/platform-shell-data";
@@ -60,7 +62,7 @@ const BIZ_MNU_MOD_MAP: Record<string, string> = {
   MNU_BIZ_MST_ACC: "MST_ACC",
   MNU_BIZ_MST_CORP_ACC: "MST_CORP_ACC",
   MNU_BIZ_MST_DAILY_ALLOWANCE: "MST_DAILY_ALLOWANCE",
-  MNU_BIZ_MST_CORP_CAL: "MST_CORP_CAL",
+  // MNU_BIZ_MST_CORP_CAL: handled by CoHolPage directly
   MNU_BIZ_MST_ACC_MAPPING: "MST_ACC_MAPPING",
   MNU_BIZ_MST_FI_STMT: "MST_FI_STMT",
 };
@@ -77,8 +79,32 @@ export function WspBody({
   sidebarCollapsed,
   view,
 }: WspBodyProps) {
-  const runtimePageId = activeRuntimePageId ?? "MNU_CUSTOMER_MY_TIME";
+  const runtimePageId = activeRuntimePageId ?? "MYWT";
   const bizModCd = BIZ_MNU_MOD_MAP[runtimePageId];
+
+  // V23 단축 MNU_CD → 공사중 placeholder
+  const UNDER_CONSTRUCTION_IDS: Record<string, string> = {
+    RQTR: "Business Trip",
+    RQEX: "Expense",
+    RQIN: "Inbox",
+    CLMS: "My Claims",
+    CMEX: "My Claims · Expense",
+    CMTR: "My Claims · Business Trip",
+    CMIN: "My Claims · Inbox",
+    RPRT: "Reports",
+    RPEX: "Monthly Expenses",
+    FNC: "Finance",
+    ADMIN: "Admin",
+    LVPL: "Leave Policy",
+    LVGR: "Leave Grants",
+  };
+  if (UNDER_CONSTRUCTION_IDS[runtimePageId]) {
+    return (
+      <div id="wsp-body" className={BODY_CLASS_NAME}>
+        <UnderConstruction locale={locale} mnuLabel={UNDER_CONSTRUCTION_IDS[runtimePageId]} />
+      </div>
+    );
+  }
 
   if (bizModCd) {
     return (
@@ -94,7 +120,11 @@ export function WspBody({
     );
   }
 
-  if (runtimePageId === "MNU_CUSTOMER_DASH" || runtimePageId === "admin-overview") {
+  if (
+    runtimePageId === "DASH" ||
+    runtimePageId === "MNU_CUSTOMER_DASH" ||
+    runtimePageId === "admin-overview"
+  ) {
     return (
       <div id="wsp-body" className={`${BODY_CLASS_NAME} space-y-5`}>
         <WspHeroSect
@@ -118,6 +148,8 @@ export function WspBody({
   }
 
   if (
+    runtimePageId === "MYWT" ||
+    runtimePageId === "WT" ||
     runtimePageId === "MNU_CUSTOMER_MY_TIME" ||
     runtimePageId === "MNU_CUSTOMER_ATTENDANCE"
   ) {
@@ -133,7 +165,7 @@ export function WspBody({
     );
   }
 
-  if (runtimePageId === "MNU_CUSTOMER_TEAM_TIME") {
+  if (runtimePageId === "TMWT" || runtimePageId === "MNU_CUSTOMER_TEAM_TIME") {
     return (
       <div id="wsp-body" className={BODY_CLASS_NAME}>
         <TeamWorkTimePage locale={locale} />
@@ -141,7 +173,12 @@ export function WspBody({
     );
   }
 
-  if (runtimePageId === "MNU_CUSTOMER_LEAVE" || runtimePageId === "MNU_BIZ_REQ_LEAVE") {
+  if (
+    runtimePageId === "RQLV" ||
+    runtimePageId === "RQST" ||
+    runtimePageId === "MNU_CUSTOMER_LEAVE" ||
+    runtimePageId === "MNU_BIZ_REQ_LEAVE"
+  ) {
     return (
       <div id="wsp-body" className={BODY_CLASS_NAME}>
         <LeaveReqPage
@@ -155,6 +192,7 @@ export function WspBody({
   }
 
   if (
+    runtimePageId === "RPWT" ||
     runtimePageId === "MNU_CUSTOMER_WORK_TIME" ||
     runtimePageId === "MNU_CUSTOMER_WORK_TIME_HISTORY" ||
     runtimePageId === "MNU_CUSTOMER_REPORTS"
@@ -167,6 +205,23 @@ export function WspBody({
           mode={mode}
           onUnauthorized={onUnauthorized}
           onLoadingChange={onLoadingChange}
+        />
+      </div>
+    );
+  }
+
+  if (
+    runtimePageId === "COHL" ||
+    runtimePageId === "MNU_BIZ_MST_CORP_CAL" ||
+    runtimePageId === "MNU_CUSTOMER_CORP_CAL"
+  ) {
+    return (
+      <div id="wsp-body" className={BODY_CLASS_NAME}>
+        <CoHolPage
+          accessToken={accessToken}
+          locale={locale}
+          onLoadingChange={onLoadingChange}
+          onUnauthorized={onUnauthorized}
         />
       </div>
     );

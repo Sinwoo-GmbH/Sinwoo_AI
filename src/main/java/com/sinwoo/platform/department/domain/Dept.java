@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,6 +41,18 @@ public class Dept extends BaseEntity {
 
     @Column(name = "STS_CD", nullable = false, length = 20)
     private String stsCd;
+
+    @Column(name = "REGION_CD", length = 20)
+    private String regionCd;
+
+    @Column(name = "VAC_CNT", precision = 5, scale = 1)
+    private BigDecimal vacCnt;
+
+    @Column(name = "VAC_INC", precision = 5, scale = 1)
+    private BigDecimal vacInc;
+
+    @Column(name = "DSP_ORD", nullable = false)
+    private Integer dspOrd;
 
     private Dept(Long tenantId, Long coId, String deptCd, String deptNm, Long upDeptId, Integer deptLvlNo, String stsCd) {
         this.tenantId = tenantId;

@@ -3,23 +3,30 @@
 import { useEffect, useMemo, useState } from "react";
 
 import type { LeaveReqRec } from "@/features/requests/leave/leave-mock-data";
-import {
-  formatLeaveDays,
-  toDeductionTableLabel,
-} from "@/features/requests/leave/leave-mock-data";
+import { formatLeaveDays } from "@/features/requests/leave/leave-mock-data";
 import {
   LeaveApproverStatusBadge,
   LeaveStatusBadge,
 } from "@/features/requests/leave/leave-status-badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Check, ChevronLeft, ChevronRight, Eye, PencilLine, Slash, XCircle } from "lucide-react";
+import type { LoginLocale } from "@/lib/i18n/login-cnt";
+import {
+  approverStatusLabel,
+  deductionTypeLabel,
+  getLeavePageMsgs,
+  leaveStatusLabel,
+  leaveTypeLabel,
+} from "@/lib/i18n/leave-cnt";
+import { Check, ChevronLeft, ChevronRight, Eye, PencilLine, Slash, Trash2, XCircle } from "lucide-react";
 
 type LeaveReqTableProps = {
   rows: LeaveReqRec[];
+  locale: LoginLocale;
   onEdit: (rec: LeaveReqRec) => void;
   onView: (rec: LeaveReqRec) => void;
   onCancel: (rec: LeaveReqRec) => void;
+  onDelete: (rec: LeaveReqRec) => void;
   onApprove: (rec: LeaveReqRec) => void;
   onReject: (rec: LeaveReqRec) => void;
   onOpen: (rec: LeaveReqRec) => void;
@@ -31,19 +38,25 @@ const PAGE_SIZE_OPTS: readonly PageSizeOpt[] = [15, 50, 100, 200, "all"] as cons
 
 function LeaveRowActs({
   rec,
+  locale,
   onEdit,
   onView,
   onCancel,
+  onDelete,
   onApprove,
   onReject,
 }: {
   rec: LeaveReqRec;
+  locale: LoginLocale;
   onEdit: (rec: LeaveReqRec) => void;
   onView: (rec: LeaveReqRec) => void;
   onCancel: (rec: LeaveReqRec) => void;
+  onDelete: (rec: LeaveReqRec) => void;
   onApprove: (rec: LeaveReqRec) => void;
   onReject: (rec: LeaveReqRec) => void;
 }) {
+  const L = getLeavePageMsgs(locale);
+
   if (rec.canApprove || rec.canReject) {
     return (
       <div className="flex items-center gap-1">
@@ -55,7 +68,7 @@ function LeaveRowActs({
           className="h-5 rounded-[3px] border-slate-300 bg-white px-1.5 text-[9px] font-medium text-slate-700 hover:bg-slate-50"
         >
           <Eye className="mr-1 h-2 w-2" />
-          View
+          {L.actView}
         </Button>
         {rec.canApprove ? (
           <Button
@@ -66,7 +79,7 @@ function LeaveRowActs({
             className="h-5 rounded-[3px] border-emerald-300 bg-emerald-50 px-1.5 text-[9px] font-medium text-emerald-700 hover:bg-emerald-100"
           >
             <Check className="mr-1 h-2 w-2" />
-            Approve
+            {L.actApprove}
           </Button>
         ) : null}
         {rec.canReject ? (
@@ -78,25 +91,52 @@ function LeaveRowActs({
             className="h-5 rounded-[3px] border-rose-300 bg-rose-50 px-1.5 text-[9px] font-medium text-rose-700 hover:bg-rose-100"
           >
             <XCircle className="mr-1 h-2 w-2" />
-            Reject
+            {L.actReject}
           </Button>
         ) : null}
       </div>
     );
   }
 
-  if (rec.canEdit || rec.status === "Draft") {
+  if (rec.canEdit || rec.canDelete || rec.status === "Draft") {
     return (
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={() => onEdit(rec)}
-        className="h-5 rounded-[3px] border-slate-300 bg-white px-1.5 text-[9px] font-medium text-slate-700 hover:bg-slate-50"
-      >
-        <PencilLine className="mr-1 h-2 w-2" />
-        Edit
-      </Button>
+      <div className="flex items-center gap-1">
+        {rec.canEdit || rec.status === "Draft" ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onEdit(rec)}
+            className="h-5 rounded-[3px] border-slate-300 bg-white px-1.5 text-[9px] font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <PencilLine className="mr-1 h-2 w-2" />
+            {L.actEdit}
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onView(rec)}
+            className="h-5 rounded-[3px] border-slate-300 bg-white px-1.5 text-[9px] font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <Eye className="mr-1 h-2 w-2" />
+            {L.actView}
+          </Button>
+        )}
+        {rec.canDelete ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onDelete(rec)}
+            className="h-5 rounded-[3px] border-rose-300 bg-rose-50 px-1.5 text-[9px] font-medium text-rose-700 hover:bg-rose-100"
+          >
+            <Trash2 className="mr-1 h-2 w-2" />
+            {L.actDelete}
+          </Button>
+        ) : null}
+      </div>
     );
   }
 
@@ -111,7 +151,7 @@ function LeaveRowActs({
           className="h-5 rounded-[3px] border-slate-300 bg-white px-1.5 text-[9px] font-medium text-slate-700 hover:bg-slate-50"
         >
           <Eye className="mr-1 h-2 w-2" />
-          View
+          {L.actView}
         </Button>
         <Button
           type="button"
@@ -121,7 +161,7 @@ function LeaveRowActs({
           className="h-5 rounded-[3px] border-slate-300 bg-[#faf7f2] px-1.5 text-[9px] font-medium text-[#8b5a1f] hover:bg-[#f6efe3]"
         >
           <Slash className="mr-1 h-2 w-2" />
-          Cancel
+          {L.actCancel}
         </Button>
       </div>
     );
@@ -136,20 +176,23 @@ function LeaveRowActs({
       className="h-5 rounded-[3px] border-slate-300 bg-white px-1.5 text-[9px] font-medium text-slate-700 hover:bg-slate-50"
     >
       <Eye className="mr-1 h-2 w-2" />
-      View
+      {L.actView}
     </Button>
   );
 }
 
 export function LeaveReqTable({
   rows,
+  locale,
   onEdit,
   onView,
   onCancel,
+  onDelete,
   onApprove,
   onReject,
   onOpen,
 }: LeaveReqTableProps) {
+  const L = getLeavePageMsgs(locale);
   const [pageSize, setPageSize] = useState<PageSizeOpt>(15);
   const [page, setPage] = useState(1);
 
@@ -183,6 +226,12 @@ export function LeaveReqTable({
       ? rows.length
       : Math.min(page * pageSize, rows.length);
 
+  const headers = [
+    L.thNo, L.thLeaveType, L.thDeductionType, L.thStartDate,
+    L.thEndDate, L.thDays, L.thApproverStatus, L.thStatus,
+    L.thCreatedAt, L.thActions,
+  ];
+
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[3px] border border-slate-300 bg-white">
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -190,19 +239,8 @@ export function LeaveReqTable({
         <table className="min-w-full border-collapse text-[11px]">
           <thead className="sticky top-0 z-10 bg-[#f3f4f6]">
             <tr className="border-b border-slate-300 text-left text-[9px] text-slate-500">
-              {[
-                "No",
-                "Leave Type",
-                "Deduction Type",
-                "Start Date",
-                "End Date",
-                "Days",
-                "Approver Status",
-                "Status",
-                "Created At",
-                "Actions",
-              ].map((label) => (
-                <th key={label} className="whitespace-nowrap px-2 py-1.5 font-medium">
+              {headers.map((label, i) => (
+                <th key={i} className="whitespace-nowrap px-2 py-1.5 font-medium">
                   {label}
                 </th>
               ))}
@@ -221,10 +259,10 @@ export function LeaveReqTable({
                 >
                   <td className="px-2 py-1 text-[9px] leading-3.5 text-slate-600">{rec.no}</td>
                   <td className="px-2 py-1 text-[9px] font-medium leading-3.5 text-slate-800">
-                    {rec.leaveType}
+                    {leaveTypeLabel(locale, rec.leaveType)}
                   </td>
                   <td className="px-2 py-1 text-[9px] leading-3.5 text-slate-600">
-                    {toDeductionTableLabel(rec.deductionType)}
+                    {deductionTypeLabel(locale, rec.deductionType)}
                   </td>
                   <td className="whitespace-nowrap px-2 py-1 text-[9px] leading-3.5 text-slate-600">
                     {rec.startDate}
@@ -236,10 +274,13 @@ export function LeaveReqTable({
                     {formatLeaveDays(rec.days)}
                   </td>
                   <td className="whitespace-nowrap px-2 py-1">
-                    <LeaveApproverStatusBadge status={rec.approverStatus} />
+                    <LeaveApproverStatusBadge
+                      status={rec.approverStatus}
+                      locale={locale}
+                    />
                   </td>
                   <td className="whitespace-nowrap px-2 py-1">
-                    <LeaveStatusBadge status={rec.status} />
+                    <LeaveStatusBadge status={rec.status} locale={locale} />
                   </td>
                   <td className="whitespace-nowrap px-2 py-1 text-[9px] leading-3.5 text-slate-600">
                     {rec.createdAt}
@@ -247,9 +288,11 @@ export function LeaveReqTable({
                   <td className="px-2 py-1">
                     <LeaveRowActs
                       rec={rec}
+                      locale={locale}
                       onEdit={onEdit}
                       onView={onView}
                       onCancel={onCancel}
+                      onDelete={onDelete}
                       onApprove={onApprove}
                       onReject={onReject}
                     />
@@ -259,7 +302,7 @@ export function LeaveReqTable({
             ) : (
               <tr>
                 <td colSpan={10} className="px-3 py-8 text-center text-[10px] text-slate-500">
-                  No leave requests match the current filters.
+                  {L.emptyMsg}
                 </td>
               </tr>
             )}
@@ -270,7 +313,7 @@ export function LeaveReqTable({
 
       <div className="flex items-center justify-between border-t border-slate-300 bg-[#f8f9fb] px-2 py-1.5">
         <div className="flex items-center gap-2 text-[9px] text-slate-500">
-          <span className="font-medium text-slate-600">Rows</span>
+          <span className="font-medium text-slate-600">{L.rows}</span>
           <select
             value={pageSize}
             onChange={(event) => {
@@ -285,7 +328,7 @@ export function LeaveReqTable({
           >
             {PAGE_SIZE_OPTS.map((option) => (
               <option key={option} value={option}>
-                {option === "all" ? "전체" : option}
+                {option === "all" ? L.allRows : option}
               </option>
             ))}
           </select>

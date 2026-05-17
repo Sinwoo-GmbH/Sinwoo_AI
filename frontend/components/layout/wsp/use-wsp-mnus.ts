@@ -53,7 +53,7 @@ export function useWspMnus({
   useEffect(() => {
     if (!isReady) return;
 
-    const scope = mode === "admin" ? "ADMIN" : "CUSTOMER";
+    const scope = mode === "admin" ? "ADM" : "CST";
     const modeChanged = previousModeRef.current !== mode;
     let aborted = false;
 

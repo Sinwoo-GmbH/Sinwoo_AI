@@ -7,7 +7,7 @@ export interface CreateEmpRequest {
   empNo: string;
   empNm: string;
   teamRoleCd?: string;
-  jobTtlNm?: string | null;
+  jobTtlCd?: string | null;
   hireDt?: string | null;
   retrDt?: string | null;
   stsCd?: string;
@@ -23,7 +23,7 @@ export interface EmpResponse {
   empNo: string;
   empNm: string;
   teamRoleCd: string;
-  jobTtlNm?: string | null;
+  jobTtlCd?: string | null;
   hireDt?: string | null;
   retrDt?: string | null;
   stsCd: string;
