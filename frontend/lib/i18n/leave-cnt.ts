@@ -219,7 +219,9 @@ export type LeavePageMsgs = {
   confirmApproveBtn: string;
   confirmRejectBtn: string;
   confirmCloseBtn: string;
+  rejectReasonLabel: string;
   rejectReasonPlaceholder: string;
+  rejectReasonRequired: string;
   confirmDeleteTitle: string;
   confirmDeleteDesc: string;
   confirmDeleteBtn: string;
@@ -299,7 +301,9 @@ const leavePageMsgs: Record<LoginLocale, LeavePageMsgs> = {
     confirmApproveBtn: "승인",
     confirmRejectBtn: "반려",
     confirmCloseBtn: "닫기",
-    rejectReasonPlaceholder: "반려 사유",
+    rejectReasonLabel: "반려 사유",
+    rejectReasonPlaceholder: "반려 사유를 입력하세요",
+    rejectReasonRequired: "반려 사유는 필수입니다",
     confirmDeleteTitle: "휴가 신청 삭제",
     confirmDeleteDesc: "이 임시저장 건을 삭제하시겠습니까? 삭제 후 복구할 수 없습니다.",
     confirmDeleteBtn: "삭제",
@@ -377,7 +381,9 @@ const leavePageMsgs: Record<LoginLocale, LeavePageMsgs> = {
     confirmApproveBtn: "Approve",
     confirmRejectBtn: "Reject",
     confirmCloseBtn: "Close",
-    rejectReasonPlaceholder: "Reject reason",
+    rejectReasonLabel: "Reject Reason",
+    rejectReasonPlaceholder: "Enter reject reason",
+    rejectReasonRequired: "Reject reason is required",
     confirmDeleteTitle: "Delete Leave Request",
     confirmDeleteDesc: "Delete this draft? This action cannot be undone.",
     confirmDeleteBtn: "Delete",
@@ -455,7 +461,9 @@ const leavePageMsgs: Record<LoginLocale, LeavePageMsgs> = {
     confirmApproveBtn: "Genehmigen",
     confirmRejectBtn: "Ablehnen",
     confirmCloseBtn: "Schließen",
-    rejectReasonPlaceholder: "Ablehnungsgrund",
+    rejectReasonLabel: "Ablehnungsgrund",
+    rejectReasonPlaceholder: "Ablehnungsgrund eingeben",
+    rejectReasonRequired: "Ablehnungsgrund ist erforderlich",
     confirmDeleteTitle: "Urlaubsantrag löschen",
     confirmDeleteDesc: "Diesen Entwurf löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
     confirmDeleteBtn: "Löschen",

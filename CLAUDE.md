@@ -228,13 +228,31 @@
   - 호출부 3곳(createLeave / updateLeave / calculateDays) 모두 새 메서드 사용
   - 시드 검증: TB_DEPT id=1 REGION_CD='HE', TB_REGION_HOLIDAY 2026/5/25 Pfingstmontag=ALL → Hessen 사용자가 5/25 신청 시 자동 0일 차감
 
+- **백엔드: 비즈니스 검증 (`validateLeaveRequest`)** (2026-05-18) — `LeaveReqServiceImpl.validateLeaveRequest()` 신설, createLeave/updateLeave에서 status=REQ일 때 호출:
+  1. 날짜 범위: endDt >= strDt
+  2. 중복 신청: `findOverlapping()` @Query + CAN/REJ 필터 + 수정 시 자기 자신 제외
+  3. 잔여일수 초과: DD(차감유형)일 때 useDays > available이면 400
+  4. Special Leave(SP)/Non-deducted(ND) 사유 필수
+  5. 결재선 최대 3단계 + 중복 결재자 체크
+- **백엔드: 이월 만료 체크** (2026-05-18) — `calcBalance()`에서 LeaveCoPolicy 조회, today > carryover expiry date이면 carryover=0 처리
+- **프론트엔드: reject 다이얼로그 필수 유효성** (2026-05-18) — `leave-req-page.tsx`: rejectReasonErr state, 빈 사유 시 빨간 보더 + 에러 메시지 + submit 차단. i18n `rejectReasonLabel`/`rejectReasonRequired` (ko/en/de)
+- **Repository 메서드명 전면 리팩토링** (2026-05-18) — Spring Data JPA 파생 쿼리(100자 초과 메서드명) → `@Query` + 최대 15자 약어로 전환. 변경 대상:
+  - `LeaveReqRepository`: findOne, findByEmp, findByEmpPeriod, findByCo, findOverlapping(신규)
+  - `LeaveGrantRepository`: findOne, findByEmp, findByCoYear
+  - `AprvLineRepository`: findByReq, findByEmpSts, findOne
+  - `WrkTmRepository`: findOne, findByEmpPeriod, findByCoPeroid, findOneById
+  - `DeptRepository`: existsByCd, findByTenant, findByCo, findByCoIds, findOne
+  - `EmpRepository`: existsByNo, findByTenant, findByCo, findByCoIds, findByDept, findOne
+  - `ExpAccRepository`: findByCo, findOne
+  - `RgnHolRepository`: findByRegion, findByRegions, findByPeriod
+  - `CoHolRepository`: findByCo, findByPeriod, findOne
+  - `CommonCdRepository`: findByGrp, findAllSorted
+  - 호출하는 ServiceImpl 전부 동기 수정: LeaveReqServiceImpl, WrkTmServiceImpl, DeptServiceImpl, EmpServiceImpl, CoHolServiceImpl, RgnHolServiceImpl, CommonCdServiceImpl
+
 ### 미완료 (백엔드)
-- 비즈니스 검증: 중복 검사 강화, 잔여일수 초과 체크, 결재선 최대 3단/중복 체크, Special Leave 사유 필수, 이월 4월 마감
-- `calcBalance()` 현재 하드코딩 15.0 → 실제 잔여일수 로직 필요
 - CD ↔ 풀네임 매핑은 프론트 i18n alias로 임시 처리 중. 장기적으로 `LeaveResponse.Context`의 옵션 리스트를 `{cd, label}` 구조로 변경 검토.
 
 ### 미완료 (프론트엔드)
-- reject 다이얼로그: 반려 사유 필수 유효성 체크
 - Half Day 시간 필드 (필요 여부 결정)
 - 전년도 이월일수 표시
 
@@ -281,6 +299,13 @@ org.gradle.jvmargs=-Djava.nio.channels.spi.SelectorProvider=sun.nio.ch.WindowsSe
   - `MENU`(=`MNU_ADMIN_MENU`)의 `UP_MNU_ID`가 V4 시드 오류로 `AUTH`(3) 자식으로 매달려 있던 것 → NULL로 top-level 복원.
   - 최종 ADM scope: 5개 top-level (`ADSH`/`TNT`/`AUTH`/`BILL`/`MENU`).
   - Orphan 검증: TB_CD(MNU_NM 그룹) / TB_ROLE_MNU_AUTH / TB_CD_GRP 모두 0건 (V23에서 이미 정리됨).
+- **V27: 부서/직원 시드 마이그레이션** (`V27__seed_departments_and_employees.sql`):
+  - as-is `tb_dept_master`(7건) + `tb_employee_master`(20건) → to-be `TB_DEPT`/`TB_EMP`로 시드.
+  - 부서 7건: SWH(기존 업데이트), IT, SEG, SSEG, QEG, QCL, HMSG. 모두 level 1, UP_DEPT_ID=NULL. '111' 테스트 부서 제외.
+  - 직원 20건: RANK_CD→JOB_TTL_CD, RESIGN_YN='Y'→STS_CD='RESG', 빈 SEX_CD/BIRTH_DATE/TEL_NO→NULL.
+  - SW0004(ggamgang) USR_ID=1 보존. DEPT_ID는 @변수로 부서 PK 조회 후 매핑.
+  - `ON DUPLICATE KEY UPDATE`로 idempotent.
+  - Entity 변경 없음.
 - **V26: 경비 계정과목 시드** (`V26__seed_expense_account_master.sql`):
   - as-is `tb_expense_account_master` 전체 데이터 (~110건) → to-be `TB_EXP_ACC`로 시드.
   - SKR03 일반 계정(300~9009), 채권AR(10xxx), 채무AP(70xxx), Personenkonto(80xxx~81xxx) 포함.
@@ -425,10 +450,12 @@ org.gradle.jvmargs=-Djava.nio.channels.spi.SelectorProvider=sun.nio.ch.WindowsSe
 ---
 
 ## 다음 세션 시작 시 할 일
-1. **서버 재기동** — V26 적용 + Hibernate CHAR(1) 수정 검증 (ExpAcc.java DRCR_CD/CARRYOVER_CD)
-2. **V27 부서/직원 시드 마이그레이션 작성** — as-is 덤프(`C:\Users\JuyongLee\Desktop\tb_company_master1.sql`)의 부서 8건, 직원 20건을 TB_DEPT/TB_EMP에 시드. TB_DEPT 컬럼: DEPT_LVL_NO(INT), UP_DEPT_ID(BIGINT FK), REGION_CD 등. TB_EMP 컬럼: JOB_TTL_CD, TEAM_ROLE_CD, EML, EXP_ACC_CD, SEX_CD, TEL_NO, BIRTH_DT, HIRE_DT 등. 기존 STS_CD 값은 'ACTIVE' (V9 시드 참고). as-is RESIGN_YN='Y'→'RESG' 매핑 필요.
-3. **휴가 도메인 미완료 항목 처리** — 위 "휴가 도메인 진행 현황 > 미완료" 참고
-4. 휴가 완료 후 → **출장(Business Trip) 도메인 시작**
+1. ~~**서버 재기동** — V26 적용 + Hibernate CHAR(1) 수정 검증~~ ✅ 완료 (2026-05-18)
+2. ~~**V27 부서/직원 시드 마이그레이션**~~ ✅ 완료 (2026-05-18) — 부서 7건 + 직원 20건 시드 검증 완료
+3. ~~**휴가 도메인 미완료 항목 처리**~~ ✅ 대부분 완료 (2026-05-18) — 비즈니스 검증 5종, 이월 만료, reject 유효성, Repository 메서드명 전면 리팩토링
+4. **서버 재기동 검증** — Repository 메서드명 리팩토링 후 빌드 + 서버 기동 확인 필요 (Gradle loopback 이슈로 IDE에서 확인)
+5. **테스트 파일 정리** — 옛 long 메서드명 사용하는 테스트 파일들 업데이트 필요
+6. 휴가 완료 후 → **출장(Business Trip) 도메인 시작**
 
 ## 자주 쓰는 명령
 ```bash

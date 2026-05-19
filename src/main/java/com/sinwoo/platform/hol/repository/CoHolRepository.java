@@ -10,12 +10,12 @@ import org.springframework.data.repository.query.Param;
 
 public interface CoHolRepository extends JpaRepository<CoHol, Long> {
 
-    List<CoHol> findAllByTenantIdAndCoIdAndDelYnOrderByStrDtAsc(
-            Long tenantId, Long coId, String delYn);
+    @Query("SELECT h FROM CoHol h WHERE h.tenantId = :tid AND h.coId = :cid AND h.delYn = :del ORDER BY h.strDt ASC")
+    List<CoHol> findByCo(@Param("tid") Long tid, @Param("cid") Long cid, @Param("del") String del);
 
     @Query("""
             SELECT h FROM CoHol h
-            WHERE h.tenantId = :tenantId AND h.coId = :coId AND h.delYn = 'N'
+            WHERE h.tenantId = :tid AND h.coId = :cid AND h.delYn = 'N'
               AND (
                     (h.annualYn = 'Y')
                  OR (h.annualYn = 'N' AND h.applyYr = :yr)
@@ -23,12 +23,10 @@ public interface CoHolRepository extends JpaRepository<CoHol, Long> {
               AND h.strDt <= :to AND h.endDt >= :from
             ORDER BY h.strDt ASC
             """)
-    List<CoHol> findAllActiveByPeriod(
-            @Param("tenantId") Long tenantId,
-            @Param("coId") Long coId,
-            @Param("yr") Short yr,
-            @Param("from") LocalDate from,
-            @Param("to") LocalDate to);
+    List<CoHol> findByPeriod(
+            @Param("tid") Long tid, @Param("cid") Long cid,
+            @Param("yr") Short yr, @Param("from") LocalDate from, @Param("to") LocalDate to);
 
-    Optional<CoHol> findByIdAndTenantIdAndCoId(Long id, Long tenantId, Long coId);
+    @Query("SELECT h FROM CoHol h WHERE h.id = :id AND h.tenantId = :tid AND h.coId = :cid")
+    Optional<CoHol> findOne(@Param("id") Long id, @Param("tid") Long tid, @Param("cid") Long cid);
 }

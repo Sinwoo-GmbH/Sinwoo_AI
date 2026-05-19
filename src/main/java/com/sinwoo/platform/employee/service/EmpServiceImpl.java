@@ -39,7 +39,7 @@ public class EmpServiceImpl implements EmpService {
         validateUsr(request.tenantId(), request.coId(), request.usrId());
 
         String normalizedEmpNo = request.empNo().trim().toUpperCase();
-        if (empRepository.existsByTenantIdAndCoIdAndEmpNoIgnoreCase(request.tenantId(), request.coId(), normalizedEmpNo)) {
+        if (empRepository.existsByNo(request.tenantId(), request.coId(), normalizedEmpNo)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Emp number already exists in company");
         }
 
@@ -72,8 +72,8 @@ public class EmpServiceImpl implements EmpService {
         validateDept(tenantId, coId, deptId);
 
         List<EmpResponse> items = (deptId == null
-                ? empRepository.findAllByTenantIdAndCoIdOrderByEmpNmAscIdAsc(tenantId, coId)
-                : empRepository.findAllByTenantIdAndCoIdAndDeptIdOrderByEmpNmAscIdAsc(tenantId, coId, deptId))
+                ? empRepository.findByCo(tenantId, coId)
+                : empRepository.findByDept(tenantId, coId, deptId))
                 .stream()
                 .map(EmpResponse::from)
                 .toList();
@@ -85,7 +85,7 @@ public class EmpServiceImpl implements EmpService {
         if (deptId == null) {
             return;
         }
-        if (deptRepository.findByIdAndTenantIdAndCoId(deptId, tenantId, coId).isEmpty()) {
+        if (deptRepository.findOne(deptId, tenantId, coId).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dept not found in company");
         }
     }
@@ -94,7 +94,7 @@ public class EmpServiceImpl implements EmpService {
         if (mgrEmpId == null) {
             return;
         }
-        if (empRepository.findByIdAndTenantIdAndCoId(mgrEmpId, tenantId, coId).isEmpty()) {
+        if (empRepository.findOne(mgrEmpId, tenantId, coId).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manager emp not found in company");
         }
     }

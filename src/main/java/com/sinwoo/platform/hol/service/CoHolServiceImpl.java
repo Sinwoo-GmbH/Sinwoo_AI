@@ -25,7 +25,7 @@ public class CoHolServiceImpl implements CoHolService {
     @Override
     public CoHolListResponse getCoHols(AuthenticatedUsr usr) {
         List<CoHolResponse> items = coHolRepository
-                .findAllByTenantIdAndCoIdAndDelYnOrderByStrDtAsc(usr.tenantId(), usr.coId(), "N")
+                .findByCo(usr.tenantId(), usr.coId(), "N")
                 .stream()
                 .map(CoHolResponse::from)
                 .toList();
@@ -35,7 +35,7 @@ public class CoHolServiceImpl implements CoHolService {
     @Override
     public CoHolListResponse getCoHolsByPeriod(AuthenticatedUsr usr, Short yr, LocalDate from, LocalDate to) {
         List<CoHolResponse> items = coHolRepository
-                .findAllActiveByPeriod(usr.tenantId(), usr.coId(), yr, from, to)
+                .findByPeriod(usr.tenantId(), usr.coId(), yr, from, to)
                 .stream()
                 .map(CoHolResponse::from)
                 .toList();
@@ -64,7 +64,7 @@ public class CoHolServiceImpl implements CoHolService {
         validateDates(request.strDt(), request.endDt());
         validateAnnualYr(request.annualYn(), request.applyYr());
 
-        CoHol hol = coHolRepository.findByIdAndTenantIdAndCoId(coHolId, usr.tenantId(), usr.coId())
+        CoHol hol = coHolRepository.findOne(coHolId, usr.tenantId(), usr.coId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Company holiday not found"));
 
         if (hol.isDeleted()) {
@@ -83,7 +83,7 @@ public class CoHolServiceImpl implements CoHolService {
     @Override
     @Transactional
     public void deleteCoHol(AuthenticatedUsr usr, Long coHolId) {
-        CoHol hol = coHolRepository.findByIdAndTenantIdAndCoId(coHolId, usr.tenantId(), usr.coId())
+        CoHol hol = coHolRepository.findOne(coHolId, usr.tenantId(), usr.coId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Company holiday not found"));
         hol.softDelete();
         coHolRepository.save(hol);

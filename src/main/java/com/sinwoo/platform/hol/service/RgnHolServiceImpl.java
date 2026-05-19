@@ -41,7 +41,7 @@ public class RgnHolServiceImpl implements RgnHolService {
         String regionCd = resolveRegionCd(usr);
         List<String> regionCds = List.of("ALL", regionCd);
         List<RgnHolResponse> items = rgnHolRepository
-                .findAllByYrAndRegionCdInOrderByHolidayDtAsc(yr, regionCds)
+                .findByRegions(yr, regionCds)
                 .stream()
                 .map(RgnHolResponse::from)
                 .toList();
@@ -53,7 +53,7 @@ public class RgnHolServiceImpl implements RgnHolService {
         String regionCd = resolveRegionCd(usr);
         List<String> regionCds = List.of("ALL", regionCd);
         List<RgnHolResponse> items = rgnHolRepository
-                .findAllByHolidayDtBetweenAndRegionCdInOrderByHolidayDtAsc(from, to, regionCds)
+                .findByPeriod(from, to, regionCds)
                 .stream()
                 .map(RgnHolResponse::from)
                 .toList();

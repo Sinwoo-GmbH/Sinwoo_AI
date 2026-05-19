@@ -17,10 +17,12 @@ import com.sinwoo.platform.hol.domain.CoHol;
 import com.sinwoo.platform.hol.domain.RgnHol;
 import com.sinwoo.platform.hol.repository.CoHolRepository;
 import com.sinwoo.platform.hol.repository.RgnHolRepository;
+import com.sinwoo.platform.leave.domain.LeaveCoPolicy;
 import com.sinwoo.platform.leave.domain.LeaveGrant;
 import com.sinwoo.platform.leave.domain.LeaveReq;
 import com.sinwoo.platform.leave.dto.LeaveRequest;
 import com.sinwoo.platform.leave.dto.LeaveResponse;
+import com.sinwoo.platform.leave.repository.LeaveCoPolicyRepository;
 import com.sinwoo.platform.leave.repository.LeaveGrantRepository;
 import com.sinwoo.platform.leave.repository.LeaveReqRepository;
 import java.math.BigDecimal;
@@ -56,6 +58,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
     private final RgnHolRepository rgnHolRepository;
     private final CoHolRepository coHolRepository;
     private final LeaveGrantRepository leaveGrantRepository;
+    private final LeaveCoPolicyRepository leaveCoPolicyRepository;
 
     // ── Context ─────────────────────────────────────────────
 
@@ -98,11 +101,11 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         List<LeaveReq> reqs;
         if (startDateFrom != null && !startDateFrom.isBlank() && startDateTo != null && !startDateTo.isBlank()) {
             reqs = leaveReqRepository
-                    .findAllByTenantIdAndCoIdAndEmpIdAndStrDtGreaterThanEqualAndEndDtLessThanEqualAndDelYnOrderByStrDtDesc(
+                    .findByEmpPeriod(
                             tenantCd, coCd, empNo,
                             LocalDate.parse(startDateFrom), LocalDate.parse(startDateTo), "N");
         } else {
-            reqs = leaveReqRepository.findAllByTenantIdAndCoIdAndEmpIdAndDelYnOrderByStrDtDesc(
+            reqs = leaveReqRepository.findByEmp(
                     tenantCd, coCd, empNo, "N");
         }
 
@@ -128,7 +131,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         Co co = coRepository.findById(usr.coId())
                 .orElseThrow(() -> notFound("Company not found"));
 
-        LeaveReq req = leaveReqRepository.findByIdAndTenantIdAndCoIdAndDelYn(
+        LeaveReq req = leaveReqRepository.findOne(
                         leaveId, usr.tenantCd(), co.getCoCd(), "N")
                 .orElseThrow(() -> notFound("Leave request not found"));
 
@@ -153,6 +156,10 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         BigDecimal useDays = calcBusinessDays(usr, emp, co, request.leaveUnit(), strDt, endDt);
         String stsCd = mapNextStatus(request.nextStatus());
 
+        if ("REQ".equals(stsCd)) {
+            validateLeaveRequest(tenantCd, coCd, empNo, request, strDt, endDt, useDays, null);
+        }
+
         LeaveReq req = LeaveReq.create(
                 tenantCd, coCd, empNo,
                 request.leaveType(), request.deductionType(), request.leaveUnit(),
@@ -174,7 +181,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         Co co = coRepository.findById(usr.coId())
                 .orElseThrow(() -> notFound("Company not found"));
 
-        LeaveReq req = leaveReqRepository.findByIdAndTenantIdAndCoIdAndDelYn(
+        LeaveReq req = leaveReqRepository.findOne(
                         leaveId, usr.tenantCd(), co.getCoCd(), "N")
                 .orElseThrow(() -> notFound("Leave request not found"));
 
@@ -186,6 +193,10 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         LocalDate endDt = LocalDate.parse(request.endDate());
         BigDecimal useDays = calcBusinessDays(usr, emp, co, request.leaveUnit(), strDt, endDt);
         String stsCd = mapNextStatus(request.nextStatus());
+
+        if ("REQ".equals(stsCd)) {
+            validateLeaveRequest(usr.tenantCd(), co.getCoCd(), emp.getEmpNo(), request, strDt, endDt, useDays, req.getId());
+        }
 
         req.update(
                 request.leaveType(), request.deductionType(), request.leaveUnit(),
@@ -200,7 +211,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         return toItem(req, 0, emp.getEmpNo());
     }
 
-    // ── Delete ──────────────────────────────────────────────
+    // ── Delete ──────────────────────────────────────────────```````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
 
     @Override
     @Transactional
@@ -209,7 +220,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         Co co = coRepository.findById(usr.coId())
                 .orElseThrow(() -> notFound("Company not found"));
 
-        LeaveReq req = leaveReqRepository.findByIdAndTenantIdAndCoIdAndDelYn(
+        LeaveReq req = leaveReqRepository.findOne(
                         leaveId, usr.tenantCd(), co.getCoCd(), "N")
                 .orElseThrow(() -> notFound("Leave request not found"));
 
@@ -240,7 +251,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
             return true;
         }
 
-        List<AprvLine> lines = aprvLineRepository.findAllByReqTpCdAndReqIdAndDelYnOrderByStepOrderAsc(
+        List<AprvLine> lines = aprvLineRepository.findByReq(
                 REQ_TP_LEAVE, req.getId(), "N");
         boolean hasApprover = lines.stream().anyMatch(l -> "APP".equals(l.getAprvTpCd()));
         boolean beforeStart = req.getStrDt() != null && LocalDate.now().isBefore(req.getStrDt());
@@ -258,7 +269,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         Co co = coRepository.findById(usr.coId())
                 .orElseThrow(() -> notFound("Company not found"));
 
-        LeaveReq req = leaveReqRepository.findByIdAndTenantIdAndCoIdAndDelYn(
+        LeaveReq req = leaveReqRepository.findOne(
                         leaveId, usr.tenantCd(), co.getCoCd(), "N")
                 .orElseThrow(() -> notFound("Leave request not found"));
 
@@ -278,7 +289,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         Co co = coRepository.findById(usr.coId())
                 .orElseThrow(() -> notFound("Company not found"));
 
-        LeaveReq req = leaveReqRepository.findByIdAndTenantIdAndCoIdAndDelYn(
+        LeaveReq req = leaveReqRepository.findOne(
                         leaveId, usr.tenantCd(), co.getCoCd(), "N")
                 .orElseThrow(() -> notFound("Leave request not found"));
 
@@ -286,7 +297,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
             throw badRequest("Only requested leave can be approved");
         }
 
-        List<AprvLine> lines = aprvLineRepository.findAllByReqTpCdAndReqIdAndDelYnOrderByStepOrderAsc(
+        List<AprvLine> lines = aprvLineRepository.findByReq(
                 REQ_TP_LEAVE, req.getId(), "N");
 
         AprvLine myLine = lines.stream()
@@ -321,7 +332,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         Co co = coRepository.findById(usr.coId())
                 .orElseThrow(() -> notFound("Company not found"));
 
-        LeaveReq req = leaveReqRepository.findByIdAndTenantIdAndCoIdAndDelYn(
+        LeaveReq req = leaveReqRepository.findOne(
                         leaveId, usr.tenantCd(), co.getCoCd(), "N")
                 .orElseThrow(() -> notFound("Leave request not found"));
 
@@ -329,7 +340,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
             throw badRequest("Only requested leave can be rejected");
         }
 
-        List<AprvLine> lines = aprvLineRepository.findAllByReqTpCdAndReqIdAndDelYnOrderByStepOrderAsc(
+        List<AprvLine> lines = aprvLineRepository.findByReq(
                 REQ_TP_LEAVE, req.getId(), "N");
 
         AprvLine myLine = lines.stream()
@@ -365,8 +376,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
                 : balance.availableDays();
 
         List<LeaveReq> overlaps = leaveReqRepository
-                .findAllByTenantIdAndCoIdAndEmpIdAndStrDtGreaterThanEqualAndEndDtLessThanEqualAndDelYnOrderByStrDtDesc(
-                        usr.tenantCd(), co.getCoCd(), emp.getEmpNo(), strDt, endDt, "N")
+                .findOverlapping(usr.tenantCd(), co.getCoCd(), emp.getEmpNo(), strDt, endDt, "N")
                 .stream()
                 .filter(r -> !"CAN".equals(r.getStsCd()) && !"REJ".equals(r.getStsCd()))
                 .filter(r -> request.leaveId() == null || !String.valueOf(r.getId()).equals(request.leaveId()))
@@ -388,6 +398,67 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         );
     }
 
+    // ── Validation ──────────────────────────────────────────
+
+    private void validateLeaveRequest(
+            String tenantCd, String coCd, String empNo,
+            LeaveRequest request, LocalDate strDt, LocalDate endDt,
+            BigDecimal useDays, Long excludeReqId
+    ) {
+        // 1. 시작일 <= 종료일
+        if (endDt.isBefore(strDt)) {
+            throw badRequest("End date must be on or after start date");
+        }
+
+        // 2. 중복 기간 검사 (날짜 겹침: existing.strDt <= newEnd AND existing.endDt >= newStr)
+        List<LeaveReq> overlaps = leaveReqRepository
+                .findOverlapping(tenantCd, coCd, empNo, strDt, endDt, "N")
+                .stream()
+                .filter(r -> !"CAN".equals(r.getStsCd()) && !"REJ".equals(r.getStsCd()))
+                .filter(r -> excludeReqId == null || !excludeReqId.equals(r.getId()))
+                .toList();
+        if (!overlaps.isEmpty()) {
+            throw badRequest("Overlapping leave request exists for the selected dates");
+        }
+
+        // 3. 잔여일수 초과 체크 (차감 유형일 때만)
+        // update는 DRF→REQ만 허용, DRF 일수는 calcBalance에서 이미 제외되므로 복원 불필요
+        boolean isDeducted = "DD".equals(request.deductionType())
+                || "Deducted Leave".equals(request.deductionType());
+        if (isDeducted && useDays.signum() > 0) {
+            var balance = calcBalance(tenantCd, coCd, empNo);
+            if (useDays.doubleValue() > balance.availableDays()) {
+                throw badRequest("Insufficient leave balance. Available: " + balance.availableDays() + " days, Requested: " + useDays.doubleValue() + " days");
+            }
+        }
+
+        // 4. Special Leave / 비차감 유형 사유 필수
+        boolean isSpecialLeave = "SP".equals(request.leaveType())
+                || "Special Leave".equals(request.leaveType());
+        boolean isNonDeducted = "ND".equals(request.deductionType())
+                || "Non-deducted Leave".equals(request.deductionType());
+        if ((isSpecialLeave || isNonDeducted)
+                && (request.reason() == null || request.reason().isBlank())) {
+            throw badRequest("Reason is required for Special Leave or Non-deducted Leave");
+        }
+
+        // 5. 결재선 검증 (최대 3단, 중복 결재자 불가)
+        if (request.approvalSteps() != null && !request.approvalSteps().isEmpty()) {
+            if (request.approvalSteps().size() > 3) {
+                throw badRequest("Maximum 3 approval steps allowed");
+            }
+            Set<String> allApprovers = new HashSet<>();
+            for (LeaveRequest.AprvStep step : request.approvalSteps()) {
+                if (step.usrIds() == null || step.usrIds().isEmpty()) continue;
+                for (String uid : step.usrIds()) {
+                    if (!allApprovers.add(uid)) {
+                        throw badRequest("Duplicate approver: " + uid);
+                    }
+                }
+            }
+        }
+    }
+
     // ── Helpers ─────────────────────────────────────────────
 
     private Emp resolveEmp(AuthenticatedUsr usr) {
@@ -399,7 +470,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         Short currYr = (short) LocalDate.now().getYear();
 
         LeaveGrant grant = leaveGrantRepository
-                .findByTenantIdAndCoIdAndEmpIdAndGrantYrAndDelYn(tenantCd, coCd, empNo, currYr, "N")
+                .findOne(tenantCd, coCd, empNo, currYr, "N")
                 .orElse(null);
 
         if (grant == null) {
@@ -409,7 +480,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
 
         // USED_DAYS 캐시 대신 실시간 합산 (DD 차감 + 활성 상태만)
         java.math.BigDecimal usedRuntime = leaveReqRepository
-                .findAllByTenantIdAndCoIdAndEmpIdAndDelYnOrderByStrDtDesc(tenantCd, coCd, empNo, "N")
+                .findByEmp(tenantCd, coCd, empNo, "N")
                 .stream()
                 .filter(r -> {
                     String s = r.getStsCd();
@@ -426,6 +497,20 @@ public class LeaveReqServiceImpl implements LeaveReqService {
 
         java.math.BigDecimal carryoverRemain = grant.getCarryoverRemain();   // 만료 차감 후 이월
         java.math.BigDecimal grantDays = grant.getGrantDays();
+
+        // 이월 만료 체크: 정책의 만료일(MM/DD) 이후면 이월분 0 처리
+        if (carryoverRemain.signum() > 0) {
+            LeaveCoPolicy policy = leaveCoPolicyRepository
+                    .findByTenantIdAndCoIdAndDelYn(tenantCd, coCd, "N")
+                    .orElse(null);
+            if (policy != null && policy.getCarryoverExpireMm() != null && policy.getCarryoverExpireDd() != null) {
+                LocalDate expiryDate = LocalDate.of(currYr, policy.getCarryoverExpireMm(), policy.getCarryoverExpireDd());
+                if (LocalDate.now().isAfter(expiryDate)) {
+                    carryoverRemain = java.math.BigDecimal.ZERO;
+                }
+            }
+        }
+
         java.math.BigDecimal totalAvail = carryoverRemain.add(grantDays).subtract(usedRuntime);
         if (totalAvail.signum() < 0) totalAvail = java.math.BigDecimal.ZERO;
 
@@ -440,7 +525,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
     private List<String> loadCdList(String grpCd) {
         CdGroup grp = cdGroupRepository.findByGrpCdIgnoreCase(grpCd).orElse(null);
         if (grp == null) return List.of();
-        return commonCdRepository.findAllByGrpIdOrderByDspOrdAscIdAsc(grp.getId())
+        return commonCdRepository.findByGrp(grp.getId())
                 .stream()
                 .filter(cd -> "Y".equals(cd.getUseYn()))
                 .map(CommonCd::getCd)
@@ -448,7 +533,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
     }
 
     private List<LeaveResponse.Org> buildOrgTree(AuthenticatedUsr usr) {
-        return deptRepository.findAllByTenantIdAndCoIdOrderByDeptLvlNoAscDeptNmAscIdAsc(
+        return deptRepository.findByCo(
                         usr.tenantId(), usr.coId())
                 .stream()
                 .map(d -> new LeaveResponse.Org(String.valueOf(d.getId()), d.getDeptNm(), null))
@@ -456,11 +541,11 @@ public class LeaveReqServiceImpl implements LeaveReqService {
     }
 
     private List<LeaveResponse.Part> buildEmpList(AuthenticatedUsr usr) {
-        List<Emp> emps = empRepository.findAllByTenantIdAndCoIdOrderByEmpNmAscIdAsc(
+        List<Emp> emps = empRepository.findByCo(
                 usr.tenantId(), usr.coId());
 
         Map<Long, String> deptMap = deptRepository
-                .findAllByTenantIdAndCoIdOrderByDeptLvlNoAscDeptNmAscIdAsc(usr.tenantId(), usr.coId())
+                .findByCo(usr.tenantId(), usr.coId())
                 .stream()
                 .collect(Collectors.toMap(Dept::getId, Dept::getDeptNm, (a, b) -> a));
 
@@ -515,7 +600,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         Set<String> regions = new HashSet<>(Arrays.asList("ALL", regionCd != null ? regionCd : "ALL"));
 
         List<RgnHol> rgnHols = rgnHolRepository
-                .findAllByHolidayDtBetweenAndRegionCdInOrderByHolidayDtAsc(strDt, endDt, regions);
+                .findByPeriod(strDt, endDt, regions);
         for (RgnHol h : rgnHols) {
             excluded.add(h.getHolidayDt());
         }
@@ -524,7 +609,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         Short fromYr = (short) strDt.getYear();
         Short toYr = (short) endDt.getYear();
         for (short yr = fromYr; yr <= toYr; yr++) {
-            List<CoHol> coHols = coHolRepository.findAllActiveByPeriod(
+            List<CoHol> coHols = coHolRepository.findByPeriod(
                     usr.tenantId(), usr.coId(), yr, strDt, endDt);
             for (CoHol h : coHols) {
                 LocalDate cursor = h.getStrDt().isBefore(strDt) ? strDt : h.getStrDt();
@@ -589,7 +674,7 @@ public class LeaveReqServiceImpl implements LeaveReqService {
     }
 
     private LeaveResponse.Item toItem(LeaveReq req, int no, String currentEmpNo) {
-        List<AprvLine> lines = aprvLineRepository.findAllByReqTpCdAndReqIdAndDelYnOrderByStepOrderAsc(
+        List<AprvLine> lines = aprvLineRepository.findByReq(
                 REQ_TP_LEAVE, req.getId(), "N");
 
         Map<Integer, List<AprvLine>> stepMap = lines.stream()

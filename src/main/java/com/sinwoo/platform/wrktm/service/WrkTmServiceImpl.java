@@ -85,7 +85,7 @@ public class WrkTmServiceImpl implements WrkTmService {
     @Override
     @Transactional
     public void deleteWrkTm(AuthenticatedUsr usr, Long wrkTmId) {
-        WrkTm wt = wrkTmRepository.findByIdAndTenantIdAndCoId(wrkTmId, usr.tenantId(), usr.coId())
+        WrkTm wt = wrkTmRepository.findOneById(wrkTmId, usr.tenantId(), usr.coId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Work time record not found"));
         wt.softDelete();
         wrkTmRepository.save(wt);
@@ -94,7 +94,7 @@ public class WrkTmServiceImpl implements WrkTmService {
     @Override
     public WrkTmResponse getWrkTm(AuthenticatedUsr usr, LocalDate workDt) {
         Emp emp = resolveEmp(usr);
-        return wrkTmRepository.findByTenantIdAndCoIdAndEmpIdAndWorkDtAndDelYn(
+        return wrkTmRepository.findOne(
                         usr.tenantId(), usr.coId(), emp.getId(), workDt, "N")
                 .map(WrkTmResponse::from)
                 .orElse(null);
@@ -104,7 +104,7 @@ public class WrkTmServiceImpl implements WrkTmService {
     public WrkTmListResponse getMyWrkTms(AuthenticatedUsr usr, LocalDate from, LocalDate to) {
         Emp emp = resolveEmp(usr);
         List<WrkTmResponse> items = wrkTmRepository
-                .findAllByTenantIdAndCoIdAndEmpIdAndWorkDtBetweenAndDelYnOrderByWorkDtAsc(
+                .findByEmpPeriod(
                         usr.tenantId(), usr.coId(), emp.getId(), from, to, "N")
                 .stream()
                 .map(WrkTmResponse::from)
@@ -115,7 +115,7 @@ public class WrkTmServiceImpl implements WrkTmService {
     @Override
     public WrkTmListResponse getAllWrkTms(AuthenticatedUsr usr, LocalDate from, LocalDate to) {
         List<WrkTmResponse> items = wrkTmRepository
-                .findAllByTenantIdAndCoIdAndWorkDtBetweenAndDelYnOrderByEmpIdAscWorkDtAsc(
+                .findByCoPeroid(
                         usr.tenantId(), usr.coId(), from, to, "N")
                 .stream()
                 .map(WrkTmResponse::from)
@@ -131,7 +131,7 @@ public class WrkTmServiceImpl implements WrkTmService {
     }
 
     private WrkTm findOrCreate(Long tenantId, Long coId, Long empId, LocalDate workDt) {
-        return wrkTmRepository.findByTenantIdAndCoIdAndEmpIdAndWorkDtAndDelYn(
+        return wrkTmRepository.findOne(
                         tenantId, coId, empId, workDt, "N")
                 .orElse(WrkTm.create(tenantId, coId, empId, workDt, null, null, null, null));
     }

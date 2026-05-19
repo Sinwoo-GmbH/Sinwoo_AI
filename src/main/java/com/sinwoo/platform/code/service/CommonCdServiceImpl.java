@@ -131,14 +131,14 @@ public class CommonCdServiceImpl implements CommonCdService {
     public CommonCdListResponse getCds(String grpCd) {
         List<CommonCdResponse> items;
         if (grpCd == null || grpCd.isBlank()) {
-            items = commonCdRepository.findAllByOrderByGrpIdAscDspOrdAscIdAsc().stream()
+            items = commonCdRepository.findAllSorted().stream()
                     .map(code -> toCdResponse(code, cdGroupRepository.findById(code.getGrpId())
                             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Code group not found"))))
                     .toList();
         } else {
             CdGroup group = cdGroupRepository.findByGrpCdIgnoreCase(normalizeCd(grpCd))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Code group not found"));
-            items = commonCdRepository.findAllByGrpIdOrderByDspOrdAscIdAsc(group.getId()).stream()
+            items = commonCdRepository.findByGrp(group.getId()).stream()
                     .map(code -> toCdResponse(code, group))
                     .toList();
         }

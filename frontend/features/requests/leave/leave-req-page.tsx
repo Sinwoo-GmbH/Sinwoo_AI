@@ -256,6 +256,7 @@ export function LeaveReqPage({
   const [approveTarget, setApproveTarget] = useState<LeaveReqRec | null>(null);
   const [rejectTarget, setRejectTarget] = useState<LeaveReqRec | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [rejectReasonErr, setRejectReasonErr] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<LeaveReqRec | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -500,6 +501,10 @@ export function LeaveReqPage({
     if (!rejectTarget) {
       return;
     }
+    if (!rejectReason.trim()) {
+      setRejectReasonErr(true);
+      return;
+    }
 
     try {
       await runWithLoading(() =>
@@ -510,6 +515,7 @@ export function LeaveReqPage({
       );
       setRejectTarget(null);
       setRejectReason("");
+      setRejectReasonErr(false);
       await refreshAfterMutation();
     } catch (error) {
       setErrorMsg(error instanceof Error ? error.message : "Failed to reject leave request.");
@@ -621,6 +627,7 @@ export function LeaveReqPage({
             onApprove={setApproveTarget}
             onReject={(rec) => {
               setRejectReason("");
+              setRejectReasonErr(false);
               setRejectTarget(rec);
             }}
             onOpen={openRowDialog}
@@ -700,16 +707,32 @@ export function LeaveReqPage({
         onClose={() => {
           setRejectTarget(null);
           setRejectReason("");
+          setRejectReasonErr(false);
         }}
         onConfirm={handleConfirmReject}
       >
-        <textarea
-          value={rejectReason}
-          rows={3}
-          onChange={(event) => setRejectReason(event.target.value)}
-          className="min-h-[58px] w-full resize-y rounded-[3px] border border-slate-300 bg-white px-2 py-1.5 text-[10px] leading-4 text-slate-700 outline-none transition focus:border-[#7E9BD8] focus:ring-1 focus:ring-[#BCD0F5]"
-          placeholder={L.rejectReasonPlaceholder}
-        />
+        <div className="space-y-1">
+          <div className="text-[10px] font-medium text-slate-600">
+            {L.rejectReasonLabel} <span className="text-red-600">*</span>
+          </div>
+          <textarea
+            value={rejectReason}
+            rows={3}
+            onChange={(event) => {
+              setRejectReason(event.target.value);
+              if (event.target.value.trim()) setRejectReasonErr(false);
+            }}
+            className={`min-h-[58px] w-full resize-y rounded-[3px] border bg-white px-2 py-1.5 text-[10px] leading-4 text-slate-700 outline-none transition focus:ring-1 ${
+              rejectReasonErr
+                ? "border-red-500 focus:border-red-500 focus:ring-red-300"
+                : "border-slate-300 focus:border-[#7E9BD8] focus:ring-[#BCD0F5]"
+            }`}
+            placeholder={L.rejectReasonPlaceholder}
+          />
+          {rejectReasonErr && (
+            <p className="text-[9px] text-red-600">{L.rejectReasonRequired}</p>
+          )}
+        </div>
       </LeaveConfirmDialog>
 
       <LeaveConfirmDialog

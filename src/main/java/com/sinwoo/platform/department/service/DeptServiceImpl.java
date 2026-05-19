@@ -37,7 +37,7 @@ public class DeptServiceImpl implements DeptService {
 
         Dept parentDept = resolveParentDept(request.tenantId(), request.coId(), request.upDeptId());
         String normalizedDeptCd = trimAndUpper(request.deptCd());
-        if (deptRepository.existsByTenantIdAndCoIdAndDeptCdIgnoreCase(request.tenantId(), request.coId(), normalizedDeptCd)) {
+        if (deptRepository.existsByCd(request.tenantId(), request.coId(), normalizedDeptCd)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Dept code already exists in company");
         }
 
@@ -59,7 +59,7 @@ public class DeptServiceImpl implements DeptService {
         refValidator.requireTenantExists(tenantId);
         refValidator.requireCoInTenant(tenantId, coId);
 
-        List<DeptResponse> items = deptRepository.findAllByTenantIdAndCoIdOrderByDeptLvlNoAscDeptNmAscIdAsc(tenantId, coId).stream()
+        List<DeptResponse> items = deptRepository.findByCo(tenantId, coId).stream()
                 .map(DeptResponse::from)
                 .toList();
 
@@ -71,7 +71,7 @@ public class DeptServiceImpl implements DeptService {
         refValidator.requireTenantExists(tenantId);
         refValidator.requireCoInTenant(tenantId, coId);
 
-        List<Dept> depts = deptRepository.findAllByTenantIdAndCoIdOrderByDeptLvlNoAscDeptNmAscIdAsc(tenantId, coId);
+        List<Dept> depts = deptRepository.findByCo(tenantId, coId);
         Map<Long, DeptNodeResponse> nodeById = new LinkedHashMap<>();
         depts.forEach(dept -> nodeById.put(dept.getId(), DeptNodeResponse.from(dept)));
 
@@ -92,7 +92,7 @@ public class DeptServiceImpl implements DeptService {
         if (upDeptId == null) {
             return null;
         }
-        return deptRepository.findByIdAndTenantIdAndCoId(upDeptId, tenantId, coId)
+        return deptRepository.findOne(upDeptId, tenantId, coId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Parent dept not found in company"));
     }
 }
