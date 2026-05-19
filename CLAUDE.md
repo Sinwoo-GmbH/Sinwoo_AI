@@ -450,12 +450,42 @@ org.gradle.jvmargs=-Djava.nio.channels.spi.SelectorProvider=sun.nio.ch.WindowsSe
 ---
 
 ## 다음 세션 시작 시 할 일
-1. ~~**서버 재기동** — V26 적용 + Hibernate CHAR(1) 수정 검증~~ ✅ 완료 (2026-05-18)
-2. ~~**V27 부서/직원 시드 마이그레이션**~~ ✅ 완료 (2026-05-18) — 부서 7건 + 직원 20건 시드 검증 완료
-3. ~~**휴가 도메인 미완료 항목 처리**~~ ✅ 대부분 완료 (2026-05-18) — 비즈니스 검증 5종, 이월 만료, reject 유효성, Repository 메서드명 전면 리팩토링
-4. **서버 재기동 검증** — Repository 메서드명 리팩토링 후 빌드 + 서버 기동 확인 필요 (Gradle loopback 이슈로 IDE에서 확인)
-5. **테스트 파일 정리** — 옛 long 메서드명 사용하는 테스트 파일들 업데이트 필요
-6. 휴가 완료 후 → **출장(Business Trip) 도메인 시작**
+
+> 마지막 세션: 2026-05-19 / 커밋: `d8ebf4e` / 브랜치: `main`
+
+### 1. 🔴 서버 재기동 + 빌드 검증 (최우선)
+- IDE에서 `SinwooBackendApplication.main` 실행
+- **확인 사항**:
+  - V27 Flyway 마이그레이션 정상 적용 (부서 7건 + 직원 20건)
+  - Repository 메서드명 리팩토링 후 Hibernate 정상 기동 (11개 Repository를 `@Query`로 전환했으므로 쿼리 파싱 에러 없는지 확인)
+  - 특히 `CommonCdRepository.findAllSorted()` — JpaRepository.findAll()과 시그니처 충돌 없는지
+  - `LeaveReqServiceImpl.validateLeaveRequest()` 신규 메서드 — 의존성 주입 정상인지 (`LeaveCoPolicyRepository` 추가됨)
+- **에러 발생 시**: 에러 로그 보고 → 해당 Repository/Service 수정
+
+### 2. 🟡 미리팩토링 Repository 정리 (platform 외)
+- `platform/` 핵심 도메인은 리팩토링 완료. 아래는 아직 긴 메서드명 남아있음:
+  - `UsrRepository` / `UsrServiceImpl` — `findAllByTenantIdAndCoIdOrderByCreatedAtDescIdDesc` 등
+  - `CoRepository` / `CoServiceImpl` — `existsByTenantIdAndCoCdIgnoreCase`, `findAllByTenantIdOrderByCreatedAtDescIdDesc`
+  - `TenantRepository` / `TenantServiceImpl` — `findAllByOrderByCreatedAtDescIdDesc`
+  - `MnuRepository` / `MnuServiceImpl` — `findAllByOrderByMnuScopeCdAscDspOrdAscIdAsc` 등
+  - `RoleMnuAuthRepository`, `RoleRepository`, `CdGroupRepository`
+  - `PayTxnRepository`, `SubscrRepository`, `SubscrPlanRepository`
+  - `AuthServiceImpl` — `findAllByUsrId`, `findAllByEmlIgnoreCase`
+- **동일 패턴**: 파생 쿼리 → `@Query` + 15자 이내 메서드명
+
+### 3. 🟡 테스트 파일 정리
+- `src/test/` 내 테스트 파일들이 옛 긴 메서드명과 옛 CD값(`PLATFORM`/`CUSTOMER` 등) 사용 중
+- `gradle test` 실행하면 컴파일 에러 발생할 수 있음
+- V19/V23에서 CD 단축 + 이번 Repository 리팩토링 반영 필요
+
+### 4. 🟢 휴가 도메인 잔여 미완료
+- **백엔드**: CD ↔ 풀네임 매핑 — 프론트 i18n alias로 임시 처리 중. `LeaveResponse.Context` 옵션을 `{cd, label}` 구조로 변경 검토
+- **프론트**: Half Day 시간 필드 (AM/PM 선택 시 시간대 표시 필요 여부), 전년도 이월일수 표시
+
+### 5. 🟢 다음 도메인: 출장(Business Trip)
+- as-is: `tb_plan_business_trip` + 결재 로직
+- 휴가 도메인과 유사 구조 (TB_APRV_LINE 공유, REQ_TP_CD='TR')
+- 순서: as-is 분석 → 테이블 설계 → Flyway → Entity/Repo → Service/DTO → Controller → 프론트
 
 ## 자주 쓰는 명령
 ```bash
