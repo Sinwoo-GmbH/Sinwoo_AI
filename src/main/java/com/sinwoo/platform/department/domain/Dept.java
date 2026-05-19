@@ -54,7 +54,9 @@ public class Dept extends BaseEntity {
     @Column(name = "DSP_ORD", nullable = false)
     private Integer dspOrd;
 
-    private Dept(Long tenantId, Long coId, String deptCd, String deptNm, Long upDeptId, Integer deptLvlNo, String stsCd) {
+    private Dept(Long tenantId, Long coId, String deptCd, String deptNm,
+                 Long upDeptId, Integer deptLvlNo, String stsCd,
+                 String regionCd, BigDecimal vacCnt, BigDecimal vacInc, Integer dspOrd) {
         this.tenantId = tenantId;
         this.coId = coId;
         this.deptCd = deptCd;
@@ -62,17 +64,37 @@ public class Dept extends BaseEntity {
         this.upDeptId = upDeptId;
         this.deptLvlNo = deptLvlNo;
         this.stsCd = stsCd;
+        this.regionCd = regionCd;
+        this.vacCnt = vacCnt;
+        this.vacInc = vacInc;
+        this.dspOrd = dspOrd != null ? dspOrd : 1;
     }
 
     public static Dept create(
-            Long tenantId,
-            Long coId,
-            String deptCd,
-            String deptNm,
-            Long upDeptId,
-            Integer deptLvlNo,
-            String stsCd
+            Long tenantId, Long coId, String deptCd, String deptNm,
+            Long upDeptId, Integer deptLvlNo, String stsCd,
+            String regionCd, BigDecimal vacCnt, BigDecimal vacInc, Integer dspOrd
     ) {
-        return new Dept(tenantId, coId, deptCd, deptNm, upDeptId, deptLvlNo, stsCd);
+        return new Dept(tenantId, coId, deptCd, deptNm, upDeptId, deptLvlNo, stsCd,
+                regionCd, vacCnt, vacInc, dspOrd);
+    }
+
+    public void update(String deptNm, Long upDeptId, Integer deptLvlNo, String regionCd,
+                        BigDecimal vacCnt, BigDecimal vacInc, Integer dspOrd) {
+        this.deptNm = deptNm;
+        this.upDeptId = upDeptId;
+        this.deptLvlNo = deptLvlNo;
+        this.regionCd = regionCd;
+        this.vacCnt = vacCnt;
+        this.vacInc = vacInc;
+        this.dspOrd = dspOrd;
+    }
+
+    public void updateDspOrd(Integer dspOrd) {
+        this.dspOrd = dspOrd;
+    }
+
+    public void softDelete() {
+        this.stsCd = "DEL";
     }
 }

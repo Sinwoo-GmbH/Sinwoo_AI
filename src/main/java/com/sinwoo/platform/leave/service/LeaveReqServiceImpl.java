@@ -231,23 +231,32 @@ public class LeaveReqServiceImpl implements LeaveReqService {
 
         boolean canDelete = isDeletable(req);
         if (!canDelete) {
-            throw badRequest("Leave cannot be deleted (must be Draft or No-Approver before start date)");
+            throw badRequest("Leave cannot be deleted");
         }
 
-        // 결재선도 soft delete
+        // 결재선 물리적 삭제
         aprvLineRepository.deleteAllByReqTpCdAndReqId(REQ_TP_LEAVE, req.getId());
-        req.softDelete();
-        // 잔여일수 복구는 calcBalance() 실제 잔여일수 로직 구현 후 자동 반영 (현재 USE_DAYS 기반 조회 시 DEL_YN='N'만 합산하면 자동 복구됨)
+
+        String sts = req.getStsCd();
+        if ("CAN".equals(sts) || "REJ".equals(sts)) {
+            // 취소/반려 건은 물리적 삭제
+            leaveReqRepository.delete(req);
+        } else {
+            // DRF, 자동승인(No-Approver) 건은 soft delete
+            req.softDelete();
+        }
     }
 
     /**
      * 삭제 가능 조건:
      * 1) Draft 상태 (DRF) — 언제든 삭제 가능
-     * 2) 결재자 없음(No Approver) + 휴가 시작일 전 — 신청자 단독 삭제 가능
+     * 2) 취소(CAN) / 반려(REJ) 상태 — 물리적 삭제 (이미 무효화된 건)
+     * 3) 결재자 없음(No Approver) + 휴가 시작일 전 — 신청자 단독 삭제 가능
      *    (자동 승인된 APR 건이지만 결재자가 없었고 아직 시작 안 한 경우)
      */
     private boolean isDeletable(LeaveReq req) {
-        if ("DRF".equals(req.getStsCd())) {
+        String sts = req.getStsCd();
+        if ("DRF".equals(sts) || "CAN".equals(sts) || "REJ".equals(sts)) {
             return true;
         }
 
@@ -255,9 +264,8 @@ public class LeaveReqServiceImpl implements LeaveReqService {
                 REQ_TP_LEAVE, req.getId(), "N");
         boolean hasApprover = lines.stream().anyMatch(l -> "APP".equals(l.getAprvTpCd()));
         boolean beforeStart = req.getStrDt() != null && LocalDate.now().isBefore(req.getStrDt());
-        boolean activeStatus = !"CAN".equals(req.getStsCd()) && !"REJ".equals(req.getStsCd());
 
-        return !hasApprover && beforeStart && activeStatus;
+        return !hasApprover && beforeStart;
     }
 
     // ── Cancel ──────────────────────────────────────────────
@@ -700,13 +708,13 @@ public class LeaveReqServiceImpl implements LeaveReqService {
         Boolean canEdit = isOwner && "DRF".equals(req.getStsCd()) ? true : null;
         Boolean canCancel = isOwner && ("REQ".equals(req.getStsCd()) || "APR".equals(req.getStsCd())) ? true : null;
 
-        // 삭제 조건: Draft 또는 (No Approver + 시작일 전 + 활성 상태)
+        // 삭제 조건: Draft / CAN / REJ 또는 (No Approver + 시작일 전)
+        String sts = req.getStsCd();
         boolean hasApprover = lines.stream().anyMatch(l -> "APP".equals(l.getAprvTpCd()));
         boolean beforeStart = req.getStrDt() != null && LocalDate.now().isBefore(req.getStrDt());
-        boolean activeStatus = !"CAN".equals(req.getStsCd()) && !"REJ".equals(req.getStsCd());
         boolean canDeleteFlag = isOwner && (
-                "DRF".equals(req.getStsCd())
-                || (!hasApprover && beforeStart && activeStatus)
+                "DRF".equals(sts) || "CAN".equals(sts) || "REJ".equals(sts)
+                || (!hasApprover && beforeStart)
         );
         Boolean canDelete = canDeleteFlag ? true : null;
 

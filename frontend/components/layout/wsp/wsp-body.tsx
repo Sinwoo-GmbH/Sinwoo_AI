@@ -2,6 +2,7 @@
 
 import { AdminAreaPage } from "@/features/admin/admin-area-page";
 import { CoHolPage } from "@/features/admin/co-hol/co-hol-page";
+import { DeptMgtPage } from "@/features/admin/dept/dept-mgt-page";
 import { MyWorkTimePage } from "@/features/attendance/my-work-time/my-work-time-page";
 import { LeaveReqPage } from "@/features/requests/leave/leave-req-page";
 import { TeamWorkTimePage } from "@/features/attendance/team-work-time/team-work-time-page";
@@ -35,7 +36,7 @@ const BODY_CLASS_NAME = "wsp-scrollbar flex-1 overflow-y-auto p-3";
 const BIZ_MNU_MOD_MAP: Record<string, string> = {
   MNU_CUSTOMER_EXPENSE_REVIEW: "FIN_MGT_EXPENSE",
   MNU_CUSTOMER_EMPLOYEES: "MST_EMP",
-  MNU_CUSTOMER_DEPARTMENTS: "MST_DEPT",
+  // MNU_CUSTOMER_DEPARTMENTS: handled by DeptMgtPage directly
   MNU_BIZ_REQ_WORK_TIME: "REQ_WORK_TIME",
   MNU_BIZ_REQ_EXPENSE: "REQ_EXPENSE",
   MNU_BIZ_REQ_TRIP: "REQ_TRIP",
@@ -205,6 +206,22 @@ export function WspBody({
           mode={mode}
           onUnauthorized={onUnauthorized}
           onLoadingChange={onLoadingChange}
+        />
+      </div>
+    );
+  }
+
+  if (
+    runtimePageId === "DEPT" ||
+    runtimePageId === "MNU_CUSTOMER_DEPARTMENTS"
+  ) {
+    return (
+      <div id="wsp-body" className={BODY_CLASS_NAME}>
+        <DeptMgtPage
+          accessToken={accessToken}
+          locale={locale}
+          onLoadingChange={onLoadingChange}
+          onUnauthorized={onUnauthorized}
         />
       </div>
     );

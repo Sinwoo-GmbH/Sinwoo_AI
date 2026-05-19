@@ -288,6 +288,8 @@ const fallbackMnuPresentationMetadata: Record<string, MnuPresentationMetadata> =
   LVPL: { icon: "settings" },
   LVGR: { icon: "list" },
   COHL: { icon: "calendar" },
+  DEPT: { icon: "building" },
+  EMPL: { icon: "usrs" },
   "client-dashboard": { icon: "grid" },
   MNU_CUSTOMER_DASH: { icon: "grid" },
   MNU_CUSTOMER_TEAM: { icon: "usrs" },
@@ -383,6 +385,8 @@ const fallbackMnuTitleTranslations: Partial<Record<string, Partial<Record<LoginL
   LVPL:  { en: "Leave Policy",       de: "Urlaubsregelung",    ko: "휴가 정책" },
   LVGR:  { en: "Leave Grants",       de: "Urlaubsvergabe",     ko: "휴가 부여" },
   COHL:  { en: "Company Holidays",   de: "Betriebsferien",     ko: "회사 휴일" },
+  DEPT:  { en: "Departments",        de: "Abteilungen",        ko: "부서관리" },
+  EMPL:  { en: "Employees",          de: "Mitarbeiter",        ko: "직원관리" },
   // ADMIN scope 단축
   TNT:   { en: "Tenant Management",        de: "Mandantenverwaltung",       ko: "테넌트 관리" },
   AUTH:  { en: "Authorization Management", de: "Berechtigungsverwaltung",   ko: "권한 관리" },

@@ -229,6 +229,7 @@ export function LeaveReqModal({
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [serverDays, setServerDays] = useState<number | null>(null);
   const [serverAfterDays, setServerAfterDays] = useState<number | null>(null);
+  const [hasOverlap, setHasOverlap] = useState(false);
   const calcTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const readOnly = mode === "view";
 
@@ -310,6 +311,7 @@ export function LeaveReqModal({
     setSubmitted(false);
     setServerDays(null);
     setServerAfterDays(null);
+    setHasOverlap(false);
     setDragPos({ x: 0, y: 0 });
   }, [initialValue, open, leaveUnitOpts]);
 
@@ -332,6 +334,12 @@ export function LeaveReqModal({
       if (result) {
         setServerDays(result.days);
         setServerAfterDays(result.afterRequestDays);
+        const isDup = result.resultCd === "DUP" && result.duplicates?.length > 0;
+        setHasOverlap(isDup);
+        if (isDup) {
+          const dup = result.duplicates[0];
+          toast.error(`${L.toastOverlap} (${dup.startDate} ~ ${dup.endDate})`);
+        }
       }
     }, 400);
 
@@ -716,6 +724,10 @@ export function LeaveReqModal({
                   type="button"
                   size="sm"
                   onClick={() => {
+                    if (hasOverlap) {
+                      toast.error(L.toastOverlap);
+                      return;
+                    }
                     const errs = validate(formValue);
                     setErrors(errs);
                     setSubmitted(true);

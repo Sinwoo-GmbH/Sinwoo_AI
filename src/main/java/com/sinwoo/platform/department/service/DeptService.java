@@ -1,15 +1,20 @@
 package com.sinwoo.platform.department.service;
 
-import com.sinwoo.platform.department.dto.CreateDeptRequest;
-import com.sinwoo.platform.department.dto.DeptListResponse;
+import com.sinwoo.common.security.AuthenticatedUsr;
+import com.sinwoo.platform.department.dto.DeptRequest;
 import com.sinwoo.platform.department.dto.DeptResponse;
-import com.sinwoo.platform.department.dto.DeptTreeResponse;
 
 public interface DeptService {
 
-    DeptResponse createDept(CreateDeptRequest request);
+    DeptResponse createDept(AuthenticatedUsr usr, DeptRequest request);
 
-    DeptListResponse getDepts(Long tenantId, Long coId);
+    DeptResponse updateDept(AuthenticatedUsr usr, Long deptId, DeptRequest request);
 
-    DeptTreeResponse getDeptTree(Long tenantId, Long coId);
+    void deleteDept(AuthenticatedUsr usr, Long deptId);
+
+    DeptResponse.ListWrap getDepts(AuthenticatedUsr usr);
+
+    DeptResponse.TreeWrap getDeptTree(AuthenticatedUsr usr);
+
+    DeptResponse.EmpCount getEmpCount(AuthenticatedUsr usr, Long deptId);
 }

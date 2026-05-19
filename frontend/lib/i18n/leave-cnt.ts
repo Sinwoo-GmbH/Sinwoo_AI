@@ -226,6 +226,7 @@ export type LeavePageMsgs = {
   confirmDeleteDesc: string;
   confirmDeleteBtn: string;
   toastDraftSaved: string;
+  toastOverlap: string;
 };
 
 const leavePageMsgs: Record<LoginLocale, LeavePageMsgs> = {
@@ -308,6 +309,7 @@ const leavePageMsgs: Record<LoginLocale, LeavePageMsgs> = {
     confirmDeleteDesc: "이 임시저장 건을 삭제하시겠습니까? 삭제 후 복구할 수 없습니다.",
     confirmDeleteBtn: "삭제",
     toastDraftSaved: "임시저장 되었습니다",
+    toastOverlap: "선택한 기간에 이미 휴가 신청이 있습니다",
   },
   en: {
     pageTitle: "Request Leave",
@@ -388,6 +390,7 @@ const leavePageMsgs: Record<LoginLocale, LeavePageMsgs> = {
     confirmDeleteDesc: "Delete this draft? This action cannot be undone.",
     confirmDeleteBtn: "Delete",
     toastDraftSaved: "Draft saved",
+    toastOverlap: "A leave request already exists for the selected dates",
   },
   de: {
     pageTitle: "Urlaubsantrag",
@@ -468,6 +471,7 @@ const leavePageMsgs: Record<LoginLocale, LeavePageMsgs> = {
     confirmDeleteDesc: "Diesen Entwurf löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
     confirmDeleteBtn: "Löschen",
     toastDraftSaved: "Als Entwurf gespeichert",
+    toastOverlap: "Für den gewählten Zeitraum liegt bereits ein Urlaubsantrag vor",
   },
 };
 

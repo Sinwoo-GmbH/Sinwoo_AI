@@ -24,4 +24,10 @@ public interface DeptRepository extends JpaRepository<Dept, Long> {
 
     @Query("SELECT d FROM Dept d WHERE d.id = :id AND d.tenantId = :tid AND d.coId = :cid")
     Optional<Dept> findOne(@Param("id") Long id, @Param("tid") Long tid, @Param("cid") Long cid);
+
+    @Query("SELECT d FROM Dept d WHERE d.tenantId = :tid AND d.coId = :cid AND d.upDeptId = :pid ORDER BY d.dspOrd ASC")
+    List<Dept> findChildren(@Param("tid") Long tid, @Param("cid") Long cid, @Param("pid") Long pid);
+
+    @Query("SELECT COUNT(d) FROM Dept d WHERE d.tenantId = :tid AND d.coId = :cid AND d.upDeptId = :pid")
+    int countChildren(@Param("tid") Long tid, @Param("cid") Long cid, @Param("pid") Long pid);
 }
