@@ -258,6 +258,64 @@
 
 ---
 
+## 부서관리 도메인 (Department Management) 진행 현황
+
+### 완료 (백엔드)
+- **Dept.java** 확장: `create()` / `update()` / `updateDspOrd()` / `softDelete()` — regionCd, vacCnt, vacInc, dspOrd 파라미터 추가
+- **DeptRequest.java** (신규): 통합 Request DTO — tenantId, coId, deptCd, deptNm, upDeptId, stsCd, regionCd, vacCnt, vacInc, dspOrd. `@NotBlank`/`@Size`/`@Pattern` 유효성.
+- **DeptResponse.java** (전면 재작성): nested records — `Node`(트리 노드 + childList), `ListWrap`, `TreeWrap`, `EmpCount`. regionCd, vacCnt, vacInc, dspOrd 필드 추가.
+- **삭제된 DTO**: CreateDeptRequest, DeptListResponse, DeptNodeResponse, DeptTreeResponse (통합 DTO로 대체)
+- **DeptRepository**: `findChildren(tid, cid, pid)`, `countChildren(tid, cid, pid)` `@Query` 추가
+- **DeptServiceImpl** (전면 재작성): as-is 비즈니스 로직 완전 복제
+  - CRUD: createDept / updateDept / deleteDept / getDepts / getDeptTree / getEmpCount
+  - **Sort 관리**: `bumpSortAfter()` (insert mode: 같은 부모 하위 형제 dspOrd +1), `shrinkSortAfter()` (delete mode: 형제 dspOrd -1)
+  - **부모 변경**: 새 부모 쪽 bump + 옛 부모 쪽 shrink
+  - **유효성**: 부서코드 중복 체크(`existsByCd`), 삭제 시 자식 부서 존재 체크(`countChildren`), 소속 직원 존재 체크(`empRepository.findByDept`)
+  - **물리적 삭제** (`deptRepository.delete()`) — as-is와 동일
+  - 모든 메서드 `AuthenticatedUsr` 기반 (tenantId + coId JWT 추출)
+- **DeptController**: REST 6개 엔드포인트 — `POST /api/v1/departments`, `PUT /{deptId}`, `DELETE /{deptId}`, `GET`, `GET /tree`, `GET /{deptId}/emp-count`
+- **V28 Flyway** (`V28__add_dept_emp_admin_menu.sql`): DEPT/EMPL 메뉴를 Customer Admin(ADMIN) 하위에 추가
+  - TB_MNU INSERT (MNU_CD='DEPT' DSP_ORD=40, MNU_CD='EMPL' DSP_ORD=50)
+  - TB_CD 번역 (MNU.CST.ADM.DEPT/EMPL — ko/en/de 3개국어, **한 레코드에 CD_NM_KO/CD_NM_EN/CD_NM_DE 컬럼 구조**)
+  - TB_ROLE_MNU_AUTH 매핑 (PADM/CADM/HR에 CRUD 부여)
+  - ⚠️ **V28 초기 실패 원인**: TB_MNU의 `MNU_URL` → 실제 `PATH_URI`, `MNU_NM` NOT NULL 누락, TB_CD_GRP에 `LANG_CD` 컬럼 없음 (한 레코드에 3개국어 컬럼 구조). 3번 수정 후 repair+재적용.
+
+### 완료 (프론트엔드)
+- **dept-mgt-page.tsx** (신규): 부서관리 메인 페이지
+  - 2패널 레이아웃: `lg:grid-cols-[59fr_41fr]` (좌: 조직도 트리 / 우: 상세 폼) — as-is deptList.html 비율 복제
+  - **트리 패널**: `GET /tree` API로 DeptNodeResponse 재귀 렌더링, expand/collapse, 노드 선택 시 상세 폼 자동 채움
+  - **상세 폼**: Create/Edit 모드 — 부서코드(생성시만 입력, edit시 disabled), 부서명, 상위부서(읽기전용), 지역코드(독일 16개 주 select), 상태(Active/Inactive), 기본 휴가일수, 근속 가산일수, 정렬순서
+  - **소속 직원 수**: `GET /{deptId}/emp-count` 호출, 상세 폼 하단 표시
+  - **삭제**: ConfirmDialog(danger variant), 백엔드 에러 메시지 파싱 (child dept / employee 존재 시 toast 안내)
+  - **hover 액션**: 트리 노드 hover 시 하위부서 추가(FolderPlus) + 삭제(Trash2) 아이콘
+  - 필수필드 `*` 마커 + toast.error + 필드별 빨간 보더 에러
+- **dept-cnt.ts** (신규): 부서관리 i18n — `DeptMgtMsgs` 타입 (37개 라벨 ko/en/de)
+  - `regionLabel()`: 독일 16개 주 3개국어 라벨 (`HE`→헤센/Hessen, `BY`→바이에른/Bayern 등)
+  - `REGION_OPTIONS`: 지역 선택 옵션 배열
+- **dept-contract.ts** (전면 재작성): 백엔드 DeptResponse.java와 정확히 매칭
+  - `DeptRequest`, `DeptResponse`, `DeptNodeResponse`, `DeptListResponse`, `DeptTreeResponse`, `DeptEmpCountResponse`
+- **wsp-body.tsx**: `DEPT` / `MNU_CUSTOMER_DEPARTMENTS` → DeptMgtPage 라우팅 추가, BIZ_MNU_MOD_MAP에서 제거
+- **platform-shell-data.ts**: `DEPT`(building 아이콘) + `EMPL`(usrs 아이콘) fallback metadata + 번역(ko/en/de) 추가
+
+### 미완료 (프론트엔드)
+- **V28 서버 적용 후 실제 화면 테스트**: 서버 재기동 → 사이드바 Admin → 부서관리 클릭 → API 연동 확인
+- **직원관리 페이지**: 사용자가 "부서관리부터" 요청 → 부서관리 완료 후 직원관리 진행 예정
+
+---
+
+## 휴가 도메인 추가 변경 (2026-05-19)
+
+### 중복 휴가 신청 감지 + toast 알림
+- **leave-req-modal.tsx**: `hasOverlap` state 추가. `calculateDays` 결과에서 `resultCd === "DUP"` 감지 시 `setHasOverlap(true)` + `toast.error(L.toastOverlap + 날짜범위)`. Submit 버튼 클릭 시 `hasOverlap`이면 toast 에러 + return (제출 차단). 모달 open 시 `setHasOverlap(false)` 리셋.
+- **leave-cnt.ts**: `toastOverlap` 라벨 추가 — ko:"선택한 기간에 이미 휴가 신청이 있습니다" / en:"A leave request already exists for the selected dates" / de:"Für den gewählten Zeitraum liegt bereits ein Urlaubsantrag vor"
+
+### CAN/REJ 물리적 삭제
+- **LeaveReqServiceImpl.deleteLeave()**: 취소(CAN)/반려(REJ) 건은 `leaveReqRepository.delete(req)`로 물리적 삭제. DRF/기타 상태는 기존 soft delete 유지.
+- **LeaveReqServiceImpl.isDeletable()**: CAN/REJ를 삭제 가능 상태로 추가 (DRF와 함께 즉시 true 반환)
+- **LeaveReqServiceImpl.toItem()**: canDelete 플래그에 CAN/REJ 포함
+
+---
+
 ## 로컬 개발 환경
 
 ### Docker
@@ -451,18 +509,35 @@ org.gradle.jvmargs=-Djava.nio.channels.spi.SelectorProvider=sun.nio.ch.WindowsSe
 
 ## 다음 세션 시작 시 할 일
 
-> 마지막 세션: 2026-05-19 / 커밋: `d8ebf4e` / 브랜치: `main`
+> 마지막 세션: 2026-05-19 / 커밋: `c2c7fdf` / 브랜치: `main`
 
-### 1. 🔴 서버 재기동 + 빌드 검증 (최우선)
+### 1. 🔴 서버 재기동 + V28 적용 (최우선)
 - IDE에서 `SinwooBackendApplication.main` 실행
 - **확인 사항**:
-  - V27 Flyway 마이그레이션 정상 적용 (부서 7건 + 직원 20건)
-  - Repository 메서드명 리팩토링 후 Hibernate 정상 기동 (11개 Repository를 `@Query`로 전환했으므로 쿼리 파싱 에러 없는지 확인)
-  - 특히 `CommonCdRepository.findAllSorted()` — JpaRepository.findAll()과 시그니처 충돌 없는지
-  - `LeaveReqServiceImpl.validateLeaveRequest()` 신규 메서드 — 의존성 주입 정상인지 (`LeaveCoPolicyRepository` 추가됨)
-- **에러 발생 시**: 에러 로그 보고 → 해당 Repository/Service 수정
+  - V28 Flyway 마이그레이션 정상 적용 (DEPT/EMPL 메뉴 + 번역 + 권한 매핑)
+  - ⚠️ V28은 이전 세션에서 3번 실패 후 repair한 상태. `flyway_schema_history`에서 V28 실패 기록을 수동 DELETE했으므로, 재기동 시 V28이 처음부터 다시 적용됨.
+  - DEPT 메뉴가 사이드바 Admin 하위에 나타나는지 확인
+  - `GET /api/v1/departments/tree` API 호출하여 부서 트리 7건 응답 확인
+- **V28 실패 시**: `flyway_schema_history`에서 실패 기록 삭제 → SQL 수정 → 재기동. V28 SQL은 이미 3번 수정 완료 상태이므로 성공할 것.
 
-### 2. 🟡 미리팩토링 Repository 정리 (platform 외)
+### 2. 🔴 프론트엔드 부서관리 화면 테스트
+- `frontend/` 디렉토리에서 `npm run dev`
+- 로그인 → 사이드바 Admin → 부서관리(DEPT) 클릭
+- **확인 사항**:
+  - 좌측 트리 패널에 7개 부서 표시 (SWH, IT, SEG, SSEG, QEG, QCL, HMSG)
+  - 부서 클릭 → 우측 상세 폼에 정보 채워짐
+  - 신규 부서 생성 (최상위 / 하위)
+  - 부서 수정 (이름, 지역, 휴가일수 등)
+  - 부서 삭제 (자식 부서/직원 있으면 에러 메시지)
+  - 정렬순서 변경 후 트리 반영
+
+### 3. 🟡 직원관리 (Employee Management) 페이지
+- 부서관리와 동일한 패턴으로 진행
+- 백엔드: EmpController/EmpService 이미 기본 구조 있음, CRUD 확장 필요
+- 프론트: `frontend/features/admin/emp/emp-mgt-page.tsx` 신규
+- V28에서 EMPL 메뉴 + 권한 이미 시드됨 → wsp-body.tsx에 EMPL 라우팅 추가만 하면 됨
+
+### 4. 🟡 미리팩토링 Repository 정리 (platform 외)
 - `platform/` 핵심 도메인은 리팩토링 완료. 아래는 아직 긴 메서드명 남아있음:
   - `UsrRepository` / `UsrServiceImpl` — `findAllByTenantIdAndCoIdOrderByCreatedAtDescIdDesc` 등
   - `CoRepository` / `CoServiceImpl` — `existsByTenantIdAndCoCdIgnoreCase`, `findAllByTenantIdOrderByCreatedAtDescIdDesc`
@@ -473,16 +548,16 @@ org.gradle.jvmargs=-Djava.nio.channels.spi.SelectorProvider=sun.nio.ch.WindowsSe
   - `AuthServiceImpl` — `findAllByUsrId`, `findAllByEmlIgnoreCase`
 - **동일 패턴**: 파생 쿼리 → `@Query` + 15자 이내 메서드명
 
-### 3. 🟡 테스트 파일 정리
+### 5. 🟡 테스트 파일 정리
 - `src/test/` 내 테스트 파일들이 옛 긴 메서드명과 옛 CD값(`PLATFORM`/`CUSTOMER` 등) 사용 중
 - `gradle test` 실행하면 컴파일 에러 발생할 수 있음
-- V19/V23에서 CD 단축 + 이번 Repository 리팩토링 반영 필요
+- V19/V23에서 CD 단축 + Repository 리팩토링 반영 필요
 
-### 4. 🟢 휴가 도메인 잔여 미완료
+### 6. 🟢 휴가 도메인 잔여 미완료
 - **백엔드**: CD ↔ 풀네임 매핑 — 프론트 i18n alias로 임시 처리 중. `LeaveResponse.Context` 옵션을 `{cd, label}` 구조로 변경 검토
 - **프론트**: Half Day 시간 필드 (AM/PM 선택 시 시간대 표시 필요 여부), 전년도 이월일수 표시
 
-### 5. 🟢 다음 도메인: 출장(Business Trip)
+### 7. 🟢 다음 도메인: 출장(Business Trip)
 - as-is: `tb_plan_business_trip` + 결재 로직
 - 휴가 도메인과 유사 구조 (TB_APRV_LINE 공유, REQ_TP_CD='TR')
 - 순서: as-is 분석 → 테이블 설계 → Flyway → Entity/Repo → Service/DTO → Controller → 프론트
